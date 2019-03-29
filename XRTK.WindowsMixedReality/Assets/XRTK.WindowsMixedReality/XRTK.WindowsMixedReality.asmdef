@@ -2,7 +2,6 @@
     "name": "XRTK.WindowsMixedReality",
     "references": [
         "XRTK",
-        "XRTK.Utilities.Async"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
