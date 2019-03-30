@@ -2,6 +2,9 @@
   "dependencies": {
     "com.unity.analytics": "3.2.2",
     "com.unity.package-manager-ui": "2.0.7",
+    "com.xrtk.upm-git-extension": "https://github.com/XRTK/UpmGitExtension.git#0.9.0",
+    "com.xrtk.xrtk-core": "https://github.com/XRTK/XRTK-Core.git#0.1.1",
+    "com.xrtk.xrtk-sdk": "https://github.com/XRTK/SDK.git#0.1.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
@@ -32,5 +35,19 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
+  },
+  "lock": {
+    "com.xrtk.upm-git-extension": {
+      "hash": "61758973ac97cbf031fe5bab047a43fe4edf28de",
+      "revision": "0.9.0"
+    },
+    "com.xrtk.xrtk-core": {
+      "hash": "ecc68de0f09055fecd759c6f7f326a4f62b91900",
+      "revision": "0.1.1"
+    },
+    "com.xrtk.xrtk-sdk": {
+      "hash": "bd19848cd567660352133a33e921cb695f8f9ad3",
+      "revision": "0.1.0"
+    }
   }
 }
