@@ -564,6 +564,7 @@ PlayerSettings:
   platformCapabilities:
     WindowsStoreApps:
       Microphone: True
+      SpatialPerception: True
   metroTargetDeviceFamilies: {}
   metroFTAName: 
   metroFTAFileTypes: []
