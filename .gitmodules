@@ -1,0 +1,3 @@
+[submodule "Submodules/UpmGitExtension"]
+	path = Submodules/UpmGitExtension
+	url = https://github.com/XRTK/UpmGitExtension.git
