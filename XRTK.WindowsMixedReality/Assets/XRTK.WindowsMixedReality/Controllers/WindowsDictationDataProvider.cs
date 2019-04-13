@@ -26,7 +26,8 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="name"></param>
         /// <param name="priority"></param>
 
-        public WindowsDictationDataProvider(string name, uint priority) : base(name, priority)
+        public WindowsDictationDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
+            : base(name, priority, profile)
         {
 #if UNITY_STANDALONE_WIN || UNITY_WSA || UNITY_EDITOR_WIN
             if (dictationRecognizer == null)
@@ -176,7 +177,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             // Query the maximum frequency of the default microphone.
             deviceName = micDeviceName;
-            Microphone.GetDeviceCaps(deviceName, out int minSamplingRate, out samplingRate);
+            Microphone.GetDeviceCaps(deviceName, out var minSamplingRate, out samplingRate);
 
             dictationRecognizer.InitialSilenceTimeoutSeconds = initialSilenceTimeout;
             dictationRecognizer.AutoSilenceTimeoutSeconds = autoSilenceTimeout;

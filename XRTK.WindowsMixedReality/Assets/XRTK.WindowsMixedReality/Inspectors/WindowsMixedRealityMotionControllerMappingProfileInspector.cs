@@ -3,9 +3,12 @@
 
 using UnityEditor;
 using XRTK.Inspectors.Profiles;
+using XRTK.WindowsMixedReality.Profiles;
 
-namespace XRTK.WindowsMixedReality.Profiles.Inspectors
+namespace XRTK.WindowsMixedReality.Inspectors
 {
     [CustomEditor(typeof(WindowsMixedRealityMotionControllerMappingProfile))]
-    public class WindowsMixedRealityMotionControllerMappingProfileInspector : BaseMixedRealityControllerMappingProfileInspector { }
+    public class WindowsMixedRealityMotionControllerMappingProfileInspector : BaseMixedRealityControllerMappingProfileInspector
+    {
+    }
 }
