@@ -67,5 +67,7 @@ ThirdParty.meta
 XRTK-Core/Assets/StreamingAssets/GltfModels/
 XRTK-Core/Assets/StreamingAssets/GltfModels.meta
 XRTK-Core/Assets/StreamingAssets.meta
-XRTK.WindowsMixedReality/Assets/XRTK/
+XRTK.WindowsMixedReality/Assets/XRTK
 XRTK.WindowsMixedReality/Assets/XRTK.meta
+XRTK.WindowsMixedReality/Assets/XRTK.SDK
+XRTK.WindowsMixedReality/Assets/XRTK.SDK.meta
