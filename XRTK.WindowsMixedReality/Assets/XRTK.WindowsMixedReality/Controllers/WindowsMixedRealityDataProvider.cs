@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Providers.Controllers;
+using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
 using System.Collections.Generic;
@@ -38,15 +39,18 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// </summary>
         /// <param name="name"></param>
         /// <param name="priority"></param>
-        public WindowsMixedRealityDataProvider(string name, uint priority) : base(name, priority)
+        public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile) : base(name, priority, profile)
         {
 #if UNITY_WSA
+            this.profile = profile;
             gestureRecognizer = new GestureRecognizer();
             navigationGestureRecognizer = new GestureRecognizer();
 #endif // UNITY_WSA
         }
 
 #if UNITY_WSA
+
+        private readonly WindowsMixedRealityControllerDataProviderProfile profile;
 
         /// <summary>
         /// Dictionary to capture all active controllers detected
@@ -240,10 +244,10 @@ namespace XRTK.WindowsMixedReality.Controllers
                 MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.GesturesProfile != null)
             {
                 var gestureProfile = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.GesturesProfile;
-                GestureSettings = gestureProfile.ManipulationGestures;
-                NavigationSettings = gestureProfile.NavigationGestures;
-                RailsNavigationSettings = gestureProfile.RailsNavigationGestures;
-                UseRailsNavigation = gestureProfile.UseRailsNavigation;
+                GestureSettings = profile.ManipulationGestures;
+                NavigationSettings = profile.NavigationGestures;
+                RailsNavigationSettings = profile.RailsNavigationGestures;
+                UseRailsNavigation = profile.UseRailsNavigation;
 
                 for (int i = 0; i < gestureProfile.Gestures.Length; i++)
                 {
@@ -289,7 +293,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             if (MixedRealityToolkit.Instance.ActiveProfile.IsInputSystemEnabled &&
                 MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.GesturesProfile != null &&
-                MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.GesturesProfile.WindowsGestureAutoStart == AutoStartBehavior.AutoStart)
+                profile.WindowsGestureAutoStart == AutoStartBehavior.AutoStart)
             {
                 GestureRecognizerEnabled = true;
             }
