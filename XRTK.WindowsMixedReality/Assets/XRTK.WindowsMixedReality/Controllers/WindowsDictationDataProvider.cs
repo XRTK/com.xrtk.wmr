@@ -25,7 +25,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// </summary>
         /// <param name="name"></param>
         /// <param name="priority"></param>
-
+        /// <param name="profile"></param>
         public WindowsDictationDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {

@@ -39,7 +39,9 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// </summary>
         /// <param name="name"></param>
         /// <param name="priority"></param>
-        public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile) : base(name, priority, profile)
+        /// <param name="profile"></param>
+        public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
+            : base(name, priority, profile)
         {
 #if UNITY_WSA
             this.profile = profile;
