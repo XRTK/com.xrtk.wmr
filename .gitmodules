@@ -4,3 +4,6 @@
 [submodule "Submodules/SDK"]
 	path = Submodules/SDK
 	url = https://github.com/XRTK/SDK.git
+[submodule "Submodules/XRTK-Core"]
+	path = Submodules/XRTK-Core
+	url = https://github.com/XRTK/XRTK-Core.git
