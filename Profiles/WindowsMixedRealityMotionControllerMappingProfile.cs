@@ -10,7 +10,7 @@ using XRTK.WindowsMixedReality.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Mixed Reality Controller Mappings/Windows Mixed Reality Controller Mapping Profile", fileName = "WindowsMixedRealityControllerMappingProfile")]
+    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Mappings/Windows Mixed Reality Controller Mapping Profile", fileName = "WindowsMixedRealityControllerMappingProfile")]
     public class WindowsMixedRealityMotionControllerMappingProfile : BaseMixedRealityControllerMappingProfile
     {
         /// <inheritdoc />
