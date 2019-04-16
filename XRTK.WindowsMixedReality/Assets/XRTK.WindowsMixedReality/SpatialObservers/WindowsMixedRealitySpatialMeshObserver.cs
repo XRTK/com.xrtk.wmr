@@ -37,12 +37,9 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
             {
                 UnityEditor.PlayerSettings.WSA.SetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception, true);
             }
+
 #endif // UNITY_EDITOR
-
             observer = new SurfaceObserver();
-
-            // Apply the initial observer volume settings.
-            ConfigureObserverVolume(ObserverOrigin, ObservationExtents);
 #endif // UNITY_WSA
         }
 
@@ -168,14 +165,14 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                         return;
                     }
 
-                    if (!SpatialMeshObjects.TryGetValue(cookedData.id.handle, out SpatialMeshObject meshObject))
+                    if (!SpatialMeshObjects.TryGetValue(cookedData.id.handle, out var meshObject))
                     {
                         // Likely it was removed before data could be cooked.
                         return;
                     }
 
                     // Apply the appropriate material to the mesh.
-                    SpatialMeshDisplayOptions displayOption = MeshDisplayOption;
+                    var displayOption = MeshDisplayOption;
 
                     if (displayOption != SpatialMeshDisplayOptions.None)
                     {
@@ -208,7 +205,7 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                     }
                 }
             }
-            else if (SpatialMeshObjects.TryGetValue(surfaceId.handle, out SpatialMeshObject meshObject))
+            else if (SpatialMeshObjects.TryGetValue(surfaceId.handle, out var meshObject))
             {
                 RaiseMeshRemoved(meshObject);
             }
