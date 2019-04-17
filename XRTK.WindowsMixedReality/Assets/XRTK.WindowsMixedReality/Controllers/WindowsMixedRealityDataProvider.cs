@@ -55,6 +55,12 @@ namespace XRTK.WindowsMixedReality.Controllers
         private readonly WindowsMixedRealityControllerDataProviderProfile profile;
 
         /// <summary>
+        /// The max expected sources is two - two controllers and/or two hands.
+        /// We'll set it to 20 just to be certain we can't run out of sources.
+        /// </summary>
+        public const int MaxInteractionSourceStates = 20;
+
+        /// <summary>
         /// Dictionary to capture all active controllers detected
         /// </summary>
         private readonly Dictionary<uint, IMixedRealityController> activeControllers = new Dictionary<uint, IMixedRealityController>();
@@ -62,7 +68,12 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <summary>
         /// Cache of the states captured from the Unity InteractionManager for UWP
         /// </summary>
-        private InteractionSourceState[] interactionManagerStates;
+        InteractionSourceState[] interactionManagerStates = new InteractionSourceState[MaxInteractionSourceStates];
+
+        /// <summary>
+        /// The number of states captured most recently
+        /// </summary>
+        private int numInteractionManagerStates;
 
         /// <summary>
         /// The current source state reading for the Unity InteractionManager for UWP
@@ -279,10 +290,10 @@ namespace XRTK.WindowsMixedReality.Controllers
             InteractionManager.InteractionSourceDetected += InteractionManager_InteractionSourceDetected;
             InteractionManager.InteractionSourceLost += InteractionManager_InteractionSourceLost;
 
-            interactionManagerStates = InteractionManager.GetCurrentReading();
+            numInteractionManagerStates = InteractionManager.GetCurrentReading(interactionManagerStates);
 
             // NOTE: We update the source state data, in case an app wants to query it on source detected.
-            for (var i = 0; i < interactionManagerStates?.Length; i++)
+            for (var i = 0; i < numInteractionManagerStates; i++)
             {
                 var controller = GetController(interactionManagerStates[i].source);
 
@@ -306,9 +317,9 @@ namespace XRTK.WindowsMixedReality.Controllers
         {
             base.Update();
 
-            interactionManagerStates = InteractionManager.GetCurrentReading();
+            numInteractionManagerStates = InteractionManager.GetCurrentReading(interactionManagerStates);
 
-            for (var i = 0; i < interactionManagerStates?.Length; i++)
+            for (var i = 0; i < numInteractionManagerStates; i++)
             {
                 GetController(interactionManagerStates[i].source, false)?.UpdateController(interactionManagerStates[i]);
             }
