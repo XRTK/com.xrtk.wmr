@@ -1,1 +1,0 @@
-Apperantly Unity needs something in the Assets folder of it doesn't think it's a valid project.
