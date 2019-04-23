@@ -36,7 +36,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.SpeechCommandsProfile == null)
             {
-                throw new Exception($"Missing required speech commands profile!");
+                throw new Exception("Missing required speech commands profile!");
             }
 
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.SpeechCommandsProfile.SpeechCommands == null)
