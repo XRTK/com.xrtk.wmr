@@ -20,7 +20,13 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// </summary>
     public class WindowsSpeechDataProvider : BaseSpeechDataProvider
     {
-        public WindowsSpeechDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile) 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="priority"></param>
+        /// <param name="profile"></param>
+        public WindowsSpeechDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile == null)
@@ -30,7 +36,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.SpeechCommandsProfile == null)
             {
-                throw new Exception("Missing required speech commands profile!");
+                throw new Exception($"Missing required speech commands profile!");
             }
 
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.SpeechCommandsProfile.SpeechCommands == null)

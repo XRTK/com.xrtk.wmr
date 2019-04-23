@@ -177,7 +177,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             // Query the maximum frequency of the default microphone.
             deviceName = micDeviceName;
-            Microphone.GetDeviceCaps(deviceName, out var minSamplingRate, out samplingRate);
+            Microphone.GetDeviceCaps(deviceName, out _, out samplingRate);
 
             dictationRecognizer.InitialSilenceTimeoutSeconds = initialSilenceTimeout;
             dictationRecognizer.AutoSilenceTimeoutSeconds = autoSilenceTimeout;
