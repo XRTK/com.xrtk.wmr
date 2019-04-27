@@ -117,8 +117,8 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         /// <summary>
         /// The device audio sampling rate.
-        /// <remarks>Set by UnityEngine.Microphone.<see cref="Microphone.GetDeviceCaps"/></remarks>
         /// </summary>
+        /// <remarks>Set by UnityEngine.Microphone.<see cref="Microphone.GetDeviceCaps"/></remarks>
         private int samplingRate;
 
         /// <summary>
