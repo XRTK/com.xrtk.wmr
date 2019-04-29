@@ -1,10 +1,12 @@
 {
   "dependencies": {
-    "com.unity.analytics": "3.3.2",
     "com.unity.package-manager-ui": "2.1.2",
+    "com.unity.textmeshpro": "2.0.0",
     "com.unity.xr.legacyinputhelpers": "2.0.2",
+    "com.unity.xr.oculus.standalone": "1.29.1",
+    "com.unity.xr.openvr.standalone": "1.0.5",
     "com.unity.xr.windowsmr.metro": "1.0.8",
-    "com.xrtk.core": "https://github.com/XRTK/XRTK-Core.git#0.1.4",
+    "com.xrtk.core": "https://github.com/XRTK/XRTK-Core.git#0.1.5",
     "com.xrtk.lumin": "https://github.com/XRTK/Lumin.git#0.1.0",
     "com.xrtk.sdk": "https://github.com/XRTK/SDK.git#0.1.3",
     "com.xrtk.upm-git-extension": "https://github.com/XRTK/UpmGitExtension.git#0.9.4",
@@ -41,8 +43,8 @@
   },
   "lock": {
     "com.xrtk.core": {
-      "hash": "925940cff60d2619045d6624c03989d96feacb91",
-      "revision": "0.1.4"
+      "hash": "b75aa57e097565bfb1c00a728c0e9b8714dee3c2",
+      "revision": "0.1.5"
     },
     "com.xrtk.lumin": {
       "hash": "cf91e467e7151a830e36d39ecad2cd34cff32ae0",
