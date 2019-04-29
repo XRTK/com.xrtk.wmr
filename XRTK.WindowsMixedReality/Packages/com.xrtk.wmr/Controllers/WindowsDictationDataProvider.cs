@@ -117,8 +117,8 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         /// <summary>
         /// The device audio sampling rate.
-        /// <remarks>Set by UnityEngine.Microphone.<see cref="Microphone.GetDeviceCaps"/></remarks>
         /// </summary>
+        /// <remarks>Set by UnityEngine.Microphone.<see cref="Microphone.GetDeviceCaps"/></remarks>
         private int samplingRate;
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             // Query the maximum frequency of the default microphone.
             deviceName = micDeviceName;
-            Microphone.GetDeviceCaps(deviceName, out var minSamplingRate, out samplingRate);
+            Microphone.GetDeviceCaps(deviceName, out _, out samplingRate);
 
             dictationRecognizer.InitialSilenceTimeoutSeconds = initialSilenceTimeout;
             dictationRecognizer.AutoSilenceTimeoutSeconds = autoSilenceTimeout;

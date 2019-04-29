@@ -20,7 +20,13 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// </summary>
     public class WindowsSpeechDataProvider : BaseSpeechDataProvider
     {
-        public WindowsSpeechDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile) 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="priority"></param>
+        /// <param name="profile"></param>
+        public WindowsSpeechDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {
             if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile == null)

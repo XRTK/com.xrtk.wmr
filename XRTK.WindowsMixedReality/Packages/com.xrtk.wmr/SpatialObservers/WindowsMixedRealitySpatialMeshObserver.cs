@@ -2,14 +2,17 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using XRTK.Providers.SpatialObservers;
+using XRTK.Services;
+using XRTK.WindowsMixedReality.Profiles;
+
+#if UNITY_WSA
 using UnityEngine;
 using UnityEngine.XR.WSA;
-using XRTK.Providers.SpatialObservers;
 using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Extensions;
-using XRTK.Services;
 using XRTK.Utilities;
-using XRTK.WindowsMixedReality.Profiles;
+#endif // UNITY_WSA
 
 namespace XRTK.WindowsMixedReality.SpatialObservers
 {
@@ -39,7 +42,10 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
             }
 
 #endif // UNITY_EDITOR
-            observer = new SurfaceObserver();
+            if (observer == null)
+            {
+                observer = new SurfaceObserver();
+            }
 #endif // UNITY_WSA
         }
 
