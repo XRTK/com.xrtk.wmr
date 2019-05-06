@@ -3,10 +3,8 @@
 
 using UnityEditor;
 using UnityEngine;
-using XRTK.Definitions;
 using XRTK.Inspectors.Profiles;
 using XRTK.Inspectors.Utilities;
-using XRTK.Services;
 using XRTK.WindowsMixedReality.Profiles;
 
 namespace XRTK.WindowsMixedReality.Inspectors
@@ -24,11 +22,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
         {
             base.OnEnable();
 
-            if (!MixedRealityInspectorUtility.CheckMixedRealityConfigured(false))
-            {
-                return;
-            }
-
             windowsManipulationGestureSettings = serializedObject.FindProperty("manipulationGestures");
             useRailsNavigation = serializedObject.FindProperty("useRailsNavigation");
             windowsNavigationGestureSettings = serializedObject.FindProperty("navigationGestures");
@@ -40,18 +33,17 @@ namespace XRTK.WindowsMixedReality.Inspectors
         {
             MixedRealityInspectorUtility.RenderMixedRealityToolkitLogo();
 
-            if (!MixedRealityInspectorUtility.CheckMixedRealityConfigured()) { return; }
-
-            if (GUILayout.Button("Back to Controller Data Providers"))
+            if (thisProfile.ParentProfile != null &&
+                GUILayout.Button("Back to Controller Data Providers"))
             {
-                Selection.activeObject = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerDataProvidersProfile;
+                Selection.activeObject = thisProfile.ParentProfile;
             }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Mixed Reality Controller Data Provider Settings", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("This profile aids in configuring additional platform settings for the registered controller data provider. This can be anything from additional gestures or platform specific settings.", MessageType.Info);
 
-            (target as BaseMixedRealityProfile).CheckProfileLock();
+            thisProfile.CheckProfileLock();
 
             serializedObject.Update();
             EditorGUILayout.Space();
