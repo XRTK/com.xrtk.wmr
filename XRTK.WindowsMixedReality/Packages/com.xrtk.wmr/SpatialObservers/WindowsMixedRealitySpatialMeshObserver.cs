@@ -3,7 +3,6 @@
 
 using System;
 using XRTK.Providers.SpatialObservers;
-using XRTK.Services;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
@@ -29,11 +28,6 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
         /// <param name="profile"></param>
         public WindowsMixedRealitySpatialMeshObserver(string name, uint priority, WindowsMixedRealitySpatialMeshObserverProfile profile) : base(name, priority, profile)
         {
-            if (MixedRealityToolkit.SpatialAwarenessSystem == null)
-            {
-                throw new Exception("Missing a registered spatial awareness system!");
-            }
-
 #if UNITY_WSA
 #if UNITY_EDITOR 
             if (!UnityEditor.PlayerSettings.WSA.GetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception))
