@@ -2,7 +2,7 @@
   "name": "com.xrtk.wmr",
   "displayName": "XRTK.WindowsMixedReality",
   "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "unity": "2019.1",
   "license": "MIT",
   "repository": {
@@ -12,6 +12,6 @@
   "src": "Assets/XRTK.WindowsMixedReality",
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.1.5"
+    "com.xrtk.core": "0.1.10"
   }
 }
