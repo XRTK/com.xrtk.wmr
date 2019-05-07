@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15c83ddfe69772747b49823a06d56d32, type: 3}
   m_Name: MixedRealityPackageSettings
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   mixedRealityPackages:
   - name: com.xrtk.upm-git-extension
     displayName: XRTK.UpmGitExtension
@@ -30,10 +30,10 @@ MonoBehaviour:
     uri: https://github.com/XRTK/Lumin.git
     isDefaultPackage: 1
     isRequiredPackage: 0
-    isEnabled: 1
+    isEnabled: 0
   - name: com.xrtk.sdk
     displayName: XRTK.SDK
     uri: https://github.com/XRTK/SDK.git
     isDefaultPackage: 1
     isRequiredPackage: 0
-    isEnabled: 1
+    isEnabled: 0
