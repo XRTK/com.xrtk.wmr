@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using XRTK.Providers.SpatialObservers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
+using System;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 using XRTK.Definitions.SpatialAwarenessSystem;
@@ -189,7 +189,14 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                     // Recalculate the mesh normals if requested.
                     if (MeshRecalculateNormals)
                     {
-                        meshObject.Filter.sharedMesh.RecalculateNormals();
+                        if (meshObject.Filter.sharedMesh != null)
+                        {
+                            meshObject.Filter.sharedMesh.RecalculateNormals();
+                        }
+                        else
+                        {
+                            meshObject.Filter.mesh.RecalculateNormals();
+                        }
                     }
 
                     meshObject.GameObject.SetActive(true);
