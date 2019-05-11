@@ -176,13 +176,16 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
 
                     if (displayOption != SpatialMeshDisplayOptions.None)
                     {
-                        meshObject.Renderer.enabled = true;
+                        meshObject.Collider.enabled = true;
+                        meshObject.Renderer.enabled = displayOption == SpatialMeshDisplayOptions.Visible ||
+                                                      displayOption == SpatialMeshDisplayOptions.Occlusion;
                         meshObject.Renderer.sharedMaterial = (displayOption == SpatialMeshDisplayOptions.Visible)
                             ? MeshVisibleMaterial
                             : MeshOcclusionMaterial;
                     }
                     else
                     {
+                        meshObject.Collider.enabled = false;
                         meshObject.Renderer.enabled = false;
                     }
 
