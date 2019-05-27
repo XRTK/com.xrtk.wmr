@@ -29,7 +29,7 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
         public WindowsMixedRealitySpatialMeshObserver(string name, uint priority, WindowsMixedRealitySpatialMeshObserverProfile profile) : base(name, priority, profile)
         {
 #if UNITY_WSA
-#if UNITY_EDITOR 
+#if UNITY_EDITOR
             if (!UnityEditor.PlayerSettings.WSA.GetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception))
             {
                 UnityEditor.PlayerSettings.WSA.SetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception, true);
@@ -93,9 +93,9 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
         /// </summary>
         private Vector3 currentObserverOrigin = Vector3.zero;
 
-        /// <summary> 
-        /// The observation extents that are currently in use by the surface observer. 
-        /// </summary> 
+        /// <summary>
+        /// The observation extents that are currently in use by the surface observer.
+        /// </summary>
         private Vector3 currentObserverExtents = Vector3.zero;
 
         /// <summary>
@@ -147,8 +147,9 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
             if (changeType != SurfaceChange.Removed)
             {
                 var spatialMeshObject = await RequestSpatialMeshObject(surfaceId.handle);
-                spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId.handle.ToString()}";
-                spatialMeshObject.ParentAnchor.name = $"SpatialAnchor_{surfaceId.handle.ToString()}";
+                var meshId = surfaceId.handle.ToString();
+                spatialMeshObject.GameObject.name = $"SpatialMesh_{meshId}";
+                spatialMeshObject.Anchor.name = $"SpatialAnchor_{meshId}";
 
                 // The WorldAnchor component places its object where the anchor is in the same space as the camera.
                 // But since the camera is repositioned by the MixedRealityPlayspace's transform, the meshes' transforms
@@ -158,14 +159,14 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                 // That adapting the WorldAnchor's transform into playspace is done by the internal PlayspaceAdapter component.
                 // The GameObject the WorldAnchor is placed on is unimportant, but it is convenient for cleanup to make it a child
                 // of the GameObject whose transform will track it.
-                var worldAnchor = spatialMeshObject.ParentAnchor.EnsureComponent<WorldAnchor>();
-                spatialMeshObject.ParentAnchor.EnsureComponent<PlayspaceAnchorAdapter>();
+                var worldAnchor = spatialMeshObject.Anchor.EnsureComponent<WorldAnchor>();
+                spatialMeshObject.Anchor.EnsureComponent<PlayspaceAnchorAdapter>();
 
                 var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, MeshTrianglesPerCubicMeter, true);
 
                 if (!observer.RequestMeshAsync(surfaceData, OnDataReady))
                 {
-                    Debug.LogError($"Mesh request failed for spatial observer with Id {surfaceId.handle.ToString()}");
+                    Debug.LogError($"Mesh request failed for spatial observer with Id {meshId}");
                     RaiseMeshRemoved(spatialMeshObject);
                 }
 
@@ -215,7 +216,6 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                     }
 
                     meshObject.GameObject.SetActive(true);
-                    meshObject.ParentAnchor.SetActive(true);
 
                     switch (changeType)
                     {
