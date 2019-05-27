@@ -148,7 +148,19 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
             {
                 var spatialMeshObject = await RequestSpatialMeshObject(surfaceId.handle);
                 spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId.handle.ToString()}";
-                var worldAnchor = spatialMeshObject.GameObject.EnsureComponent<WorldAnchor>();
+                spatialMeshObject.ParentAnchor.name = $"SpatialAnchor_{surfaceId.handle.ToString()}";
+
+                // The WorldAnchor component places its object where the anchor is in the same space as the camera.
+                // But since the camera is repositioned by the MixedRealityPlayspace's transform, the meshes' transforms
+                // should also the WorldAnchor position repositioned by the MixedRealityPlayspace's transform.
+                // So rather than put the WorldAnchor on the mesh's GameObject, the WorldAnchor is placed out of the way in the scene,
+                // and its transform is concatenated with the Playspace transform to compute the transform on the mesh's object.
+                // That adapting the WorldAnchor's transform into playspace is done by the internal PlayspaceAdapter component.
+                // The GameObject the WorldAnchor is placed on is unimportant, but it is convenient for cleanup to make it a child
+                // of the GameObject whose transform will track it.
+                var worldAnchor = spatialMeshObject.ParentAnchor.EnsureComponent<WorldAnchor>();
+                spatialMeshObject.ParentAnchor.EnsureComponent<PlayspaceAnchorAdapter>();
+
                 var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, MeshTrianglesPerCubicMeter, true);
 
                 if (!observer.RequestMeshAsync(surfaceData, OnDataReady))
@@ -203,6 +215,7 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                     }
 
                     meshObject.GameObject.SetActive(true);
+                    meshObject.ParentAnchor.SetActive(true);
 
                     switch (changeType)
                     {
