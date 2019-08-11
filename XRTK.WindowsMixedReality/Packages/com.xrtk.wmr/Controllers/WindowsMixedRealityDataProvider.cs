@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using XRTK.Providers.Controllers;
+using XRTK.Definitions.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
