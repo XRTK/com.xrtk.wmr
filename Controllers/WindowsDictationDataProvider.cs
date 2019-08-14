@@ -4,8 +4,9 @@
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using XRTK.Providers.Controllers;
+using XRTK.Definitions.Controllers;
 using XRTK.Interfaces.InputSystem;
+using XRTK.Providers.Controllers;
 using XRTK.Services;
 using XRTK.Utilities.Async;
 
