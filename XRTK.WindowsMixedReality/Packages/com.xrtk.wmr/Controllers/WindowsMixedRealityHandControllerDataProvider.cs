@@ -1,20 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Definitions.Controllers;
 using XRTK.Interfaces.Providers.Controllers;
-using XRTK.Services;
+using XRTK.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
-    public class WindowsMixedRealityHandControllerDataProvider : BaseDataProvider, IMixedRealityPlatformHandControllerDataProvider
+    public class WindowsMixedRealityHandControllerDataProvider : BaseControllerDataProvider, IMixedRealityPlatformHandControllerDataProvider
     {
-        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority) : base(name, priority)
+        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
+            : base(name, priority, profile)
         {
-        }
-
-        public IMixedRealityController[] GetActiveControllers()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
