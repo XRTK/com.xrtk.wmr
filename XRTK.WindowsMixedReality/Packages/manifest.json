@@ -1,13 +1,21 @@
 {
+  "scopedRegistries": [
+    {
+      "name": "XRTK",
+      "url": "http://upm.xrtk.io:4873/",
+      "scopes": [
+        "com.xrtk"
+      ]
+    }
+  ],
   "dependencies": {
     "com.unity.package-manager-ui": "2.1.2",
     "com.unity.textmeshpro": "2.0.1",
     "com.unity.xr.legacyinputhelpers": "2.0.6",
-    "com.unity.xr.oculus.standalone": "1.38.1",
+    "com.unity.xr.oculus.standalone": "1.38.2",
     "com.unity.xr.openvr.standalone": "1.0.5",
-    "com.unity.xr.windowsmr.metro": "1.0.12",
-    "com.xrtk.core": "https://github.com/XRTK/XRTK-Core.git#0.1.16",
-    "com.xrtk.upm-git-extension": "https://github.com/XRTK/UpmGitExtension.git#0.9.6",
+    "com.unity.xr.windowsmr.metro": "1.0.14",
+    "com.xrtk.core": "0.1.19",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
@@ -38,15 +46,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "lock": {
-    "com.xrtk.core": {
-      "hash": "4aba585f62a04b3c8dcfbcd4a694931bdbd07551",
-      "revision": "0.1.16"
-    },
-    "com.xrtk.upm-git-extension": {
-      "hash": "7b3f68261095ff54e889ba2ae16df0a551012977",
-      "revision": "0.9.6"
-    }
   }
 }
