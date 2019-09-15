@@ -9,6 +9,9 @@ namespace XRTK.WindowsMixedReality.Controllers
 {
     public class WindowsMixedRealityHandControllerDataProvider : BaseControllerDataProvider, IMixedRealityPlatformHandControllerDataProvider
     {
+        /// <inheritdoc />
+        public event HandDataUpdate OnHandDataUpdate;
+
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {
