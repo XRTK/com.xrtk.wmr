@@ -80,9 +80,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// </summary>
         public InteractionSourceState[] LastInteractionManagerStateReading { get; protected set; }
 
-        /// <inheritdoc/>
-        public override IMixedRealityController[] GetActiveControllers() => activeControllers.Values.ToArray();
-
         private static bool gestureRecognizerEnabled;
 
         /// <summary>
@@ -441,6 +438,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
 
             activeControllers.Add(interactionSource.id, detectedController);
+            AddController(detectedController);
             return detectedController;
         }
 
@@ -507,6 +505,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             if (controller != null)
             {
                 MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
+                RemoveController(controller);
             }
 
             activeControllers.Remove(interactionSourceState.source.id);
