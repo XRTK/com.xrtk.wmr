@@ -6,7 +6,6 @@ using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 using XRTK.Definitions.Devices;
