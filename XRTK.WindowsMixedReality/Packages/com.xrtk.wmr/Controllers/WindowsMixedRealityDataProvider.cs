@@ -369,7 +369,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             for (var i = 0; i < states.Length; i++)
             {
-                RemoveController(states[i]);
+                RemoveController(states[i], false);
             }
         }
 
@@ -497,7 +497,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// Remove the selected controller from the Active Store
         /// </summary>
         /// <param name="interactionSourceState">Source State provided by the SDK to remove</param>
-        private void RemoveController(InteractionSourceState interactionSourceState)
+        private void RemoveController(InteractionSourceState interactionSourceState, bool clearFromRegistry = true)
         {
             var controller = GetController(interactionSourceState.source);
 
@@ -507,7 +507,10 @@ namespace XRTK.WindowsMixedReality.Controllers
                 RemoveController(controller);
             }
 
-            activeControllers.Remove(interactionSourceState.source.id);
+            if (clearFromRegistry)
+            {
+                activeControllers.Remove(interactionSourceState.source.id);
+            }
         }
 
         #endregion Controller Utilities
