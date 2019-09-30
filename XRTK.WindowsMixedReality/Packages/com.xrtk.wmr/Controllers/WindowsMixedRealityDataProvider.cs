@@ -6,7 +6,6 @@ using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 using XRTK.Definitions.Devices;
@@ -79,9 +78,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// The current source state reading for the Unity InteractionManager for UWP
         /// </summary>
         public InteractionSourceState[] LastInteractionManagerStateReading { get; protected set; }
-
-        /// <inheritdoc/>
-        public override IMixedRealityController[] GetActiveControllers() => activeControllers.Values.ToArray();
 
         private static bool gestureRecognizerEnabled;
 
@@ -373,7 +369,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             for (var i = 0; i < states.Length; i++)
             {
-                RemoveController(states[i]);
+                RemoveController(states[i], false);
             }
         }
 
@@ -441,6 +437,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
 
             activeControllers.Add(interactionSource.id, detectedController);
+            AddController(detectedController);
             return detectedController;
         }
 
@@ -500,16 +497,20 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// Remove the selected controller from the Active Store
         /// </summary>
         /// <param name="interactionSourceState">Source State provided by the SDK to remove</param>
-        private void RemoveController(InteractionSourceState interactionSourceState)
+        private void RemoveController(InteractionSourceState interactionSourceState, bool clearFromRegistry = true)
         {
             var controller = GetController(interactionSourceState.source);
 
             if (controller != null)
             {
                 MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
+                RemoveController(controller);
             }
 
-            activeControllers.Remove(interactionSourceState.source.id);
+            if (clearFromRegistry)
+            {
+                activeControllers.Remove(interactionSourceState.source.id);
+            }
         }
 
         #endregion Controller Utilities
