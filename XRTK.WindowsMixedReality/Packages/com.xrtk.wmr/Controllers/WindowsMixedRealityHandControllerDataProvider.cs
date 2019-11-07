@@ -6,7 +6,7 @@ using XRTK.Providers.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
-    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider<WindowsMixedRealityHandController>
+    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
     {
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile) { }
