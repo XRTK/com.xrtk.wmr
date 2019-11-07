@@ -243,10 +243,13 @@ namespace XRTK.WindowsMixedReality.Controllers
                         interactionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
                         interactionSourceState.sourcePose.TryGetRotation(out currentGripRotation, InteractionSourceNode.Grip);
 
-                        if (MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform != null)
+                        var cameraRig = MixedRealityToolkit.CameraSystem?.CameraRig;
+
+                        if (cameraRig != null &&
+                            cameraRig.PlayspaceTransform != null)
                         {
-                            currentGripPose.Position = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
-                            currentGripPose.Rotation = Quaternion.Euler(MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
+                            currentGripPose.Position = cameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
+                            currentGripPose.Rotation = Quaternion.Euler(cameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
                         }
                         else
                         {
