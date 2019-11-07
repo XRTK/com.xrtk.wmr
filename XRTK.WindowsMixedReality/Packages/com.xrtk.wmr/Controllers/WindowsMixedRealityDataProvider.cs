@@ -497,6 +497,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// Remove the selected controller from the Active Store
         /// </summary>
         /// <param name="interactionSourceState">Source State provided by the SDK to remove</param>
+        /// <param name="clearFromRegistry">Should the controller be removed from the registry?</param>
         private void RemoveController(InteractionSourceState interactionSourceState, bool clearFromRegistry = true)
         {
             var controller = GetController(interactionSourceState.source);
