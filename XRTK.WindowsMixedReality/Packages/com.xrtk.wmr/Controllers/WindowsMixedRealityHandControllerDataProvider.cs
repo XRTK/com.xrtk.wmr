@@ -29,8 +29,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         private readonly JointPose[] jointPoses = new JointPose[jointIndices.Length];
         private readonly Vector3[] unityJointPositions = new Vector3[jointIndices.Length];
         private readonly Quaternion[] unityJointOrientations = new Quaternion[jointIndices.Length];
-        private readonly Dictionary<TrackedHandJoint, MixedRealityPose> unityJointPoses = new Dictionary<TrackedHandJoint, MixedRealityPose>();
-        private float lastIndexTipRadius = 0;
         private HandMeshObserver handMeshObserver = null;
         private int[] handMeshTriangleIndices = null;
         private bool hasRequestedHandMeshObserver = false;
@@ -67,6 +65,25 @@ namespace XRTK.WindowsMixedReality.Controllers
             HandJointKind.LittleTip
         };
 
+        /// <summary>
+        /// Gets the native spatial interaction manager instance.
+        /// </summary>
+        private SpatialInteractionManager SpatialInteractionManager
+        {
+            get
+            {
+                if (spatialInteractionManager == null)
+                {
+                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
+                    {
+                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
+                    }, true);
+                }
+
+                return spatialInteractionManager;
+            }
+        }
+
 #endif
 
         /// <summary>
@@ -84,22 +101,6 @@ namespace XRTK.WindowsMixedReality.Controllers
 #if WINDOWS_UWP
 
         /// <inheritdoc />
-        public override void Enable()
-        {
-            UnityEngine.WSA.Application.InvokeOnUIThread(() =>
-            {
-                spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
-            }, true);
-        }
-
-        /// <inheritdoc />
-        public override void Disable()
-        {
-            spatialInteractionManager = null;
-            base.Disable();
-        }
-
-        /// <inheritdoc />
         public override void LateUpdate()
         {
             base.LateUpdate();
@@ -107,10 +108,10 @@ namespace XRTK.WindowsMixedReality.Controllers
             // Articulated hand support is only present in the 18362 version and beyond Windows
             // SDK (which contains the V8 drop of the Universal API Contract). In particular,
             // the HandPose related APIs are only present on this version and above.
-            if (profile.HandTrackingEnabled && WindowsApiChecker.UniversalApiContractV8_IsAvailable && spatialInteractionManager != null)
+            if (profile.HandTrackingEnabled && WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
             {
                 PerceptionTimestamp perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
-                IReadOnlyList<SpatialInteractionSourceState> sources = spatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
+                IReadOnlyList<SpatialInteractionSourceState> sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
                 foreach (SpatialInteractionSourceState sourceState in sources)
                 {
                     SpatialInteractionSource spatialInteractionSource = sourceState.Source;
@@ -125,17 +126,18 @@ namespace XRTK.WindowsMixedReality.Controllers
         private void UpdateHandController(Handedness handedness, SpatialInteractionSourceState state)
         {
             HandPose handPose = state.TryGetHandPose();
-            if (handPose != null)
-            {
-                // Hand is being tracked by the device, update controller using
-                // current data, beginning with converting the WMR hand data
-                // to the XRTK generic hand data model.
-                HandData updatedHandData = new HandData
-                {
-                    IsTracked = true,
-                    TimeStamp = DateTimeOffset.UtcNow.Ticks
-                };
 
+            // Hand is being tracked by the device, update controller using
+            // current data, beginning with converting the WMR hand data
+            // to the XRTK generic hand data model.
+            HandData updatedHandData = new HandData
+            {
+                IsTracked = handPose != null,
+                TimeStamp = DateTimeOffset.UtcNow.Ticks
+            };
+
+            if (updatedHandData.IsTracked)
+            {
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
                 if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.HandVisualizationProfile.EnableHandMeshVisualization)
                 {
@@ -222,35 +224,14 @@ namespace XRTK.WindowsMixedReality.Controllers
                         unityJointPositions[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.TransformPoint(unityJointPositions[i]);
                         unityJointOrientations[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.rotation * unityJointOrientations[i];
 
-                        if (jointIndices[i] == HandJointKind.IndexTip)
-                        {
-                            lastIndexTipRadius = jointPoses[i].Radius;
-                        }
-
                         TrackedHandJoint handJoint = ConvertHandJointKindToTrackedHandJoint(jointIndices[i]);
-
-                        if (!unityJointPoses.ContainsKey(handJoint))
-                        {
-                            unityJointPoses.Add(handJoint, new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]));
-                        }
-                        else
-                        {
-                            unityJointPoses[handJoint] = new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]);
-                        }
+                        updatedHandData.Joints[(int)handJoint] = new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]);
                     }
                 }
+            }
 
-                // Update provider base implementation
-                UpdateHandData(handedness, updatedHandData);
-            }
-            else
-            {
-                // Hand is currently not being tracked / lost
-                UpdateHandData(handedness, new HandData
-                {
-                    IsTracked = false
-                });
-            }
+            // Hand is currently not being tracked / lost
+            UpdateHandData(handedness, updatedHandData);
         }
 
         protected void InitializeHandMeshUVs(Vector3[] neutralPoseVertices)
