@@ -35,7 +35,7 @@ namespace XRTK.WindowsMixedReality.Inspectors
             EditorGUILayout.Space();
             thisProfile.CheckProfileLock();
 
-            if (MixedRealityInspectorUtility.CheckProfilePlatform(SupportedPlatforms.WindowsUniversal))
+            if (MixedRealityInspectorUtility.CheckProfilePlatform(SupportedPlatforms.WindowsUniversal | SupportedPlatforms.Editor))
             {
                 serializedObject.Update();
 
