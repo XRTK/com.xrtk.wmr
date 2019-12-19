@@ -2,11 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Providers.Controllers.Hands;
-using XRTK.Definitions.Utilities;
 using XRTK.WindowsMixedReality.Profiles;
-using XRTK.Utilities;
-using XRTK.Services;
-using XRTK.WindowsMixedReality.Utilities;
 
 #if WINDOWS_UWP
 using System;
@@ -15,7 +11,10 @@ using Windows.Perception;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
 using UnityEngine;
-using UnityEngine.XR.WSA.Input;
+using XRTK.Definitions.Utilities;
+using XRTK.Utilities;
+using XRTK.Services;
+using XRTK.WindowsMixedReality.Utilities;
 #endif
 
 namespace XRTK.WindowsMixedReality.Controllers
@@ -29,9 +28,11 @@ namespace XRTK.WindowsMixedReality.Controllers
         private readonly JointPose[] jointPoses = new JointPose[jointIndices.Length];
         private readonly Vector3[] unityJointPositions = new Vector3[jointIndices.Length];
         private readonly Quaternion[] unityJointOrientations = new Quaternion[jointIndices.Length];
-        private HandMeshObserver handMeshObserver = null;
+        private readonly Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver> handMeshObservers = new Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver>();
+
         private int[] handMeshTriangleIndices = null;
-        private bool hasRequestedHandMeshObserver = false;
+        private bool hasRequestedHandMeshObserverLeftHand = false;
+        private bool hasRequestedHandMeshObserverRightHand = false;
         private Vector2[] handMeshUVs;
         private SpatialInteractionManager spatialInteractionManager = null;
 
@@ -141,13 +142,12 @@ namespace XRTK.WindowsMixedReality.Controllers
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
                 if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.HandVisualizationProfile.EnableHandMeshVisualization)
                 {
-                    if (handMeshObserver == null && !hasRequestedHandMeshObserver)
+                    if (!handMeshObservers.ContainsKey(state.Source.Handedness) && !HasRequestedHandMeshObserver(state.Source.Handedness))
                     {
                         SetHandMeshObserver(state);
-                        hasRequestedHandMeshObserver = true;
                     }
 
-                    if (handMeshObserver != null && handMeshTriangleIndices == null)
+                    if (handMeshObservers.TryGetValue(state.Source.Handedness, out HandMeshObserver handMeshObserver) && handMeshTriangleIndices == null)
                     {
                         uint indexCount = handMeshObserver.TriangleIndexCount;
                         ushort[] indices = new ushort[indexCount];
@@ -205,11 +205,19 @@ namespace XRTK.WindowsMixedReality.Controllers
                         }
                     }
                 }
-                else if (handMeshObserver != null)
+                else if (handMeshObservers.ContainsKey(state.Source.Handedness))
                 {
                     // if hand mesh visualization is disabled make sure to destroy our hand mesh observer if it has already been created
-                    hasRequestedHandMeshObserver = false;
-                    handMeshObserver = null;
+                    if (state.Source.Handedness == SpatialInteractionSourceHandedness.Left)
+                    {
+                        hasRequestedHandMeshObserverLeftHand = false;
+                    }
+                    else if (state.Source.Handedness == SpatialInteractionSourceHandedness.Right)
+                    {
+                        hasRequestedHandMeshObserverRightHand = false;
+                    }
+
+                    handMeshObservers.Remove(state.Source.Handedness);
                 }
 
                 if (handPose.TryGetJoints(WindowsMixedRealityUtilities.SpatialCoordinateSystem, jointIndices, jointPoses))
@@ -277,7 +285,23 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         private async void SetHandMeshObserver(SpatialInteractionSourceState sourceState)
         {
-            handMeshObserver = await sourceState.Source.TryCreateHandMeshObserverAsync();
+            if (handMeshObservers.ContainsKey(sourceState.Source.Handedness))
+            {
+                handMeshObservers[sourceState.Source.Handedness] = await sourceState.Source.TryCreateHandMeshObserverAsync();
+            }
+            else
+            {
+                handMeshObservers.Add(sourceState.Source.Handedness, await sourceState.Source.TryCreateHandMeshObserverAsync());
+            }
+
+            hasRequestedHandMeshObserverLeftHand = sourceState.Source.Handedness == SpatialInteractionSourceHandedness.Left;
+            hasRequestedHandMeshObserverRightHand = sourceState.Source.Handedness == SpatialInteractionSourceHandedness.Right;
+        }
+
+        private bool HasRequestedHandMeshObserver(SpatialInteractionSourceHandedness handedness)
+        {
+            return handedness == SpatialInteractionSourceHandedness.Left ? hasRequestedHandMeshObserverLeftHand :
+                handedness == SpatialInteractionSourceHandedness.Right ? hasRequestedHandMeshObserverRightHand : false;
         }
 
         private Handedness ConvertHandedness(SpatialInteractionSourceHandedness input)
