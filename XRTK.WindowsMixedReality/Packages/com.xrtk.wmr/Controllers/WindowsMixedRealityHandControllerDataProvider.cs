@@ -99,6 +99,11 @@ namespace XRTK.WindowsMixedReality.Controllers
             this.profile = profile;
         }
 
+        protected override void RefreshActiveControllers()
+        {
+
+        }
+
 #if WINDOWS_UWP
 
         /// <inheritdoc />
