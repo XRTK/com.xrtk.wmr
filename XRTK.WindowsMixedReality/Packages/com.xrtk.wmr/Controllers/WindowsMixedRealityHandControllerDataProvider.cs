@@ -19,7 +19,7 @@ using XRTK.WindowsMixedReality.Utilities;
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
-    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
+    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider<WindowsMixedRealityHandController>
     {
         private readonly WindowsMixedRealityHandControllerDataProviderProfile profile;
 
