@@ -26,7 +26,7 @@ namespace XRTK.WindowsMixedReality.Profiles
                 ControllerMappings = new[]
                 {
                     new MixedRealityControllerMapping("Windows Mixed Reality Hand Controller Left", typeof(WindowsMixedRealityHandController), Handedness.Left),
-                    new MixedRealityControllerMapping("Windows Mixed Reality Hand Controller Left", typeof(WindowsMixedRealityHandController), Handedness.Right)
+                    new MixedRealityControllerMapping("Windows Mixed Reality Hand Controller Right", typeof(WindowsMixedRealityHandController), Handedness.Right)
                 };
             }
 
