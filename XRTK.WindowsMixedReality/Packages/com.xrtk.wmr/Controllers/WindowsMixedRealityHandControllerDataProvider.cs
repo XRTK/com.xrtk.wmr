@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Providers.Controllers;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
 
@@ -19,7 +20,7 @@ using XRTK.WindowsMixedReality.Utilities;
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
-    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider<WindowsMixedRealityHandController>
+    public class WindowsMixedRealityHandControllerDataProvider : BaseControllerDataProvider
     {
         private readonly WindowsMixedRealityHandControllerDataProviderProfile profile;
 
@@ -97,11 +98,6 @@ namespace XRTK.WindowsMixedReality.Controllers
             : base(name, priority, profile)
         {
             this.profile = profile;
-        }
-
-        protected override void RefreshActiveControllers()
-        {
-
         }
 
 #if WINDOWS_UWP
