@@ -49,5 +49,15 @@ namespace XRTK.WindowsMixedReality.Profiles
         private AutoStartBehavior windowsGestureAutoStart = AutoStartBehavior.AutoStart;
 
         public AutoStartBehavior WindowsGestureAutoStart => windowsGestureAutoStart;
+
+        [Header("Hand Tracking")]
+        [SerializeField]
+        [Tooltip("Enable hand tracking")]
+        private bool handTrackingEnabled = true;
+
+        /// <summary>
+        /// Is hand tracking enabled?
+        /// </summary>
+        public bool HandTrackingEnabled => handTrackingEnabled;
     }
 }

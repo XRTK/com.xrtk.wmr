@@ -18,6 +18,8 @@ namespace XRTK.WindowsMixedReality.Inspectors
         private SerializedProperty windowsRailsNavigationGestures;
         private SerializedProperty windowsGestureAutoStart;
 
+        private SerializedProperty handTrackingEnabled;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -27,6 +29,8 @@ namespace XRTK.WindowsMixedReality.Inspectors
             windowsNavigationGestureSettings = serializedObject.FindProperty("navigationGestures");
             windowsRailsNavigationGestures = serializedObject.FindProperty("railsNavigationGestures");
             windowsGestureAutoStart = serializedObject.FindProperty("windowsGestureAutoStart");
+
+            handTrackingEnabled = serializedObject.FindProperty("handTrackingEnabled");
         }
 
         public override void OnInspectorGUI()
@@ -46,6 +50,8 @@ namespace XRTK.WindowsMixedReality.Inspectors
             thisProfile.CheckProfileLock();
 
             serializedObject.Update();
+
+            EditorGUILayout.BeginVertical("Label");
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Gesture Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(windowsGestureAutoStart);
@@ -53,6 +59,11 @@ namespace XRTK.WindowsMixedReality.Inspectors
             EditorGUILayout.PropertyField(windowsNavigationGestureSettings);
             EditorGUILayout.PropertyField(useRailsNavigation);
             EditorGUILayout.PropertyField(windowsRailsNavigationGestures);
+
+            EditorGUILayout.PropertyField(handTrackingEnabled);
+
+            EditorGUILayout.EndVertical();
+
             serializedObject.ApplyModifiedProperties();
         }
     }
