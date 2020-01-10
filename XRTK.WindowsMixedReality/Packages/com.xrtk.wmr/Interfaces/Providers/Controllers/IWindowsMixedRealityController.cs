@@ -3,9 +3,9 @@
 
 using XRTK.Interfaces.Providers.Controllers;
 
-#if UNITY_WSA
-using UnityEngine.XR.WSA.Input;
-#endif
+#if WINDOWS_UWP
+using Windows.UI.Input.Spatial;
+#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Interfaces.Providers.Controllers
 {
@@ -14,13 +14,13 @@ namespace XRTK.WindowsMixedReality.Interfaces.Providers.Controllers
     /// </summary>
     public interface IWindowsMixedRealityController : IMixedRealityController
     {
-#if UNITY_WSA
+#if WINDOWS_UWP
 
         /// <summary>
         /// Update the controller data from the provided platform state.
         /// </summary>
-        /// <param name="interactionSourceState">The InteractionSourceState retrieved from the platform.</param>
-        void UpdateController(InteractionSourceState interactionSourceState);
+        /// <param name="spatialInteractionSourceState">The <see cref="SpatialInteractionSourceState"/> retrieved from the platform.</param>
+        void UpdateController(SpatialInteractionSourceState spatialInteractionSourceState);
 
 #endif
     }

@@ -9,11 +9,15 @@ using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
 
+#if WINDOWS_UWP
+using Windows.UI.Input.Spatial;
+#endif // WINDOWS_UWP
+
 #if UNITY_WSA
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 using XRTK.Services;
-#endif
+#endif // UNITY_WSA
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
@@ -87,7 +91,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         #region Update data functions
 
         /// <inheritdoc />
-        public void UpdateController(InteractionSourceState interactionSourceState)
+        public void UpdateController(SpatialInteractionSource spatialInteractionSource)
         {
             if (!Enabled) { return; }
 

@@ -4,6 +4,7 @@
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
+using XRTK.Utilities;
 
 #if UNITY_WSA
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ using Windows.ApplicationModel.Core;
 using Windows.Perception;
 using Windows.Storage.Streams;
 using Windows.UI.Input.Spatial;
-using XRTK.Utilities;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers
@@ -228,6 +228,27 @@ namespace XRTK.WindowsMixedReality.Controllers
         private static WsaGestureSettings WSANavigationSettings => (WsaGestureSettings)navigationSettings;
         private static WsaGestureSettings WSARailsNavigationSettings => (WsaGestureSettings)railsNavigationSettings;
 
+        private SpatialInteractionManager spatialInteractionManager = null;
+
+        /// <summary>
+        /// Gets the native spatial interaction manager instance.
+        /// </summary>
+        private SpatialInteractionManager SpatialInteractionManager
+        {
+            get
+            {
+                if (spatialInteractionManager == null)
+                {
+                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
+                    {
+                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
+                    }, true);
+                }
+
+                return spatialInteractionManager;
+            }
+        }
+
         #region IMixedRealityService Interface
 
         /// <inheritdoc/>
@@ -344,6 +365,33 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
 
             LastInteractionManagerStateReading = interactionManagerStates;
+        }
+
+        private void RefreshDevices()
+        {
+            // Articulated hand support is only present in the 18362 version and beyond Windows
+            // SDK (which contains the V8 drop of the Universal API Contract). In particular,
+            // the HandPose related APIs are only present on this version and above.
+            if (profile.HandTrackingEnabled && WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
+            {
+                PerceptionTimestamp perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
+                IReadOnlyList<SpatialInteractionSourceState> sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
+                foreach (SpatialInteractionSourceState sourceState in sources)
+                {
+                    SpatialInteractionSource spatialInteractionSource = sourceState.Source;
+                    if (spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand)
+                    {
+                        UpdateHandController(ConvertHandedness(spatialInteractionSource.Handedness), sourceState);
+                    }
+                    switch (spatialInteractionSource.Kind)
+                    {
+                        case SpatialInteractionSourceKind.Hand:
+                            break;
+                        case SpatialInteractionSourceKind.Controller:
+                            break;
+                    }
+                }
+            }
         }
 
         /// <inheritdoc/>
