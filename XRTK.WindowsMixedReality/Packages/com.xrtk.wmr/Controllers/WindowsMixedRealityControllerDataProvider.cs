@@ -3,6 +3,7 @@
 
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
+using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
 
 #if UNITY_WSA
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
     /// </summary>
-    public class WindowsMixedRealityDataProvider : BaseControllerDataProvider
+    public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
     {
         /// <summary>
         /// Constructor.
@@ -39,7 +40,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="name"></param>
         /// <param name="priority"></param>
         /// <param name="profile"></param>
-        public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
+        public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {
 #if UNITY_WSA
@@ -331,7 +332,10 @@ namespace XRTK.WindowsMixedReality.Controllers
                     MixedRealityToolkit.InputSystem?.RaiseSourceDetected(controller.InputSource, controller);
                 }
 
-                controller?.UpdateController(state);
+                if (controller != null)
+                {
+                    controller.UpdateController(state);
+                }
 
                 if (!isTracked)
                 {
@@ -391,7 +395,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="interactionSource">Source State provided by the SDK</param>
         /// <param name="addController">Should the Source be added as a controller if it isn't found?</param>
         /// <returns>New or Existing Controller Input Source</returns>
-        private WindowsMixedRealityController GetController(InteractionSource interactionSource, bool addController = false)
+        private IWindowsMixedRealityController GetController(InteractionSource interactionSource, bool addController = false)
         {
             //If a device is already registered with the ID provided, just return it.
             if (activeControllers.ContainsKey(interactionSource.id))
@@ -420,16 +424,28 @@ namespace XRTK.WindowsMixedReality.Controllers
             var pointers = interactionSource.supportsPointing ? RequestPointers(typeof(WindowsMixedRealityController), controllingHand) : null;
             var nameModifier = controllingHand == Handedness.None ? interactionSource.kind.ToString() : controllingHand.ToString();
             var inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Controller {nameModifier}", pointers);
-            var detectedController = new WindowsMixedRealityController(TrackingState.NotApplicable, controllingHand, inputSource);
 
-            if (!detectedController.SetupConfiguration(typeof(WindowsMixedRealityController)))
+            IWindowsMixedRealityController detectedController;
+            if (interactionSource.kind == InteractionSourceKind.Hand)
+            {
+                detectedController = new WindowsMixedRealityHandController(TrackingState.Tracked, controllingHand, inputSource);
+            }
+            else
+            {
+                detectedController = new WindowsMixedRealityController(TrackingState.NotApplicable, controllingHand, inputSource);
+            }
+
+            if (!detectedController.SetupConfiguration(detectedController.GetType()))
             {
                 // Controller failed to be setup correctly.
                 // Return null so we don't raise the source detected.
                 return null;
             }
 
-            TryRenderControllerModel(interactionSource, detectedController);
+            if (detectedController.GetType().Equals(typeof(WindowsMixedRealityController)))
+            {
+                TryRenderControllerModel(interactionSource, (WindowsMixedRealityController)detectedController);
+            }
 
             for (int i = 0; i < detectedController.InputSource?.Pointers?.Length; i++)
             {
@@ -537,7 +553,14 @@ namespace XRTK.WindowsMixedReality.Controllers
                 MixedRealityToolkit.InputSystem?.RaiseSourceDetected(controller.InputSource, controller);
             }
 
-            controller?.UpdateController(args.state);
+            if (controller != null && controller.GetType().Equals(typeof(WindowsMixedRealityController)))
+            {
+                (controller as WindowsMixedRealityController).UpdateController(args.state);
+            }
+            else if (controller != null && controller.GetType().Equals(typeof(WindowsMixedRealityHandController)))
+            {
+                controller.UpdateController();
+            }
         }
 
         /// <summary>

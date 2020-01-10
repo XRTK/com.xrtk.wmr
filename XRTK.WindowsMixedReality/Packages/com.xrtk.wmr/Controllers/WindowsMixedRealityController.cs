@@ -7,6 +7,7 @@ using XRTK.Definitions.Utilities;
 using XRTK.Extensions;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
+using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
 
 #if UNITY_WSA
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// <summary>
     /// A Windows Mixed Reality Controller Instance.
     /// </summary>
-    public class WindowsMixedRealityController : BaseController
+    public class WindowsMixedRealityController : BaseController, IWindowsMixedRealityController
     {
         /// <summary>
         /// Constructor.
@@ -29,9 +30,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="inputSource"></param>
         /// <param name="interactions"></param>
         public WindowsMixedRealityController(TrackingState trackingState, Handedness controllerHandedness, IMixedRealityInputSource inputSource = null, MixedRealityInteractionMapping[] interactions = null)
-                : base(trackingState, controllerHandedness, inputSource, interactions)
-        {
-        }
+                : base(trackingState, controllerHandedness, inputSource, interactions) { }
 
         /// <summary>
         /// The Windows Mixed Reality Controller default interactions.
@@ -87,10 +86,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         #region Update data functions
 
-        /// <summary>
-        /// Update the controller data from the provided platform state
-        /// </summary>
-        /// <param name="interactionSourceState">The InteractionSourceState retrieved from the platform</param>
+        /// <inheritdoc />
         public void UpdateController(InteractionSourceState interactionSourceState)
         {
             if (!Enabled) { return; }
