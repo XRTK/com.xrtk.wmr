@@ -5,6 +5,8 @@ using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
+using XRTK.WindowsMixedReality.Extensions;
+using System.Linq;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Utilities;
@@ -12,7 +14,6 @@ using Windows.Perception;
 using System.Collections.Generic;
 using UnityEngine;
 using XRTK.Definitions.Devices;
-using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Services;
 using System;
 using Windows.UI.Input.Spatial;
@@ -142,6 +143,18 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
         }
 
+        /// <inheritdoc/>
+        public override void Disable()
+        {
+            while (controllers.Count > 0)
+            {
+                RemoveController(cachedInteractionSourceStates.ElementAt(0).Value);
+            }
+
+            cachedInteractionSourceStates.Clear();
+            base.Disable();
+        }
+
         #endregion IMixedRealityControllerDataProvider lifecycle implementation
 
         #region Controller Management
@@ -221,11 +234,15 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return null;
             }
 
-            TryRenderControllerModel(spatialInteractionSource, detectedController);
-
             for (int i = 0; i < detectedController.InputSource?.Pointers?.Length; i++)
             {
                 detectedController.InputSource.Pointers[i].Controller = detectedController;
+            }
+
+            MixedRealityToolkit.InputSystem.RaiseSourceDetected(detectedController.InputSource, detectedController);
+            if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.RenderMotionControllers)
+            {
+                detectedController.TryRenderControllerModel(controllerType);
             }
 
             controllers.Add(spatialInteractionSource.Id, detectedController);
