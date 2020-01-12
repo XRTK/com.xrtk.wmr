@@ -88,6 +88,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return;
             }
 
+            Debug.Log($"Detected {sources.Count} input sources");
             for (int i = 0; i < sources.Count; i++)
             {
                 SpatialInteractionSourceState sourceState = sources[i];
@@ -107,7 +108,6 @@ namespace XRTK.WindowsMixedReality.Controllers
                         IWindowsMixedRealityController controller = CreateController(spatialInteractionSource);
                         if (controller != null)
                         {
-                            MixedRealityToolkit.InputSystem?.RaiseSourceDetected(controller.InputSource, controller);
                             controller.UpdateController(sourceState);
                         }
                     }

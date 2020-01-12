@@ -45,7 +45,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         private bool hasRequestedHandMeshObserverLeftHand = false;
         private bool hasRequestedHandMeshObserverRightHand = false;
         private Vector2[] handMeshUVs;
-        private SpatialInteractionManager spatialInteractionManager = null;
         private SpatialInteractionSourceState state;
 
         private static readonly HandJointKind[] jointIndices = new HandJointKind[]
@@ -81,7 +80,10 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <inheritdoc/>
         public void UpdateController(SpatialInteractionSourceState spatialInteractionSourceState)
         {
+            // We use the WMR extension just to store the provided state information
+            // then we can continue with using the default UpdateController implementation.
             state = spatialInteractionSourceState;
+            UpdateController();
         }
 
         public override void UpdateController()
@@ -101,6 +103,8 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             if (updatedHandData.IsTracked)
             {
+                Debug.Log("UPDATING WMR HAND");
+
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
                 //if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.HandVisualizationProfile.EnableHandMeshVisualization)
                 //{
@@ -186,8 +190,8 @@ namespace XRTK.WindowsMixedReality.Controllers
                 {
                     for (int i = 0; i < jointPoses.Length; i++)
                     {
-                        unityJointOrientations[i] = WindowsMixedRealityUtilities.SystemQuaternionToUnity(jointPoses[i].Orientation);
-                        unityJointPositions[i] = WindowsMixedRealityUtilities.SystemVector3ToUnity(jointPoses[i].Position);
+                        unityJointOrientations[i] = jointPoses[i].Orientation.ToUnity();
+                        unityJointPositions[i] = jointPoses[i].Position.ToUnity();
 
                         // We want the controller to follow the Playspace, so fold in the playspace transform here to 
                         // put the controller pose into world space.
@@ -201,25 +205,6 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
 
             UpdateBase(updatedHandData);
-        }
-
-        /// <summary>
-        /// Gets the native spatial interaction manager instance.
-        /// </summary>
-        private SpatialInteractionManager SpatialInteractionManager
-        {
-            get
-            {
-                if (spatialInteractionManager == null)
-                {
-                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
-                    {
-                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
-                    }, true);
-                }
-
-                return spatialInteractionManager;
-            }
         }
 
         protected void InitializeHandMeshUVs(Vector3[] neutralPoseVertices)
@@ -260,20 +245,6 @@ namespace XRTK.WindowsMixedReality.Controllers
                 Vector3 p = neutralPoseVertices[ix];
 
                 handMeshUVs[ix] = new Vector2(p.x * scale + 0.5f, (p.y - minY) * scale);
-            }
-        }
-
-        private Handedness ConvertHandedness(SpatialInteractionSourceHandedness input)
-        {
-            switch (input)
-            {
-                case SpatialInteractionSourceHandedness.Left:
-                    return Handedness.Left;
-                case SpatialInteractionSourceHandedness.Right:
-                    return Handedness.Right;
-                case SpatialInteractionSourceHandedness.Unspecified:
-                default:
-                    return Handedness.Other;
             }
         }
 
