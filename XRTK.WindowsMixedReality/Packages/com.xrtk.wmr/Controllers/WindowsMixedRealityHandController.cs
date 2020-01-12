@@ -5,14 +5,14 @@ using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers.Hands;
+using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
+
+#if WINDOWS_UWP
 using UnityEngine;
 using System.Collections.Generic;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.WindowsMixedReality.Utilities;
-using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
-
-#if WINDOWS_UWP
 using System;
 using Windows.UI.Input.Spatial;
 using Windows.Perception.People;
