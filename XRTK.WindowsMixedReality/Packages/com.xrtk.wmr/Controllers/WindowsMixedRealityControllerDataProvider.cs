@@ -31,7 +31,7 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
     /// </summary>
-    public class WindowsMixedRealityDataProvider : BaseControllerDataProvider
+    public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
     {
         /// <summary>
         /// Constructor.
@@ -39,7 +39,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="name"></param>
         /// <param name="priority"></param>
         /// <param name="profile"></param>
-        public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
+        public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {
 #if UNITY_WSA
