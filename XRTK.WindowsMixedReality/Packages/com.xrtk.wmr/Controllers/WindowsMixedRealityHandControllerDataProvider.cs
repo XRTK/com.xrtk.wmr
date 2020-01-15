@@ -88,7 +88,6 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return;
             }
 
-            Debug.Log($"Detected {sources.Count} input sources");
             for (int i = 0; i < sources.Count; i++)
             {
                 SpatialInteractionSourceState sourceState = sources[i];
@@ -146,11 +145,14 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <inheritdoc/>
         public override void Disable()
         {
-            while (controllers.Count > 0)
+            List<KeyValuePair<uint, IWindowsMixedRealityController>> controllersList = controllers.ToList();
+            while (controllersList.Count > 0)
             {
-                RemoveController(cachedInteractionSourceStates.ElementAt(0).Value);
+                RemoveController(controllersList[0].Value);
+                controllersList.RemoveAt(0);
             }
 
+            controllers.Clear();
             cachedInteractionSourceStates.Clear();
             base.Disable();
         }

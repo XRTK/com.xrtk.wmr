@@ -36,9 +36,9 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="priority"></param>
-        /// <param name="profile"></param>
+        /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
+        /// <param name="priority">Data provider priority controls the order in the service registry.</param>
+        /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
         public WindowsMixedRealityDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
             : base(name, priority, profile)
         {

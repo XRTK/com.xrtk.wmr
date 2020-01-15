@@ -103,8 +103,6 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             if (updatedHandData.IsTracked)
             {
-                Debug.Log("UPDATING WMR HAND");
-
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
                 //if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.HandVisualizationProfile.EnableHandMeshVisualization)
                 //{
