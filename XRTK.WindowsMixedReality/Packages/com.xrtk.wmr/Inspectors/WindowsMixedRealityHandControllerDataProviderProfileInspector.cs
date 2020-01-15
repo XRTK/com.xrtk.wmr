@@ -19,7 +19,7 @@ namespace XRTK.WindowsMixedReality.Inspectors
         {
             base.OnEnable();
 
-            handTrackingEnabled = serializedObject.FindProperty("handTrackingEnabled");
+            handTrackingEnabled = serializedObject.FindProperty(nameof(handTrackingEnabled));
         }
 
         public override void OnInspectorGUI()

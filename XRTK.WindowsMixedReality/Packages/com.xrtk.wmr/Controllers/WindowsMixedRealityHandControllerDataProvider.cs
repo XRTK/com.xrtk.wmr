@@ -5,69 +5,58 @@ using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
-using System;
-using System.Collections.Generic;
-using Windows.Perception;
-using Windows.Perception.People;
-using Windows.UI.Input.Spatial;
-using UnityEngine;
+using XRTK.WindowsMixedReality.Extensions;
+using System.Linq;
+using XRTK.Interfaces.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Utilities;
+using Windows.Perception;
+using System.Collections.Generic;
+using UnityEngine;
+using XRTK.Definitions.Devices;
 using XRTK.Services;
-using XRTK.WindowsMixedReality.Utilities;
-#endif
+using System;
+using Windows.UI.Input.Spatial;
+using XRTK.WindowsMixedReality.Interfaces.Providers.Controllers;
+#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers
 {
+    /// <summary>
+    /// The device manager for Windows Mixed Reality hand controllers.
+    /// </summary>
     public class WindowsMixedRealityHandControllerDataProvider : BaseControllerDataProvider
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
+        /// <param name="priority">Data provider priority controls the order in the service registry.</param>
+        /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
+        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
+            : base(name, priority, profile)
+        {
+            this.profile = profile;
+        }
+
         private readonly WindowsMixedRealityHandControllerDataProviderProfile profile;
 
 #if WINDOWS_UWP
 
-        private readonly JointPose[] jointPoses = new JointPose[jointIndices.Length];
-        private readonly Vector3[] unityJointPositions = new Vector3[jointIndices.Length];
-        private readonly Quaternion[] unityJointOrientations = new Quaternion[jointIndices.Length];
-        private readonly Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver> handMeshObservers = new Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver>();
-
-        private int[] handMeshTriangleIndices = null;
-        private bool hasRequestedHandMeshObserverLeftHand = false;
-        private bool hasRequestedHandMeshObserverRightHand = false;
-        private Vector2[] handMeshUVs;
-        private SpatialInteractionManager spatialInteractionManager = null;
-
-        private static readonly HandJointKind[] jointIndices = new HandJointKind[]
-        {
-            HandJointKind.Palm,
-            HandJointKind.Wrist,
-            HandJointKind.ThumbMetacarpal,
-            HandJointKind.ThumbProximal,
-            HandJointKind.ThumbDistal,
-            HandJointKind.ThumbTip,
-            HandJointKind.IndexMetacarpal,
-            HandJointKind.IndexProximal,
-            HandJointKind.IndexIntermediate,
-            HandJointKind.IndexDistal,
-            HandJointKind.IndexTip,
-            HandJointKind.MiddleMetacarpal,
-            HandJointKind.MiddleProximal,
-            HandJointKind.MiddleIntermediate,
-            HandJointKind.MiddleDistal,
-            HandJointKind.MiddleTip,
-            HandJointKind.RingMetacarpal,
-            HandJointKind.RingProximal,
-            HandJointKind.RingIntermediate,
-            HandJointKind.RingDistal,
-            HandJointKind.RingTip,
-            HandJointKind.LittleMetacarpal,
-            HandJointKind.LittleProximal,
-            HandJointKind.LittleIntermediate,
-            HandJointKind.LittleDistal,
-            HandJointKind.LittleTip
-        };
+        /// <summary>
+        /// Dictionary of currently registered controllers with the data provider.
+        /// </summary>
+        private readonly Dictionary<uint, IWindowsMixedRealityController> controllers = new Dictionary<uint, IWindowsMixedRealityController>();
 
         /// <summary>
-        /// Gets the native spatial interaction manager instance.
+        /// Dictionary capturing cached interaction states from a previous frame.
+        /// </summary>
+        private readonly Dictionary<uint, SpatialInteractionSourceState> cachedInteractionSourceStates = new Dictionary<uint, SpatialInteractionSourceState>();
+
+        private SpatialInteractionManager spatialInteractionManager = null;
+        /// <summary>
+        /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instace for the current application
+        /// state.
         /// </summary>
         private SpatialInteractionManager SpatialInteractionManager
         {
@@ -85,279 +74,201 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
         }
 
-#endif
+        #region IMixedRealityControllerDataProvider lifecycle implementation
 
-        /// <summary>
-        /// Creates a new instance of the data provider.
-        /// </summary>
-        /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
-        /// <param name="priority">Data provider priority controls the order in the service registry.</param>
-        /// <param name="profile">Hand controller data provider profile assigned to the provider instance in the configuration inspector.</param>
-        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
-            : base(name, priority, profile)
+        /// <inheritdoc/>
+        public override void Update()
         {
-            this.profile = profile;
+            base.Update();
+
+            // Update existing controllers or create a new one if needed.
+            IReadOnlyList<SpatialInteractionSourceState> sources = GetCurrentSources();
+            if (sources == null)
+            {
+                return;
+            }
+
+            Debug.Log($"Detected {sources.Count} input sources");
+            for (int i = 0; i < sources.Count; i++)
+            {
+                SpatialInteractionSourceState sourceState = sources[i];
+                SpatialInteractionSource spatialInteractionSource = sourceState.Source;
+
+                // For now, this data provider only cares about hands.
+                if (spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand)
+                {
+                    // If we already have a controller created for this source, update it.
+                    if (TryGetController(spatialInteractionSource, out IWindowsMixedRealityController existingController))
+                    {
+                        existingController.UpdateController(sourceState);
+                    }
+                    else
+                    {
+                        // Try and create a new controller if not.
+                        IWindowsMixedRealityController controller = CreateController(spatialInteractionSource);
+                        if (controller != null)
+                        {
+                            controller.UpdateController(sourceState);
+                        }
+                    }
+
+                    // Update cached state for this interactino source.
+                    if (cachedInteractionSourceStates.ContainsKey(spatialInteractionSource.Id))
+                    {
+                        cachedInteractionSourceStates[spatialInteractionSource.Id] = sourceState;
+                    }
+                    else
+                    {
+                        cachedInteractionSourceStates.Add(spatialInteractionSource.Id, sourceState);
+                    }
+                }
+            }
+
+            // We need to cleanup any controllers, that are not detected / tracked anymore as well.
+            foreach (var controllerRegistry in controllers)
+            {
+                uint id = controllerRegistry.Key;
+                for (int i = 0; i < sources.Count; i++)
+                {
+                    if (sources[i].Source.Id.Equals(id))
+                    {
+                        continue;
+                    }
+
+                    // This controller is not in the up-to-date sources list,
+                    // so we need to remove it.
+                    RemoveController(cachedInteractionSourceStates[id]);
+                    cachedInteractionSourceStates.Remove(id);
+                }
+            }
         }
 
-#if WINDOWS_UWP
-
-        /// <inheritdoc />
-        public override void LateUpdate()
+        /// <inheritdoc/>
+        public override void Disable()
         {
-            base.LateUpdate();
+            while (controllers.Count > 0)
+            {
+                RemoveController(cachedInteractionSourceStates.ElementAt(0).Value);
+            }
 
+            cachedInteractionSourceStates.Clear();
+            base.Disable();
+        }
+
+        #endregion IMixedRealityControllerDataProvider lifecycle implementation
+
+        #region Controller Management
+
+        /// <summary>
+        /// Reads currently detected input sources by the current <see cref="SpatialInteractionManager"/> instance.
+        /// </summary>
+        /// <returns>List of sources. Can be null.</returns>
+        private IReadOnlyList<SpatialInteractionSourceState> GetCurrentSources()
+        {
             // Articulated hand support is only present in the 18362 version and beyond Windows
             // SDK (which contains the V8 drop of the Universal API Contract). In particular,
             // the HandPose related APIs are only present on this version and above.
-            if (profile.HandTrackingEnabled && WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
+            if (WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
             {
                 PerceptionTimestamp perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
                 IReadOnlyList<SpatialInteractionSourceState> sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
-                foreach (SpatialInteractionSourceState sourceState in sources)
+
+                return sources;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Checks whether a <see cref="IWindowsMixedRealityController"/> has already been created and registered
+        /// for a given <see cref="SpatialInteractionSource"/>.
+        /// </summary>
+        /// <param name="spatialInteractionSource">Input source to lookup the controller for.</param>
+        /// <param name="controller">Reference to found controller, if existing.</param>
+        /// <returns>True, if the controller is registered and alive.</returns>
+        private bool TryGetController(SpatialInteractionSource spatialInteractionSource, out IWindowsMixedRealityController controller)
+        {
+            if (controllers.ContainsKey(spatialInteractionSource.Id))
+            {
+                controller = controllers[spatialInteractionSource.Id];
+                if (controller == null)
                 {
-                    SpatialInteractionSource spatialInteractionSource = sourceState.Source;
-                    if (spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand)
-                    {
-                        UpdateHandController(ConvertHandedness(spatialInteractionSource.Handedness), sourceState);
-                    }
+                    Debug.LogError($"Controller {spatialInteractionSource.Id} was not properly unregistered or unexpectedly destroyed.");
+                    controllers.Remove(spatialInteractionSource.Id);
+                    return false;
+                }
+
+                return true;
+            }
+
+            controller = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Creates the controller for a new device and registers it.
+        /// </summary>
+        /// <param name="spatialInteractionSource">Source State provided by the SDK.</param>
+        /// <returns>New controller input source.</returns>
+        private IWindowsMixedRealityController CreateController(SpatialInteractionSource spatialInteractionSource)
+        {
+            // We are creating a new controller for the source, determine the type of controller to use.
+            Type controllerType = spatialInteractionSource.Kind.ToControllerType();
+            if (controllerType == null)
+            {
+                Debug.LogError($"Windows Mixed Reality controller type {spatialInteractionSource.Kind} not supported.");
+                return null;
+            }
+
+            // Ready to create the controller intance.
+            Handedness controllingHand = spatialInteractionSource.Handedness.ToHandedness();
+            IMixedRealityPointer[] pointers = spatialInteractionSource.IsPointingSupported ? RequestPointers(controllerType, controllingHand) : null;
+            string nameModifier = controllingHand == Handedness.None ? spatialInteractionSource.Kind.ToString() : controllingHand.ToString();
+            IMixedRealityInputSource inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Controller {nameModifier}", pointers);
+            IWindowsMixedRealityController detectedController = Activator.CreateInstance(controllerType, TrackingState.NotApplicable, controllingHand, inputSource, null) as IWindowsMixedRealityController;
+
+            if (!detectedController.SetupConfiguration(controllerType))
+            {
+                // Controller failed to be setup correctly.
+                // Return null so we don't raise the source detected.
+                return null;
+            }
+
+            for (int i = 0; i < detectedController.InputSource?.Pointers?.Length; i++)
+            {
+                detectedController.InputSource.Pointers[i].Controller = detectedController;
+            }
+
+            MixedRealityToolkit.InputSystem.RaiseSourceDetected(detectedController.InputSource, detectedController);
+            if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.RenderMotionControllers)
+            {
+                detectedController.TryRenderControllerModel(controllerType);
+            }
+
+            controllers.Add(spatialInteractionSource.Id, detectedController);
+            return detectedController;
+        }
+
+        /// <summary>
+        /// Removes the selected controller from the active store.
+        /// </summary>
+        /// <param name="spatialInteractionSourceState">Source State provided by the SDK to remove.</param>
+        private void RemoveController(SpatialInteractionSourceState spatialInteractionSourceState)
+        {
+            if (TryGetController(spatialInteractionSourceState.Source, out IWindowsMixedRealityController controller))
+            {
+                MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
+                controllers.Remove(spatialInteractionSourceState.Source.Id);
+
+                if (cachedInteractionSourceStates.ContainsKey(spatialInteractionSourceState.Source.Id))
+                {
+                    cachedInteractionSourceStates.Remove(spatialInteractionSourceState.Source.Id);
                 }
             }
         }
 
-        private void UpdateHandController(Handedness handedness, SpatialInteractionSourceState state)
-        {
-            HandPose handPose = state.TryGetHandPose();
+        #endregion Controller Management
 
-            // Hand is being tracked by the device, update controller using
-            // current data, beginning with converting the WMR hand data
-            // to the XRTK generic hand data model.
-            HandData updatedHandData = new HandData
-            {
-                IsTracked = handPose != null,
-                TimeStamp = DateTimeOffset.UtcNow.Ticks
-            };
-
-            if (updatedHandData.IsTracked)
-            {
-                // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
-                if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.HandVisualizationProfile.EnableHandMeshVisualization)
-                {
-                    if (!handMeshObservers.ContainsKey(state.Source.Handedness) && !HasRequestedHandMeshObserver(state.Source.Handedness))
-                    {
-                        SetHandMeshObserver(state);
-                    }
-
-                    if (handMeshObservers.TryGetValue(state.Source.Handedness, out HandMeshObserver handMeshObserver) && handMeshTriangleIndices == null)
-                    {
-                        uint indexCount = handMeshObserver.TriangleIndexCount;
-                        ushort[] indices = new ushort[indexCount];
-                        handMeshObserver.GetTriangleIndices(indices);
-                        handMeshTriangleIndices = new int[indexCount];
-                        Array.Copy(indices, handMeshTriangleIndices, (int)handMeshObserver.TriangleIndexCount);
-
-                        // Compute neutral pose
-                        Vector3[] neutralPoseVertices = new Vector3[handMeshObserver.VertexCount];
-                        HandPose neutralPose = handMeshObserver.NeutralPose;
-                        var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
-                        HandMeshVertexState handMeshVertexState = handMeshObserver.GetVertexStateForPose(neutralPose);
-                        handMeshVertexState.GetVertices(vertexAndNormals);
-
-                        for (int i = 0; i < handMeshObserver.VertexCount; i++)
-                        {
-                            neutralPoseVertices[i] = WindowsMixedRealityUtilities.SystemVector3ToUnity(vertexAndNormals[i].Position);
-                        }
-
-                        // Compute UV mapping
-                        InitializeHandMeshUVs(neutralPoseVertices);
-                    }
-
-                    if (handMeshObserver != null && handMeshTriangleIndices != null)
-                    {
-                        var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
-                        var handMeshVertexState = handMeshObserver.GetVertexStateForPose(handPose);
-                        handMeshVertexState.GetVertices(vertexAndNormals);
-
-                        var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
-                        if (meshTransform.HasValue)
-                        {
-                            System.Numerics.Vector3 scale;
-                            System.Numerics.Quaternion rotation;
-                            System.Numerics.Vector3 translation;
-                            System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out scale, out rotation, out translation);
-
-                            var handMeshVertices = new Vector3[handMeshObserver.VertexCount];
-                            var handMeshNormals = new Vector3[handMeshObserver.VertexCount];
-
-                            for (int i = 0; i < handMeshObserver.VertexCount; i++)
-                            {
-                                handMeshVertices[i] = WindowsMixedRealityUtilities.SystemVector3ToUnity(vertexAndNormals[i].Position);
-                                handMeshNormals[i] = WindowsMixedRealityUtilities.SystemVector3ToUnity(vertexAndNormals[i].Normal);
-                            }
-
-
-
-                            updatedHandData.Mesh.Vertices = handMeshVertices;
-                            updatedHandData.Mesh.Normals = handMeshNormals;
-                            updatedHandData.Mesh.Triangles = handMeshTriangleIndices;
-                            updatedHandData.Mesh.Uvs = handMeshUVs;
-                            updatedHandData.Mesh.Position = WindowsMixedRealityUtilities.SystemVector3ToUnity(translation);
-                            updatedHandData.Mesh.Rotation = WindowsMixedRealityUtilities.SystemQuaternionToUnity(rotation);
-                        }
-                    }
-                }
-                else if (handMeshObservers.ContainsKey(state.Source.Handedness))
-                {
-                    // if hand mesh visualization is disabled make sure to destroy our hand mesh observer if it has already been created
-                    if (state.Source.Handedness == SpatialInteractionSourceHandedness.Left)
-                    {
-                        hasRequestedHandMeshObserverLeftHand = false;
-                    }
-                    else if (state.Source.Handedness == SpatialInteractionSourceHandedness.Right)
-                    {
-                        hasRequestedHandMeshObserverRightHand = false;
-                    }
-
-                    handMeshObservers.Remove(state.Source.Handedness);
-                }
-
-                if (handPose.TryGetJoints(WindowsMixedRealityUtilities.SpatialCoordinateSystem, jointIndices, jointPoses))
-                {
-                    for (int i = 0; i < jointPoses.Length; i++)
-                    {
-                        unityJointOrientations[i] = WindowsMixedRealityUtilities.SystemQuaternionToUnity(jointPoses[i].Orientation);
-                        unityJointPositions[i] = WindowsMixedRealityUtilities.SystemVector3ToUnity(jointPoses[i].Position);
-
-                        // We want the controller to follow the Playspace, so fold in the playspace transform here to 
-                        // put the controller pose into world space.
-                        unityJointPositions[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.TransformPoint(unityJointPositions[i]);
-                        unityJointOrientations[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.rotation * unityJointOrientations[i];
-
-                        TrackedHandJoint handJoint = ConvertHandJointKindToTrackedHandJoint(jointIndices[i]);
-                        updatedHandData.Joints[(int)handJoint] = new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]);
-                    }
-                }
-            }
-
-            // Hand is currently not being tracked / lost
-            UpdateHandData(handedness, updatedHandData);
-        }
-
-        protected void InitializeHandMeshUVs(Vector3[] neutralPoseVertices)
-        {
-            if (neutralPoseVertices.Length == 0)
-            {
-                Debug.LogError("Loaded 0 verts for neutralPoseVertices");
-            }
-
-            float minY = neutralPoseVertices[0].y;
-            float maxY = minY;
-
-            float maxMagnitude = 0.0f;
-
-            for (int ix = 1; ix < neutralPoseVertices.Length; ix++)
-            {
-                Vector3 p = neutralPoseVertices[ix];
-
-                if (p.y < minY)
-                {
-                    minY = p.y;
-                }
-                else if (p.y > maxY)
-                {
-                    maxY = p.y;
-                }
-                float d = p.x * p.x + p.y * p.y;
-                if (d > maxMagnitude) maxMagnitude = d;
-            }
-
-            maxMagnitude = Mathf.Sqrt(maxMagnitude);
-            float scale = 1.0f / (maxY - minY);
-
-            handMeshUVs = new Vector2[neutralPoseVertices.Length];
-
-            for (int ix = 0; ix < neutralPoseVertices.Length; ix++)
-            {
-                Vector3 p = neutralPoseVertices[ix];
-
-                handMeshUVs[ix] = new Vector2(p.x * scale + 0.5f, (p.y - minY) * scale);
-            }
-        }
-
-        private async void SetHandMeshObserver(SpatialInteractionSourceState sourceState)
-        {
-            if (handMeshObservers.ContainsKey(sourceState.Source.Handedness))
-            {
-                handMeshObservers[sourceState.Source.Handedness] = await sourceState.Source.TryCreateHandMeshObserverAsync();
-            }
-            else
-            {
-                handMeshObservers.Add(sourceState.Source.Handedness, await sourceState.Source.TryCreateHandMeshObserverAsync());
-            }
-
-            hasRequestedHandMeshObserverLeftHand = sourceState.Source.Handedness == SpatialInteractionSourceHandedness.Left;
-            hasRequestedHandMeshObserverRightHand = sourceState.Source.Handedness == SpatialInteractionSourceHandedness.Right;
-        }
-
-        private bool HasRequestedHandMeshObserver(SpatialInteractionSourceHandedness handedness)
-        {
-            return handedness == SpatialInteractionSourceHandedness.Left ? hasRequestedHandMeshObserverLeftHand :
-                handedness == SpatialInteractionSourceHandedness.Right ? hasRequestedHandMeshObserverRightHand : false;
-        }
-
-        private Handedness ConvertHandedness(SpatialInteractionSourceHandedness input)
-        {
-            switch (input)
-            {
-                case SpatialInteractionSourceHandedness.Left:
-                    return Handedness.Left;
-                case SpatialInteractionSourceHandedness.Right:
-                    return Handedness.Right;
-                case SpatialInteractionSourceHandedness.Unspecified:
-                default:
-                    return Handedness.Other;
-            }
-        }
-
-        private TrackedHandJoint ConvertHandJointKindToTrackedHandJoint(HandJointKind handJointKind)
-        {
-            switch (handJointKind)
-            {
-                case HandJointKind.Palm: return TrackedHandJoint.Palm;
-
-                case HandJointKind.Wrist: return TrackedHandJoint.Wrist;
-
-                case HandJointKind.ThumbMetacarpal: return TrackedHandJoint.ThumbMetacarpalJoint;
-                case HandJointKind.ThumbProximal: return TrackedHandJoint.ThumbProximalJoint;
-                case HandJointKind.ThumbDistal: return TrackedHandJoint.ThumbDistalJoint;
-                case HandJointKind.ThumbTip: return TrackedHandJoint.ThumbTip;
-
-                case HandJointKind.IndexMetacarpal: return TrackedHandJoint.IndexMetacarpal;
-                case HandJointKind.IndexProximal: return TrackedHandJoint.IndexKnuckle;
-                case HandJointKind.IndexIntermediate: return TrackedHandJoint.IndexMiddleJoint;
-                case HandJointKind.IndexDistal: return TrackedHandJoint.IndexDistalJoint;
-                case HandJointKind.IndexTip: return TrackedHandJoint.IndexTip;
-
-                case HandJointKind.MiddleMetacarpal: return TrackedHandJoint.MiddleMetacarpal;
-                case HandJointKind.MiddleProximal: return TrackedHandJoint.MiddleKnuckle;
-                case HandJointKind.MiddleIntermediate: return TrackedHandJoint.MiddleMiddleJoint;
-                case HandJointKind.MiddleDistal: return TrackedHandJoint.MiddleDistalJoint;
-                case HandJointKind.MiddleTip: return TrackedHandJoint.MiddleTip;
-
-                case HandJointKind.RingMetacarpal: return TrackedHandJoint.RingMetacarpal;
-                case HandJointKind.RingProximal: return TrackedHandJoint.RingKnuckle;
-                case HandJointKind.RingIntermediate: return TrackedHandJoint.RingMiddleJoint;
-                case HandJointKind.RingDistal: return TrackedHandJoint.RingDistalJoint;
-                case HandJointKind.RingTip: return TrackedHandJoint.RingTip;
-
-                case HandJointKind.LittleMetacarpal: return TrackedHandJoint.PinkyMetacarpal;
-                case HandJointKind.LittleProximal: return TrackedHandJoint.PinkyKnuckle;
-                case HandJointKind.LittleIntermediate: return TrackedHandJoint.PinkyMiddleJoint;
-                case HandJointKind.LittleDistal: return TrackedHandJoint.PinkyDistalJoint;
-                case HandJointKind.LittleTip: return TrackedHandJoint.PinkyTip;
-
-                default: return TrackedHandJoint.None;
-            }
-        }
-#endif
+#endif // WINDOWS_UWP
     }
 }
