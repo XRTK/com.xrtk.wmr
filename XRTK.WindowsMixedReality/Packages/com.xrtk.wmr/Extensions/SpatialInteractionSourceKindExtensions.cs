@@ -5,6 +5,7 @@
 using XRTK.WindowsMixedReality.Controllers;
 using System;
 using Windows.UI.Input.Spatial;
+using XRTK.Providers.Controllers.Hands;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Extensions
@@ -14,10 +15,10 @@ namespace XRTK.WindowsMixedReality.Extensions
 #if WINDOWS_UWP
 
         /// <summary>
-        /// Maps the native <see cref="SpatialInteractionSourceKind"/> to a XRTK <see cref="Interfaces.Providers.Controllers.IWindowsMixedRealityController"/> type.
+        /// Maps the native <see cref="SpatialInteractionSourceKind"/> to a XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type.
         /// </summary>
         /// <param name="spatialInteractionSourceKind">Value to map.</param>
-        /// <returns>The XRTK <see cref="Interfaces.Providers.Controllers.IWindowsMixedRealityController"/> type representing the source kind.</returns>
+        /// <returns>The XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type representing the source kind.</returns>
         public static Type ToControllerType(this SpatialInteractionSourceKind spatialInteractionSourceKind)
         {
             switch (spatialInteractionSourceKind)
@@ -25,7 +26,7 @@ namespace XRTK.WindowsMixedReality.Extensions
                 case SpatialInteractionSourceKind.Controller:
                     return typeof(WindowsMixedRealityController);
                 case SpatialInteractionSourceKind.Hand:
-                    return typeof(WindowsMixedRealityHandController);
+                    return typeof(MixedRealityHandController);
                 case SpatialInteractionSourceKind.Voice:
                 case SpatialInteractionSourceKind.Other:
                 default:
