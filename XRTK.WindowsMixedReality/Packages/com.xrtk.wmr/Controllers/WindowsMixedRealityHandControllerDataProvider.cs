@@ -138,33 +138,29 @@ namespace XRTK.WindowsMixedReality.Controllers
                 SpatialInteractionSourceState sourceState = sources[i];
                 SpatialInteractionSource spatialInteractionSource = sourceState.Source;
 
-                // For now, this data provider only cares about hands.
-                if (spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand)
+                // If we already have a controller created for this source, update it.
+                if (TryGetController(spatialInteractionSource, out MixedRealityHandController existingController))
                 {
-                    // If we already have a controller created for this source, update it.
-                    if (TryGetController(spatialInteractionSource, out MixedRealityHandController existingController))
+                    existingController.UpdateController(CreateHandData(sourceState));
+                }
+                else
+                {
+                    // Try and create a new controller if not.
+                    MixedRealityHandController controller = CreateController(spatialInteractionSource);
+                    if (controller != null)
                     {
-                        existingController.UpdateController(CreateHandData(sourceState));
+                        controller.UpdateController(CreateHandData(sourceState));
                     }
-                    else
-                    {
-                        // Try and create a new controller if not.
-                        MixedRealityHandController controller = CreateController(spatialInteractionSource);
-                        if (controller != null)
-                        {
-                            controller.UpdateController(CreateHandData(sourceState));
-                        }
-                    }
+                }
 
-                    // Update cached state for this interactino source.
-                    if (cachedInteractionSourceStates.ContainsKey(spatialInteractionSource.Id))
-                    {
-                        cachedInteractionSourceStates[spatialInteractionSource.Id] = sourceState;
-                    }
-                    else
-                    {
-                        cachedInteractionSourceStates.Add(spatialInteractionSource.Id, sourceState);
-                    }
+                // Update cached state for this interactino source.
+                if (cachedInteractionSourceStates.ContainsKey(spatialInteractionSource.Id))
+                {
+                    cachedInteractionSourceStates[spatialInteractionSource.Id] = sourceState;
+                }
+                else
+                {
+                    cachedInteractionSourceStates.Add(spatialInteractionSource.Id, sourceState);
                 }
             }
 
@@ -320,10 +316,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         private HandData CreateHandData(SpatialInteractionSourceState spatialInteractionSourceState)
         {
             HandPose handPose = spatialInteractionSourceState.TryGetHandPose();
-
-            // Hand is being tracked by the device, update controller using
-            // current data, beginning with converting the WMR hand data
-            // to the XRTK generic hand data model.
             HandData updatedHandData = new HandData
             {
                 IsTracked = handPose != null,
