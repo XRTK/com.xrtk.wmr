@@ -269,7 +269,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             // Ready to create the controller intance.
             Handedness controllingHand = spatialInteractionSource.Handedness.ToHandedness();
-            IMixedRealityPointer[] pointers = spatialInteractionSource.IsPointingSupported ? RequestPointers(controllerType, controllingHand) : null;
+            IMixedRealityPointer[] pointers = spatialInteractionSource.IsPointingSupported ? RequestPointers(controllerType, controllingHand, true) : null;
             string nameModifier = controllingHand == Handedness.None ? spatialInteractionSource.Kind.ToString() : controllingHand.ToString();
             IMixedRealityInputSource inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Hand Controller {nameModifier}", pointers);
             MixedRealityHandController detectedController = new MixedRealityHandController(TrackingState.NotApplicable, controllingHand, inputSource, null);
