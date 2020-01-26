@@ -102,21 +102,29 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
             }
 
             // We need to cleanup any controllers, that are not detected / tracked anymore as well.
+            List<uint> markedForRemoval = new List<uint>();
             foreach (var controllerRegistry in activeControllers)
             {
-                uint id = controllerRegistry.Key;
+                uint registeredId = controllerRegistry.Key;
                 for (int i = 0; i < sources.Count; i++)
                 {
                     uint currentSourceId = sources[i].Source.Id;
-                    if (currentSourceId.Equals(id))
+                    if (currentSourceId.Equals(registeredId))
                     {
+                        // Registered controller is still active.
                         continue;
                     }
 
                     // This controller is not in the up-to-date sources list,
                     // so we need to remove it.
-                    RemoveController(currentSourceId);
+                    RemoveController(registeredId, false);
+                    markedForRemoval.Add(registeredId);
                 }
+            }
+
+            for (int i = 0; i < markedForRemoval.Count; i++)
+            {
+                activeControllers.Remove(markedForRemoval[i]);
             }
         }
 
