@@ -18,8 +18,7 @@ using Windows.UI.Input.Spatial;
 namespace XRTK.WindowsMixedReality.Controllers.Hands
 {
     /// <summary>
-    /// The data provider for <see cref="Definitions.Utilities.SupportedPlatforms.WindowsUniversal"/> hand controller
-    /// support. It's responsible for converting the platform data to agnostic data the <see cref="Providers.Controllers.Hands.MixedRealityHandController"/> can work with.
+    /// Converts windows mixed reality hand data to <see cref="HandData"/>.
     /// </summary>
     public sealed class WindowsMixedRealityHandDataConverter
     {
