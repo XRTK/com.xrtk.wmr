@@ -63,6 +63,11 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
             HandJointKind.LittleTip
         };
 
+        /// <summary>
+        /// Gets updated hand data for the current frame.
+        /// </summary>
+        /// <param name="spatialInteractionSourceState">Platform provided current input source state for the hand.</param>
+        /// <returns>Platform agnostics hand data.</returns>
         public HandData GetHandData(SpatialInteractionSourceState spatialInteractionSourceState)
         {
             HandPose handPose = spatialInteractionSourceState.TryGetHandPose();
