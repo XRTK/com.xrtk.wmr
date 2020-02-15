@@ -35,10 +35,10 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, MixedRealityHandControllerDataProviderProfile profile)
             : base(name, priority, profile) { }
 
+#if WINDOWS_UWP
+
         private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
         private readonly WindowsMixedRealityHandDataConverter handDataConverter = new WindowsMixedRealityHandDataConverter();
-
-#if WINDOWS_UWP
 
         private SpatialInteractionManager spatialInteractionManager = null;
         /// <summary>
@@ -62,6 +62,14 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
         }
 
         #region IMixedRealityControllerDataProvider lifecycle implementation
+
+        /// <inheritdoc/>
+        public override void Initialize()
+        {
+            base.Initialize();
+
+            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = Profile.HandMeshingEnabled;
+        }
 
         /// <inheritdoc/>
         public override void Update()
