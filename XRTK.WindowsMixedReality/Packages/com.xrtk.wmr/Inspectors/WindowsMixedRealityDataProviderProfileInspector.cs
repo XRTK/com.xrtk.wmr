@@ -33,17 +33,17 @@ namespace XRTK.WindowsMixedReality.Inspectors
         {
             MixedRealityInspectorUtility.RenderMixedRealityToolkitLogo();
 
-            if (thisProfile.ParentProfile != null &&
+            if (ThisProfile.ParentProfile != null &&
                 GUILayout.Button("Back to Controller Data Providers"))
             {
-                Selection.activeObject = thisProfile.ParentProfile;
+                Selection.activeObject = ThisProfile.ParentProfile;
             }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Mixed Reality Controller Data Provider Settings", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("This profile aids in configuring additional platform settings for the registered controller data provider. This can be anything from additional gestures or platform specific settings.", MessageType.Info);
 
-            thisProfile.CheckProfileLock();
+            ThisProfile.CheckProfileLock();
 
             serializedObject.Update();
             EditorGUILayout.Space();
