@@ -24,7 +24,7 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
     /// The data provider for <see cref="Definitions.Utilities.SupportedPlatforms.WindowsUniversal"/> hand controller
     /// support. It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
-    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider<BaseMixedRealityControllerDataProviderProfile>
+    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
     {
         /// <summary>
         /// Constructor.
@@ -32,15 +32,16 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
         /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
         /// <param name="priority">Data provider priority controls the order in the service registry.</param>
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
-        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityControllerDataProviderProfile profile)
+        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityHandDataProviderProfile profile)
             : base(name, priority, profile) { }
 
 #if WINDOWS_UWP
 
-        private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
         private readonly WindowsMixedRealityHandDataConverter handDataConverter = new WindowsMixedRealityHandDataConverter();
+        private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
+
         /// <summary>
         /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instace for the current application
         /// state.
