@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEditor;
-using UnityEngine;
 using XRTK.Inspectors.Profiles;
 using XRTK.Inspectors.Utilities;
 using XRTK.WindowsMixedReality.Profiles;
@@ -12,32 +11,26 @@ namespace XRTK.WindowsMixedReality.Inspectors
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
     public class WindowsMixedRealityDataProviderProfileInspector : BaseMixedRealityProfileInspector
     {
-        private SerializedProperty windowsManipulationGestureSettings;
+        private SerializedProperty manipulationGestures;
         private SerializedProperty useRailsNavigation;
-        private SerializedProperty windowsNavigationGestureSettings;
-        private SerializedProperty windowsRailsNavigationGestures;
+        private SerializedProperty navigationGestures;
+        private SerializedProperty railsNavigationGestures;
         private SerializedProperty windowsGestureAutoStart;
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
-            windowsManipulationGestureSettings = serializedObject.FindProperty("manipulationGestures");
-            useRailsNavigation = serializedObject.FindProperty("useRailsNavigation");
-            windowsNavigationGestureSettings = serializedObject.FindProperty("navigationGestures");
-            windowsRailsNavigationGestures = serializedObject.FindProperty("railsNavigationGestures");
-            windowsGestureAutoStart = serializedObject.FindProperty("windowsGestureAutoStart");
+            manipulationGestures = serializedObject.FindProperty(nameof(manipulationGestures));
+            useRailsNavigation = serializedObject.FindProperty(nameof(useRailsNavigation));
+            navigationGestures = serializedObject.FindProperty(nameof(navigationGestures));
+            railsNavigationGestures = serializedObject.FindProperty(nameof(railsNavigationGestures));
+            windowsGestureAutoStart = serializedObject.FindProperty(nameof(windowsGestureAutoStart));
         }
 
         public override void OnInspectorGUI()
         {
-            MixedRealityInspectorUtility.RenderMixedRealityToolkitLogo();
-
-            if (ThisProfile.ParentProfile != null &&
-                GUILayout.Button("Back to Controller Data Providers"))
-            {
-                Selection.activeObject = ThisProfile.ParentProfile;
-            }
+            RenderHeader();
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Mixed Reality Controller Data Provider Settings", EditorStyles.boldLabel);
@@ -49,10 +42,10 @@ namespace XRTK.WindowsMixedReality.Inspectors
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Gesture Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(windowsGestureAutoStart);
-            EditorGUILayout.PropertyField(windowsManipulationGestureSettings);
-            EditorGUILayout.PropertyField(windowsNavigationGestureSettings);
+            EditorGUILayout.PropertyField(manipulationGestures);
+            EditorGUILayout.PropertyField(navigationGestures);
             EditorGUILayout.PropertyField(useRailsNavigation);
-            EditorGUILayout.PropertyField(windowsRailsNavigationGestures);
+            EditorGUILayout.PropertyField(railsNavigationGestures);
             serializedObject.ApplyModifiedProperties();
         }
     }
