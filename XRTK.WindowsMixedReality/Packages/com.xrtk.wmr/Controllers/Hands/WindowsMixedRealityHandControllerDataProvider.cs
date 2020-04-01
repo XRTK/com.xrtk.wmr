@@ -2,9 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Providers.Controllers.Hands;
-using XRTK.Definitions.Controllers.Hands;
+using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
+
 using System.Collections.Generic;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Interfaces.InputSystem;
@@ -16,13 +17,14 @@ using XRTK.Definitions.Devices;
 using XRTK.Services;
 using System;
 using Windows.UI.Input.Spatial;
+
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers.Hands
 {
     /// <summary>
-    /// The data provider for <see cref="Definitions.Utilities.SupportedPlatforms.WindowsUniversal"/> hand controller
-    /// support. It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
+    /// The Windows Mixed Reality Data Provider for hand controller support.
+    /// It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
     public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
     {
@@ -32,7 +34,7 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
         /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
         /// <param name="priority">Data provider priority controls the order in the service registry.</param>
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
-        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, BaseMixedRealityHandDataProviderProfile profile)
+        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerProfile profile)
             : base(name, priority, profile) { }
 
 #if WINDOWS_UWP
