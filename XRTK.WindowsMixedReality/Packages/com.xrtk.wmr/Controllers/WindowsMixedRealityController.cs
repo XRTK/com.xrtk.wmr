@@ -4,13 +4,13 @@
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
-using XRTK.Extensions;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 
 #if UNITY_WSA
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
+using XRTK.Extensions;
 using XRTK.Services;
 #endif
 
