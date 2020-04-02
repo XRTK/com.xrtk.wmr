@@ -15,7 +15,7 @@ using System;
 using Windows.UI.Input.Spatial;
 #endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Controllers.Hands
+namespace XRTK.WindowsMixedReality.Controllers
 {
     /// <summary>
     /// Converts windows mixed reality hand data to <see cref="HandData"/>.
