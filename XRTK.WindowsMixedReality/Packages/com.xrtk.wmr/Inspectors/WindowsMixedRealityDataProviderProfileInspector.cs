@@ -3,7 +3,6 @@
 
 using UnityEditor;
 using XRTK.Inspectors.Profiles;
-using XRTK.Inspectors.Utilities;
 using XRTK.WindowsMixedReality.Profiles;
 
 namespace XRTK.WindowsMixedReality.Inspectors
@@ -35,8 +34,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Windows Mixed Reality Controller Data Provider Settings", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("This profile aids in configuring additional platform settings for the registered controller data provider. This can be anything from additional gestures or platform specific settings.", MessageType.Info);
-
-            ThisProfile.CheckProfileLock();
 
             serializedObject.Update();
             EditorGUILayout.Space();
