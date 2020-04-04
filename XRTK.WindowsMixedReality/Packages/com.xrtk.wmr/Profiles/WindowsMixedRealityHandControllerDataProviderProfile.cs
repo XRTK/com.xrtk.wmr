@@ -10,7 +10,7 @@ using XRTK.Interfaces.InputSystem.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Windows Mixed Reality Hand Controller Data Provider Profile", fileName = "WindowsMixedRealityHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
+    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Windows Mixed Reality Hand", fileName = "WindowsMixedRealityHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
     public class WindowsMixedRealityHandControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
     {
         #region Global Hand Settings Overrides
