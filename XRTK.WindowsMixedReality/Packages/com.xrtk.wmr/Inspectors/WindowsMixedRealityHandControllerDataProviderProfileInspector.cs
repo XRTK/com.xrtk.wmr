@@ -12,7 +12,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
     {
         // Global hand settings overrides
         private SerializedProperty handMeshingEnabled;
-        private SerializedProperty handRayType;
         private SerializedProperty handPhysicsEnabled;
         private SerializedProperty useTriggers;
         private SerializedProperty boundsMode;
@@ -22,7 +21,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
             base.OnEnable();
 
             handMeshingEnabled = serializedObject.FindProperty(nameof(handMeshingEnabled));
-            handRayType = serializedObject.FindProperty(nameof(handRayType));
             handPhysicsEnabled = serializedObject.FindProperty(nameof(handPhysicsEnabled));
             useTriggers = serializedObject.FindProperty(nameof(useTriggers));
             boundsMode = serializedObject.FindProperty(nameof(boundsMode));
@@ -40,7 +38,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
 
             EditorGUILayout.Space();
             EditorGUILayout.PropertyField(handMeshingEnabled);
-            EditorGUILayout.PropertyField(handRayType);
             EditorGUILayout.PropertyField(handPhysicsEnabled);
             EditorGUILayout.PropertyField(useTriggers);
             EditorGUILayout.PropertyField(boundsMode);

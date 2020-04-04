@@ -2,11 +2,9 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEngine;
-using XRTK.Attributes;
 using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
 using XRTK.Providers.Controllers.Hands;
-using XRTK.Interfaces.InputSystem.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
@@ -25,16 +23,6 @@ namespace XRTK.WindowsMixedReality.Profiles
         /// If set, hand mesh data will be read and available for visualization. Disable for optimized performance.
         /// </summary>
         public bool HandMeshingEnabled => handMeshingEnabled;
-
-        [SerializeField]
-        [Tooltip("The hand ray concrete type to use when raycasting for hand interaction.")]
-        [Implements(typeof(IMixedRealityHandRay), TypeGrouping.ByNamespaceFlat)]
-        private SystemType handRayType = null;
-
-        /// <summary>
-        /// The hand ray concrete type to use when raycasting for hand interaction.
-        /// </summary>
-        public SystemType HandRayType => handRayType;
 
         [Header("Hand Physics")]
 
