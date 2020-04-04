@@ -1,7 +1,7 @@
 {
   "name": "com.xrtk.wmr",
   "displayName": "XRTK.WindowsMixedReality",
-  "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit",
+  "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit.",
   "keywords": [
     "xrtk",
     "vr",
