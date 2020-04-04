@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using XRTK.Providers.Controllers.Hands;
-using XRTK.Definitions.Utilities;
+using XRTK.Definitions.Controllers.Hands;
 
 #if WINDOWS_UWP
+using XRTK.Providers.Controllers.Hands;
+using XRTK.Definitions.Utilities;
 using XRTK.WindowsMixedReality.Utilities;
 using System.Collections.Generic;
 using XRTK.WindowsMixedReality.Extensions;
