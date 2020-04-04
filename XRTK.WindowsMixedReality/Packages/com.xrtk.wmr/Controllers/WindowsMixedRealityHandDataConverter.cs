@@ -4,16 +4,15 @@
 using XRTK.Definitions.Controllers.Hands;
 
 #if WINDOWS_UWP
-using XRTK.Providers.Controllers.Hands;
-using XRTK.Definitions.Utilities;
-using XRTK.WindowsMixedReality.Utilities;
-using System.Collections.Generic;
-using XRTK.WindowsMixedReality.Extensions;
-using Windows.Perception.People;
-using UnityEngine;
-using XRTK.Services;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
+using XRTK.Definitions.Utilities;
+using XRTK.Services;
+using XRTK.WindowsMixedReality.Extensions;
+using XRTK.WindowsMixedReality.Utilities;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers

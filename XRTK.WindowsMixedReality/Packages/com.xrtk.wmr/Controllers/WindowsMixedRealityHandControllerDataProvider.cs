@@ -7,17 +7,17 @@ using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
 
-using System.Collections.Generic;
-using XRTK.WindowsMixedReality.Extensions;
-using XRTK.Interfaces.InputSystem;
-using XRTK.Definitions.Utilities;
-using XRTK.Utilities;
-using Windows.Perception;
-using UnityEngine;
-using XRTK.Definitions.Devices;
-using XRTK.Services;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Windows.Perception;
 using Windows.UI.Input.Spatial;
+using XRTK.Definitions.Devices;
+using XRTK.Definitions.Utilities;
+using XRTK.Interfaces.InputSystem;
+using XRTK.Services;
+using XRTK.Utilities;
+using XRTK.WindowsMixedReality.Extensions;
 
 #endif // WINDOWS_UWP
 
