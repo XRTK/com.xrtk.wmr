@@ -21,7 +21,7 @@ using Windows.UI.Input.Spatial;
 
 #endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Controllers.Hands
+namespace XRTK.WindowsMixedReality.Controllers
 {
     /// <summary>
     /// The Windows Mixed Reality Data Provider for hand controller support.
@@ -35,7 +35,7 @@ namespace XRTK.WindowsMixedReality.Controllers.Hands
         /// <param name="name">Name of the data provider as assigned in the configuration profile.</param>
         /// <param name="priority">Data provider priority controls the order in the service registry.</param>
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
-        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
+        public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
             : base(name, priority, profile) { }
 
 #if WINDOWS_UWP
