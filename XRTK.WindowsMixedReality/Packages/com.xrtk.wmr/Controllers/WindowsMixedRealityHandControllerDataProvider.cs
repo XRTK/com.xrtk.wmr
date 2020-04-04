@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using XRTK.Providers.Controllers;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
 
@@ -27,7 +26,7 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// The Windows Mixed Reality Data Provider for hand controller support.
     /// It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
-    public class WindowsMixedRealityHandControllerDataProvider : BaseControllerDataProvider
+    public class WindowsMixedRealityHandControllerDataProvider : BaseHandDataProvider
     {
         /// <summary>
         /// Constructor.
