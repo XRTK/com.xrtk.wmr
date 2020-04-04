@@ -4,7 +4,7 @@
 using UnityEngine;
 using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
-using XRTK.Providers.Controllers.Hands;
+using XRTK.Definitions.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
