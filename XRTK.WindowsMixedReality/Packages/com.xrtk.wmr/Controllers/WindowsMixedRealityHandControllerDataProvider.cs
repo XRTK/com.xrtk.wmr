@@ -5,6 +5,7 @@ using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,6 +17,8 @@ using XRTK.Interfaces.InputSystem;
 using XRTK.Services;
 using XRTK.Utilities;
 using XRTK.WindowsMixedReality.Extensions;
+using XRTK.WindowsMixedReality.Utilities;
+
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers

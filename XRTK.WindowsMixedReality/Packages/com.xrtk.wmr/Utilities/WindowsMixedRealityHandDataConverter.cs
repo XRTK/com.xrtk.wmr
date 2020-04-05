@@ -1,29 +1,26 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using XRTK.Definitions.Controllers.Hands;
-
 #if WINDOWS_UWP
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
+using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
+using XRTK.Extensions;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
-using XRTK.WindowsMixedReality.Utilities;
-#endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Controllers
+namespace XRTK.WindowsMixedReality.Utilities
 {
     /// <summary>
     /// Converts windows mixed reality hand data to <see cref="HandData"/>.
     /// </summary>
     public sealed class WindowsMixedRealityHandDataConverter
     {
-#if WINDOWS_UWP
-
         /// <summary>
         /// Gets or sets whether hand mesh data should be read and converted.
         /// </summary>
@@ -92,7 +89,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                         SetHandMeshObserver(spatialInteractionSourceState);
                     }
 
-                    if (handMeshObservers.TryGetValue(spatialInteractionSourceState.Source.Handedness, out HandMeshObserver handMeshObserver) && handMeshTriangleIndices == null)
+                    if (handMeshObservers.TryGetValue(spatialInteractionSourceState.Source.Handedness, out var handMeshObserver) && handMeshTriangleIndices == null)
                     {
                         uint indexCount = handMeshObserver.TriangleIndexCount;
                         ushort[] indices = new ushort[indexCount];
@@ -244,10 +241,11 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         private bool HasRequestedHandMeshObserver(SpatialInteractionSourceHandedness handedness)
         {
-            return handedness == SpatialInteractionSourceHandedness.Left ? hasRequestedHandMeshObserverLeftHand :
-                handedness == SpatialInteractionSourceHandedness.Right ? hasRequestedHandMeshObserverRightHand : false;
+            return handedness == SpatialInteractionSourceHandedness.Left
+                ? hasRequestedHandMeshObserverLeftHand
+                : handedness == SpatialInteractionSourceHandedness.Right && hasRequestedHandMeshObserverRightHand;
         }
 
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP
