@@ -35,7 +35,12 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="priority">Data provider priority controls the order in the service registry.</param>
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
-            : base(name, priority, profile) { }
+            : base(name, priority, profile)
+        {
+#if WINDOWS_UWP
+            HandMeshingEnabled = profile.HandMeshingEnabled;
+#endif // WINDOWS_UWP
+        }
 
 #if WINDOWS_UWP
 
@@ -43,6 +48,15 @@ namespace XRTK.WindowsMixedReality.Controllers
         private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
+
+        /// <summary>
+        /// Enable / disable hand meshing.
+        /// </summary>
+        public bool HandMeshingEnabled
+        {
+            get => WindowsMixedRealityHandDataConverter.HandMeshingEnabled;
+            set => WindowsMixedRealityHandDataConverter.HandMeshingEnabled = value;
+        }
 
         /// <summary>
         /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instace for the current application
@@ -65,14 +79,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         }
 
         #region IMixedRealityControllerDataProvider lifecycle implementation
-
-        /// <inheritdoc/>
-        public override void Initialize()
-        {
-            base.Initialize();
-
-            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = HandMeshingEnabled;
-        }
 
         /// <inheritdoc/>
         public override void Update()

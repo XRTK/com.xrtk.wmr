@@ -3,6 +3,7 @@
 
 #if WINDOWS_UWP
 using Windows.Perception.People;
+using XRTK.Definitions.Controllers.Hands;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Extensions
