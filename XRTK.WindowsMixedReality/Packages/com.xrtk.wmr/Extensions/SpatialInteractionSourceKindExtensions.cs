@@ -2,18 +2,16 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
-using XRTK.WindowsMixedReality.Controllers;
+
 using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Providers.Controllers.Hands;
-#endif // WINDOWS_UWP
+using XRTK.WindowsMixedReality.Controllers;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class SpatialInteractionSourceKindExtensions
     {
-#if WINDOWS_UWP
-
         /// <summary>
         /// Maps the native <see cref="SpatialInteractionSourceKind"/> to a XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type.
         /// </summary>
@@ -27,13 +25,11 @@ namespace XRTK.WindowsMixedReality.Extensions
                     return typeof(WindowsMixedRealityController);
                 case SpatialInteractionSourceKind.Hand:
                     return typeof(MixedRealityHandController);
-                case SpatialInteractionSourceKind.Voice:
-                case SpatialInteractionSourceKind.Other:
                 default:
                     return null;
             }
         }
 
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP

@@ -2,16 +2,14 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
-using XRTK.Definitions.Utilities;
+
 using Windows.UI.Input.Spatial;
-#endif // WINDOWS_UWP
+using XRTK.Definitions.Utilities;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class SpatialInteractionSourceHandednessExtensions
     {
-#if WINDOWS_UWP
-
         /// <summary>
         /// Converts the native <see cref="SpatialInteractionSourceHandedness"/> to a XRTK <see cref="Handedness"/>.
         /// </summary>
@@ -30,6 +28,6 @@ namespace XRTK.WindowsMixedReality.Extensions
             }
         }
 
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP

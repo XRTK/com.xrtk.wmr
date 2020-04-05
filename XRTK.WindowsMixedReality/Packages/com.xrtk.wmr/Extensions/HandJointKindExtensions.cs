@@ -2,15 +2,14 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
+
 using Windows.Perception.People;
 using XRTK.Definitions.Controllers.Hands;
-#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class HandJointKindExtensions
     {
-#if WINDOWS_UWP
         public static TrackedHandJoint ToTrackedHandJoint(this HandJointKind handJointKind)
         {
             switch (handJointKind)
@@ -51,6 +50,6 @@ namespace XRTK.WindowsMixedReality.Extensions
                 default: return TrackedHandJoint.None;
             }
         }
-#endif
     }
 }
+#endif // WINDOWS_UWP
