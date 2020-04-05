@@ -8,7 +8,7 @@ using XRTK.Definitions.Controllers.Hands;
 namespace XRTK.WindowsMixedReality.Profiles
 {
     [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Windows Mixed Reality Hand", fileName = "WindowsMixedRealityHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
-    public class WindowsMixedRealityHandControllerDataProviderProfile : BaseHandDataProviderProfile
+    public class WindowsMixedRealityHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
     }
 }

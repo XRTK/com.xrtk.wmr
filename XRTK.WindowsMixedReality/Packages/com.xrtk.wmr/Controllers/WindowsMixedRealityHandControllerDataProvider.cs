@@ -5,7 +5,6 @@ using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,7 +16,6 @@ using XRTK.Interfaces.InputSystem;
 using XRTK.Services;
 using XRTK.Utilities;
 using XRTK.WindowsMixedReality.Extensions;
-
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Controllers
@@ -26,7 +24,7 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// The Windows Mixed Reality Data Provider for hand controller support.
     /// It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
-    public class WindowsMixedRealityHandControllerDataProvider : BaseHandDataProvider
+    public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
     {
         /// <summary>
         /// Constructor.
@@ -35,12 +33,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="priority">Data provider priority controls the order in the service registry.</param>
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
-            : base(name, priority, profile)
-        {
-#if WINDOWS_UWP
-            HandMeshingEnabled = profile.HandMeshingEnabled;
-#endif // WINDOWS_UWP
-        }
+            : base(name, priority, profile) { }
 
 #if WINDOWS_UWP
 
@@ -48,15 +41,6 @@ namespace XRTK.WindowsMixedReality.Controllers
         private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
-
-        /// <summary>
-        /// Enable / disable hand meshing.
-        /// </summary>
-        public bool HandMeshingEnabled
-        {
-            get => WindowsMixedRealityHandDataConverter.HandMeshingEnabled;
-            set => WindowsMixedRealityHandDataConverter.HandMeshingEnabled = value;
-        }
 
         /// <summary>
         /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instace for the current application
@@ -79,6 +63,13 @@ namespace XRTK.WindowsMixedReality.Controllers
         }
 
         #region IMixedRealityControllerDataProvider lifecycle implementation
+
+        /// <inheritdoc/>
+        public override void Initialize()
+        {
+            base.Initialize();
+            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = HandMeshingEnabled;
+        }
 
         /// <inheritdoc/>
         public override void Update()
@@ -211,7 +202,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return null;
             }
 
-            // Ready to create the controller intance.
+            // Ready to create the controller instance.
             Handedness controllingHand = spatialInteractionSource.Handedness.ToHandedness();
             IMixedRealityPointer[] pointers = spatialInteractionSource.IsPointingSupported ? RequestPointers(controllerType, controllingHand, true) : null;
             string nameModifier = controllingHand == Handedness.None ? spatialInteractionSource.Kind.ToString() : controllingHand.ToString();
