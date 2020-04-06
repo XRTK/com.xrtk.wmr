@@ -420,7 +420,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             var pointers = interactionSource.supportsPointing ? RequestPointers(typeof(WindowsMixedRealityController), controllingHand) : null;
             var nameModifier = controllingHand == Handedness.None ? interactionSource.kind.ToString() : controllingHand.ToString();
             var inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Controller {nameModifier}", pointers);
-            var detectedController = new WindowsMixedRealityController(TrackingState.NotApplicable, controllingHand, inputSource);
+            var detectedController = new WindowsMixedRealityController(this, TrackingState.NotApplicable, controllingHand, inputSource);
 
             if (!detectedController.SetupConfiguration(typeof(WindowsMixedRealityController)))
             {
