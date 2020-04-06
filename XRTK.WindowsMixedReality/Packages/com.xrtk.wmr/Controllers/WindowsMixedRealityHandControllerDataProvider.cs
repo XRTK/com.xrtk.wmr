@@ -3,6 +3,7 @@
 
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
+using System.Linq;
 
 #if WINDOWS_UWP
 
@@ -36,13 +37,12 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
             : base(name, priority, profile)
-        {
-        }
+        { }
 
 #if WINDOWS_UWP
 
         private readonly WindowsMixedRealityHandDataConverter handDataConverter = new WindowsMixedRealityHandDataConverter();
-        private readonly Dictionary<uint, MixedRealityHandController> activeControllers = new Dictionary<uint, MixedRealityHandController>();
+        private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
 
@@ -88,63 +88,66 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return;
             }
 
+            bool isLeftHandTracked = false;
+            bool isRightHandTracked = false;
+
             for (int i = 0; i < sources.Count; i++)
             {
                 var sourceState = sources[i];
                 var spatialInteractionSource = sourceState.Source;
 
-                // If we already have a controller created for this source, update it.
-                if (TryGetController(spatialInteractionSource.Id, out var existingController))
+                if (spatialInteractionSource.Handedness == SpatialInteractionSourceHandedness.Left)
                 {
-                    existingController.UpdateController(handDataConverter.GetHandData(sourceState));
-                }
-                else
-                {
-                    // Try and create a new controller if not.
-                    var controller = CreateController(spatialInteractionSource);
-                    controller?.UpdateController(handDataConverter.GetHandData(sourceState));
-                }
-            }
+                    isLeftHandTracked = true;
 
-            // We need to cleanup any controllers, that are not detected / tracked anymore as well.
-            var markedForRemoval = new List<uint>();
-
-            foreach (var controllerRegistry in activeControllers)
-            {
-                uint registeredId = controllerRegistry.Key;
-
-                for (int i = 0; i < sources.Count; i++)
-                {
-                    uint currentSourceId = sources[i].Source.Id;
-
-                    if (currentSourceId.Equals(registeredId))
+                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController leftHandController))
                     {
-                        // Registered controller is still active.
-                        continue;
+                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
                     }
+                    else
+                    {
+                        leftHandController = CreateController(spatialInteractionSource);
+                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                    }
+                }
 
-                    // This controller is not in the up-to-date sources list,
-                    // so we need to remove it.
-                    RemoveController(registeredId, false);
-                    markedForRemoval.Add(registeredId);
+                if (spatialInteractionSource.Handedness == SpatialInteractionSourceHandedness.Right)
+                {
+                    isRightHandTracked = true;
+
+                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController rightHandController))
+                    {
+                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                    }
+                    else
+                    {
+                        rightHandController = CreateController(spatialInteractionSource);
+                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                    }
                 }
             }
 
-            for (int i = 0; i < markedForRemoval.Count; i++)
+            if (!isLeftHandTracked)
             {
-                activeControllers.Remove(markedForRemoval[i]);
+                RemoveController(Handedness.Left);
+            }
+
+            if (!isRightHandTracked)
+            {
+                RemoveController(Handedness.Right);
             }
         }
 
         /// <inheritdoc/>
         public override void Disable()
         {
-            foreach (var controller in activeControllers)
+            foreach (var activeController in activeControllers)
             {
-                RemoveController(controller.Key, false);
+                RemoveController(activeController.Key, false);
             }
 
             activeControllers.Clear();
+
             base.Disable();
         }
 
@@ -166,25 +169,22 @@ namespace XRTK.WindowsMixedReality.Controllers
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
                 var sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
 
-                return sources;
+                if (sources != null)
+                {
+                    return sources.Where(s => s.Source.Kind == SpatialInteractionSourceKind.Hand).ToList();
+                }
             }
 
             return null;
         }
 
-        /// <summary>
-        /// Checks whether a <see cref="MixedRealityHandController"/> has already been created and registered
-        /// for a given <see cref="SpatialInteractionSource"/>.
-        /// </summary>
-        /// <param name="spatialInteractionSourceId">Input source ID to lookup the controller for.</param>
-        /// <param name="controller">Reference to found controller, if existing.</param>
-        /// <returns>True, if the controller is registered and alive.</returns>
-        private bool TryGetController(uint spatialInteractionSourceId, out MixedRealityHandController controller)
+        private bool TryGetController(Handedness handedness, out MixedRealityHandController controller)
         {
-            if (activeControllers.ContainsKey(spatialInteractionSourceId))
+            if (activeControllers.ContainsKey(handedness))
             {
-                controller = activeControllers[spatialInteractionSourceId];
-                Debug.Assert(controller != null, $"Controller {spatialInteractionSourceId} was not properly unregistered or unexpectedly destroyed.");
+                var existingController = activeControllers[handedness];
+                Debug.Assert(existingController != null, $"Hand Controller {handedness} has been destroyed but remains in the active controller registry.");
+                controller = existingController;
                 return true;
             }
 
@@ -235,26 +235,20 @@ namespace XRTK.WindowsMixedReality.Controllers
             }
 
             AddController(detectedController);
-            activeControllers.Add(spatialInteractionSource.Id, detectedController);
+            activeControllers.Add(controllingHand, detectedController);
             return detectedController;
         }
 
-        /// <summary>
-        /// Removes the selected controller from the active store.
-        /// </summary>
-        /// <param name="spatialInteractionSourceId">ID of the input source to remove.</param>
-        /// <param name="removeFromRegistry">Should the controller be removed from the <see cref="activeControllers"/>
-        /// registry as well? Defaults to true.</param>
-        private void RemoveController(uint spatialInteractionSourceId, bool removeFromRegistry = true)
+        private void RemoveController(Handedness handedness, bool removeFromRegistry = true)
         {
-            if (TryGetController(spatialInteractionSourceId, out var controller))
+            if (TryGetController(handedness, out var controller))
             {
                 MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
 
                 if (removeFromRegistry)
                 {
                     RemoveController(controller);
-                    activeControllers.Remove(spatialInteractionSourceId);
+                    activeControllers.Remove(handedness);
                 }
             }
         }
