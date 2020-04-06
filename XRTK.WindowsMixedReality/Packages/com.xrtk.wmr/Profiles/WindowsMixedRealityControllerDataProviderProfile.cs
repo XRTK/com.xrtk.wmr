@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿// Copyright (c) XRTK. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using UnityEngine;
 using XRTK.Attributes;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
@@ -49,5 +52,15 @@ namespace XRTK.WindowsMixedReality.Profiles
         private AutoStartBehavior windowsGestureAutoStart = AutoStartBehavior.AutoStart;
 
         public AutoStartBehavior WindowsGestureAutoStart => windowsGestureAutoStart;
+
+        public override ControllerDefinition[] GetControllerDefinitions()
+        {
+            // new MixedRealityControllerMapping("Windows Mixed Reality HoloLens Hand Input", typeof(WindowsMixedRealityController)),
+            // new MixedRealityControllerMapping("Windows Mixed Reality Motion Controller Left", typeof(WindowsMixedRealityController), Handedness.Left),
+            // new MixedRealityControllerMapping("Windows Mixed Reality Motion Controller Right", typeof(WindowsMixedRealityController), Handedness.Right),
+            // new MixedRealityControllerMapping("Open VR Motion Controller Left", typeof(WindowsMixedRealityOpenVRMotionController), Handedness.Left),
+            // new MixedRealityControllerMapping("Open VR Motion Controller Right", typeof(WindowsMixedRealityOpenVRMotionController), Handedness.Right),
+            throw new System.NotImplementedException();
+        }
     }
 }
