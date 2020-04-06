@@ -505,11 +505,11 @@ namespace XRTK.WindowsMixedReality.Controllers
             if (controller != null)
             {
                 MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
-                RemoveController(controller);
             }
 
             if (clearFromRegistry)
             {
+                RemoveController(controller);
                 activeControllers.Remove(interactionSourceState.source.id);
             }
         }
