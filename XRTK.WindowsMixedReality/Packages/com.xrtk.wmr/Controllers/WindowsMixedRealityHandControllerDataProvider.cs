@@ -3,12 +3,12 @@
 
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
-using System.Linq;
 
 #if WINDOWS_UWP
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
@@ -37,7 +37,8 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="profile">Controller data provider profile assigned to the provider instance in the configuration inspector.</param>
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile)
             : base(name, priority, profile)
-        { }
+        {
+        }
 
 #if WINDOWS_UWP
 
