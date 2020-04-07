@@ -5,6 +5,7 @@ using XRTK.Definitions.Devices;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Interfaces.InputSystem;
+using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Providers.Controllers;
 
 #if UNITY_WSA
@@ -21,15 +22,9 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// </summary>
     public class WindowsMixedRealityController : BaseController
     {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="trackingState"></param>
-        /// <param name="controllerHandedness"></param>
-        /// <param name="inputSource"></param>
-        /// <param name="interactions"></param>
-        public WindowsMixedRealityController(TrackingState trackingState, Handedness controllerHandedness, IMixedRealityInputSource inputSource = null, MixedRealityInteractionMapping[] interactions = null)
-                : base(trackingState, controllerHandedness, inputSource, interactions)
+        /// <inheritdoc />
+        public WindowsMixedRealityController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, IMixedRealityInputSource inputSource = null, MixedRealityInteractionMapping[] interactions = null)
+                : base(controllerDataProvider, trackingState, controllerHandedness, inputSource, interactions)
         {
         }
 
