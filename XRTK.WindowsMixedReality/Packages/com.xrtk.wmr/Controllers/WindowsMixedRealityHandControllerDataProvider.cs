@@ -230,10 +230,7 @@ namespace XRTK.WindowsMixedReality.Controllers
 
             MixedRealityToolkit.InputSystem?.RaiseSourceDetected(detectedController.InputSource, detectedController);
 
-            if (MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile.ControllerVisualizationProfile.RenderMotionControllers)
-            {
-                detectedController.TryRenderControllerModel(controllerType);
-            }
+            detectedController.TryRenderControllerModel(controllerType);
 
             AddController(detectedController);
             activeControllers.Add(controllingHand, detectedController);
