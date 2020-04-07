@@ -8,7 +8,7 @@ using XRTK.WindowsMixedReality.Profiles;
 namespace XRTK.WindowsMixedReality.Inspectors
 {
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
-    public class WindowsMixedRealityDataProviderProfileInspector : BaseMixedRealityProfileInspector
+    public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityProfileInspector
     {
         private SerializedProperty manipulationGestures;
         private SerializedProperty useRailsNavigation;
