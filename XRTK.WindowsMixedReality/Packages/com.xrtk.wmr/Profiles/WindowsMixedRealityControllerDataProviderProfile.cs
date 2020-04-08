@@ -6,7 +6,6 @@ using XRTK.Attributes;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
-using XRTK.Definitions.Controllers.OpenVR;
 using XRTK.WindowsMixedReality.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
@@ -59,7 +58,7 @@ namespace XRTK.WindowsMixedReality.Profiles
         {
             return new[]
                {
-                 new ControllerDefinition(typeof(WindowsMixedRealityController)),
+                 new ControllerDefinition("HoloLensController", typeof(WindowsMixedRealityController)),
                  new ControllerDefinition(typeof(WindowsMixedRealityController), Handedness.Left),
                  new ControllerDefinition(typeof(WindowsMixedRealityController), Handedness.Right),
             };
