@@ -14,9 +14,6 @@ namespace XRTK.WindowsMixedReality.Inspectors
         {
             RenderHeader();
 
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Windows Mixed Reality Hand Controller Data Provider Settings", EditorStyles.boldLabel);
-
             base.OnInspectorGUI();
         }
     }
