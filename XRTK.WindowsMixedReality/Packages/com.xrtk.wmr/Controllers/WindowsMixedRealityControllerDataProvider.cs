@@ -19,7 +19,6 @@ using WsaGestureSettings = UnityEngine.XR.WSA.Input.GestureSettings;
 #endif // UNITY_WSA
 
 #if WINDOWS_UWP
-using System;
 using Windows.ApplicationModel.Core;
 using Windows.Perception;
 using Windows.Storage.Streams;

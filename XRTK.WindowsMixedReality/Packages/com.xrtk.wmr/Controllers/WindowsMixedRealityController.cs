@@ -21,6 +21,8 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// </summary>
     public class WindowsMixedRealityController : BaseController
     {
+        public WindowsMixedRealityController() : base() { }
+
         /// <inheritdoc />
         public WindowsMixedRealityController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, MixedRealityControllerMappingProfile controllerMappingProfile)
                 : base(controllerDataProvider, trackingState, controllerHandedness, controllerMappingProfile)
