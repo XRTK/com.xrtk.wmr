@@ -201,7 +201,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         private MixedRealityHandController CreateController(SpatialInteractionSource spatialInteractionSource)
         {
             // We are creating a new controller for the source, determine the type of controller to use.
-            Type controllerType = spatialInteractionSource.Kind.ToControllerType();
+            var controllerType = spatialInteractionSource.Kind.ToControllerType();
 
             if (controllerType == null || controllerType != typeof(MixedRealityHandController))
             {
@@ -209,17 +209,17 @@ namespace XRTK.WindowsMixedReality.Controllers
                 return null;
             }
 
-            // Ready to create the controller instance.
-            var controllingHand = spatialInteractionSource.Handedness.ToHandedness();
-            var pointers = spatialInteractionSource.IsPointingSupported ? RequestPointers(controllerType, controllingHand, true) : null;
-            var nameModifier = controllingHand == Handedness.None ? spatialInteractionSource.Kind.ToString() : controllingHand.ToString();
-            var inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Hand Controller {nameModifier}", pointers);
-            var detectedController = new MixedRealityHandController(this, TrackingState.NotApplicable, controllingHand, inputSource);
+            var handedness = spatialInteractionSource.Handedness.ToHandedness();
 
-            if (!detectedController.SetupConfiguration(controllerType))
+            MixedRealityHandController detectedController;
+
+            try
             {
-                // Controller failed to be setup correctly.
-                // Return null so we don't raise the source detected.
+                detectedController = new MixedRealityHandController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(typeof(MixedRealityHandController), handedness));
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to create {nameof(MixedRealityHandController)}!\n{e}");
                 return null;
             }
 
@@ -233,7 +233,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             detectedController.TryRenderControllerModel(controllerType);
 
             AddController(detectedController);
-            activeControllers.Add(controllingHand, detectedController);
+            activeControllers.Add(handedness, detectedController);
             return detectedController;
         }
 
