@@ -481,11 +481,10 @@ namespace XRTK.WindowsMixedReality.Controllers
                     Debug.LogError("Failed to load model data!");
                 }
 
-                // This really isn't an error, we actually can call TryRenderControllerModelAsync here.
-                await controller.TryRenderControllerModelAsync(typeof(WindowsMixedRealityController), glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
+                await controller.TryRenderControllerModelAsync(glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
             }
 #else
-            await controller.TryRenderControllerModelAsync(typeof(WindowsMixedRealityController), null, interactionSource.kind == InteractionSourceKind.Hand);
+            await controller.TryRenderControllerModelAsync(null, interactionSource.kind == InteractionSourceKind.Hand);
 #endif // WINDOWS_UWP
         }
 
