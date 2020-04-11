@@ -10,7 +10,6 @@ using XRTK.WindowsMixedReality.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Windows Mixed Reality", fileName = "WindowsMixedRealityControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
     public class WindowsMixedRealityControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
     {
         [EnumFlags]
