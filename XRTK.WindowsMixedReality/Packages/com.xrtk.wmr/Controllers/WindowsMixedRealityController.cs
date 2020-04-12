@@ -233,7 +233,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                         interactionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
                         interactionSourceState.sourcePose.TryGetRotation(out currentGripRotation, InteractionSourceNode.Grip);
 
-                        var cameraRig = MixedRealityToolkit.CameraSystem?.CameraRig;
+                        var cameraRig = MixedRealityToolkit.CameraSystem?.MainCameraRig;
 
                         if (cameraRig != null &&
                             cameraRig.PlayspaceTransform != null)
