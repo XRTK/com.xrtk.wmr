@@ -171,8 +171,8 @@ namespace XRTK.WindowsMixedReality.Utilities
 
                         // We want the controller to follow the Playspace, so fold in the playspace transform here to 
                         // put the controller pose into world space.
-                        unityJointPositions[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.TransformPoint(unityJointPositions[i]);
-                        unityJointOrientations[i] = MixedRealityToolkit.CameraSystem.CameraRig.PlayspaceTransform.rotation * unityJointOrientations[i];
+                        unityJointPositions[i] = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform.TransformPoint(unityJointPositions[i]);
+                        unityJointOrientations[i] = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform.rotation * unityJointOrientations[i];
 
                         TrackedHandJoint handJoint = jointIndices[i].ToTrackedHandJoint();
                         updatedHandData.Joints[(int)handJoint] = new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]);
