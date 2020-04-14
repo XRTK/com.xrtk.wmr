@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Interfaces.SpatialAwarenessSystem;
 using XRTK.Providers.SpatialObservers;
 using XRTK.WindowsMixedReality.Profiles;
 
@@ -20,13 +21,9 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
     /// </summary>
     public class WindowsMixedRealitySpatialMeshObserver : BaseMixedRealitySpatialMeshObserver
     {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="priority"></param>
-        /// <param name="profile"></param>
-        public WindowsMixedRealitySpatialMeshObserver(string name, uint priority, WindowsMixedRealitySpatialMeshObserverProfile profile) : base(name, priority, profile)
+        /// <inheritdoc />
+        public WindowsMixedRealitySpatialMeshObserver(string name, uint priority, WindowsMixedRealitySpatialMeshObserverProfile profile, IMixedRealitySpatialAwarenessSystem parentService)
+            : base(name, priority, profile, parentService)
         {
 #if UNITY_WSA
 #if UNITY_EDITOR 
