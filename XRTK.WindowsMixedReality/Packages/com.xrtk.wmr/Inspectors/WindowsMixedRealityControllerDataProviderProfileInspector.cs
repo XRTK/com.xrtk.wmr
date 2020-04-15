@@ -19,6 +19,7 @@ namespace XRTK.WindowsMixedReality.Inspectors
         private SerializedProperty windowsGestureAutoStart;
 
         bool showGestureSettings = true;
+        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
 
         protected override void OnEnable()
         {
@@ -37,7 +38,7 @@ namespace XRTK.WindowsMixedReality.Inspectors
 
             serializedObject.Update();
             EditorGUILayout.Space();
-            showGestureSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showGestureSettings, new GUIContent("Windows Gesture Settings"), true);
+            showGestureSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showGestureSettings, gestureSettingsFoldoutHeader, true);
             if (showGestureSettings)
             {
                 EditorGUILayout.PropertyField(windowsGestureAutoStart);
