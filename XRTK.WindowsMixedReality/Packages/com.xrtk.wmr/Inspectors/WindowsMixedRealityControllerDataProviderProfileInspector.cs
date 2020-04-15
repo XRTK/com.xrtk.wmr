@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEditor;
+using UnityEngine;
+using XRTK.Inspectors.Extensions;
 using XRTK.Inspectors.Profiles.InputSystem.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
@@ -15,6 +17,9 @@ namespace XRTK.WindowsMixedReality.Inspectors
         private SerializedProperty navigationGestures;
         private SerializedProperty railsNavigationGestures;
         private SerializedProperty windowsGestureAutoStart;
+
+        bool showGestureSettings = true;
+        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
 
         protected override void OnEnable()
         {
@@ -33,13 +38,16 @@ namespace XRTK.WindowsMixedReality.Inspectors
 
             serializedObject.Update();
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Windows Gesture Settings", EditorStyles.boldLabel);
-            EditorGUILayout.Space();
-            EditorGUILayout.PropertyField(windowsGestureAutoStart);
-            EditorGUILayout.PropertyField(manipulationGestures);
-            EditorGUILayout.PropertyField(navigationGestures);
-            EditorGUILayout.PropertyField(useRailsNavigation);
-            EditorGUILayout.PropertyField(railsNavigationGestures);
+            showGestureSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showGestureSettings, gestureSettingsFoldoutHeader, true);
+            if (showGestureSettings)
+            {
+                EditorGUILayout.PropertyField(windowsGestureAutoStart);
+                EditorGUILayout.PropertyField(manipulationGestures);
+                EditorGUILayout.PropertyField(navigationGestures);
+                EditorGUILayout.PropertyField(useRailsNavigation);
+                EditorGUILayout.PropertyField(railsNavigationGestures);
+            }
+
             serializedObject.ApplyModifiedProperties();
         }
     }
