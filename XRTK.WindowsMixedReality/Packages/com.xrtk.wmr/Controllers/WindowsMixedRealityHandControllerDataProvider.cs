@@ -4,6 +4,7 @@
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
+using XRTK.Definitions.Utilities;
 
 #if WINDOWS_UWP
 
@@ -14,11 +15,9 @@ using UnityEngine;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Devices;
-using XRTK.Definitions.Utilities;
 using XRTK.Services;
 using XRTK.Utilities;
 using XRTK.WindowsMixedReality.Extensions;
-using XRTK.WindowsMixedReality.Utilities;
 
 #endif // WINDOWS_UWP
 
@@ -34,11 +33,15 @@ namespace XRTK.WindowsMixedReality.Controllers
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
+            leftHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Left, TrackedPoses);
+            rightHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Right, TrackedPoses);
         }
+
+        private readonly WindowsMixedRealityHandDataConverter leftHandConverter;
+        private readonly WindowsMixedRealityHandDataConverter rightHandConverter;
 
 #if WINDOWS_UWP
 
-        private readonly WindowsMixedRealityHandDataConverter handDataConverter = new WindowsMixedRealityHandDataConverter();
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
@@ -99,12 +102,12 @@ namespace XRTK.WindowsMixedReality.Controllers
 
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController leftHandController))
                     {
-                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                        leftHandController.UpdateController(leftHandConverter.GetHandData(sourceState));
                     }
                     else
                     {
                         leftHandController = CreateController(spatialInteractionSource);
-                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                        leftHandController.UpdateController(leftHandConverter.GetHandData(sourceState));
                     }
                 }
 
@@ -114,12 +117,12 @@ namespace XRTK.WindowsMixedReality.Controllers
 
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController rightHandController))
                     {
-                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                        rightHandController.UpdateController(rightHandConverter.GetHandData(sourceState));
                     }
                     else
                     {
                         rightHandController = CreateController(spatialInteractionSource);
-                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                        rightHandController.UpdateController(rightHandConverter.GetHandData(sourceState));
                     }
                 }
             }

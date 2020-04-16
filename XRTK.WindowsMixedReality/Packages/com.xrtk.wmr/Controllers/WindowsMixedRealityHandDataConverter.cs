@@ -1,26 +1,42 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-
-#if WINDOWS_UWP
 
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Windows.Perception.People;
-using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.Controllers.Simulation.Hands;
 using XRTK.Definitions.Utilities;
 using XRTK.Extensions;
+using XRTK.Providers.Controllers.Hands;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
+using XRTK.WindowsMixedReality.Utilities;
 
-namespace XRTK.WindowsMixedReality.Utilities
+#if WINDOWS_UWP
+
+using Windows.Perception.People;
+using Windows.UI.Input.Spatial;
+
+#endif // WINDOWS_UWP
+
+namespace XRTK.WindowsMixedReality.Controllers
 {
     /// <summary>
     /// Converts windows mixed reality hand data to <see cref="HandData"/>.
     /// </summary>
-    public sealed class WindowsMixedRealityHandDataConverter
+    public sealed class WindowsMixedRealityHandDataConverter : BaseHandDataConverter
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="handedness">Handedness of the hand this converter is created for.</param>
+        /// <param name="trackedPoses">The tracked poses collection to use for pose recognition.</param>
+        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<SimulatedHandControllerPoseData> trackedPoses) : base(handedness, trackedPoses)
+        { }
+
+#if WINDOWS_UWP
+
         /// <summary>
         /// Gets or sets whether hand mesh data should be read and converted.
         /// </summary>
@@ -180,6 +196,7 @@ namespace XRTK.WindowsMixedReality.Utilities
                 }
             }
 
+            PostProcess(updatedHandData);
             return updatedHandData;
         }
 
@@ -246,6 +263,6 @@ namespace XRTK.WindowsMixedReality.Utilities
                 : handedness == SpatialInteractionSourceHandedness.Right && hasRequestedHandMeshObserverRightHand;
         }
 
+#endif // WINDOWS_UWP
     }
 }
-#endif // WINDOWS_UWP
