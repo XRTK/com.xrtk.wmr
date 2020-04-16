@@ -32,7 +32,7 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// </summary>
         /// <param name="handedness">Handedness of the hand this converter is created for.</param>
         /// <param name="trackedPoses">The tracked poses collection to use for pose recognition.</param>
-        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<SimulatedHandControllerPoseData> trackedPoses) : base(handedness, trackedPoses)
+        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<HandControllerPoseDefinition> trackedPoses) : base(handedness, trackedPoses)
         { }
 
 #if WINDOWS_UWP
