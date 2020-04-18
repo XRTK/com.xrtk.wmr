@@ -28,18 +28,5 @@ namespace XRTK.WindowsMixedReality.Providers.CameraSystem
 #endif
             }
         }
-
-        /// <inheritdoc />
-        protected override void ResetRigTransforms()
-        {
-            CameraRig.PlayspaceTransform.position = Vector3.zero;
-            CameraRig.PlayspaceTransform.rotation = Quaternion.identity;
-            CameraRig.CameraTransform.position = IsStereoscopic || !IsOpaque
-                ? Vector3.zero
-                : new Vector3(0f, HeadHeight, 0f);
-            CameraRig.CameraTransform.rotation = Quaternion.identity;
-            CameraRig.BodyTransform.position = Vector3.zero;
-            CameraRig.BodyTransform.rotation = Quaternion.identity;
-        }
     }
 }
