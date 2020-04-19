@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
@@ -33,14 +34,9 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// </summary>
     public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
     {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="priority"></param>
-        /// <param name="profile"></param>
-        public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile)
-            : base(name, priority, profile)
+        /// <inheritdoc />
+        public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
+            : base(name, priority, profile, parentService)
         {
 #if UNITY_WSA
             this.profile = profile;
