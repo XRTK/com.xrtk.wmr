@@ -387,12 +387,12 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="interactionSource">Source State provided by the SDK</param>
         /// <param name="addController">Should the Source be added as a controller if it isn't found?</param>
         /// <returns>New or Existing Controller Input Source</returns>
-        private WindowsMixedRealityController GetController(InteractionSource interactionSource, bool addController = false)
+        private WindowsMixedRealityMotionController GetController(InteractionSource interactionSource, bool addController = false)
         {
             //If a device is already registered with the ID provided, just return it.
             if (activeControllers.ContainsKey(interactionSource.id))
             {
-                var controller = activeControllers[interactionSource.id] as WindowsMixedRealityController;
+                var controller = activeControllers[interactionSource.id] as WindowsMixedRealityMotionController;
                 Debug.Assert(controller != null);
                 return controller;
             }
@@ -414,15 +414,15 @@ namespace XRTK.WindowsMixedReality.Controllers
                     break;
             }
 
-            WindowsMixedRealityController detectedController;
+            WindowsMixedRealityMotionController detectedController;
 
             try
             {
-                detectedController = new WindowsMixedRealityController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(typeof(WindowsMixedRealityController), handedness));
+                detectedController = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(typeof(WindowsMixedRealityMotionController), handedness));
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to create {nameof(WindowsMixedRealityController)}!\n{e}");
+                Debug.LogError($"Failed to create {nameof(WindowsMixedRealityMotionController)}!\n{e}");
                 return null;
             }
 
@@ -433,7 +433,7 @@ namespace XRTK.WindowsMixedReality.Controllers
             return detectedController;
         }
 
-        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityController controller)
+        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
         {
 #if WINDOWS_UWP
             if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque) { return; }
