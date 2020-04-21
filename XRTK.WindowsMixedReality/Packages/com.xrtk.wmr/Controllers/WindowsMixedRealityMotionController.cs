@@ -128,7 +128,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                         UpdateMenuData(interactionSourceState, interactionMapping);
                         break;
                     default:
-                        Debug.LogError($"Input [{interactionMapping.InputType}] is not handled for this controller [{GetType().Name}]");
+                        Debug.LogError($"Input [{interactionMapping.Description}.{interactionMapping.InputType}] is not handled for this controller [{GetType().Name}]");
                         Enabled = false;
                         break;
                 }
