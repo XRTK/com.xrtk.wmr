@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.XR.WSA;
 using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Extensions;
+using XRTK.Services;
 using XRTK.Utilities;
 #endif // UNITY_WSA
 
@@ -58,7 +59,9 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
             // Update the observer location if it is not stationary
             if (!IsStationaryObserver)
             {
-                ObserverOrigin = CameraCache.Main.transform.position;
+                ObserverOrigin = MixedRealityToolkit.CameraSystem != null
+                    ? MixedRealityToolkit.CameraSystem.MainCameraRig.CameraTransform.localPosition
+                    : CameraCache.Main.transform.position;
             }
 
             // The application can update the observer volume at any time, make sure we are using the latest.
@@ -158,7 +161,7 @@ namespace XRTK.WindowsMixedReality.SpatialObservers
                 {
                     if (!outputWritten)
                     {
-                        Debug.LogWarning($"No output for {cookedData.id.handle}");
+                        Debug.LogWarning($"No output for {cookedData.id.handle.ToString()}");
                         return;
                     }
 
