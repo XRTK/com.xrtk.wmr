@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Definitions.Controllers;
 using XRTK.Definitions.Devices;
-using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
-using XRTK.Interfaces.InputSystem;
 using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Providers.Controllers;
 
@@ -20,11 +19,13 @@ namespace XRTK.WindowsMixedReality.Controllers
     /// <summary>
     /// A Windows Mixed Reality Controller Instance.
     /// </summary>
-    public class WindowsMixedRealityController : BaseController
+    public class WindowsMixedRealityMotionController : BaseController
     {
+        public WindowsMixedRealityMotionController() : base() { }
+
         /// <inheritdoc />
-        public WindowsMixedRealityController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, IMixedRealityInputSource inputSource = null, MixedRealityInteractionMapping[] interactions = null)
-                : base(controllerDataProvider, trackingState, controllerHandedness, inputSource, interactions)
+        public WindowsMixedRealityMotionController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, MixedRealityControllerMappingProfile controllerMappingProfile)
+                : base(controllerDataProvider, trackingState, controllerHandedness, controllerMappingProfile)
         {
         }
 
@@ -34,18 +35,18 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <remarks>A single interaction mapping works for both left and right controllers.</remarks>
         public override MixedRealityInteractionMapping[] DefaultInteractions => new[]
         {
-            new MixedRealityInteractionMapping(0, "Spatial Pointer", AxisType.SixDof, DeviceInputType.SpatialPointer, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(1, "Spatial Grip", AxisType.SixDof, DeviceInputType.SpatialGrip, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(2, "Grip Press", AxisType.SingleAxis, DeviceInputType.TriggerPress, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(3, "Trigger Position", AxisType.SingleAxis, DeviceInputType.Trigger, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(4, "Trigger Touched", AxisType.Digital, DeviceInputType.TriggerTouch, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(5, "Trigger Press (Select)", AxisType.Digital, DeviceInputType.Select, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(6, "Touchpad Position", AxisType.DualAxis, DeviceInputType.Touchpad, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(7, "Touchpad Touch", AxisType.Digital, DeviceInputType.TouchpadTouch, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(8, "Touchpad Press", AxisType.Digital, DeviceInputType.TouchpadPress, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(9, "Menu Press", AxisType.Digital, DeviceInputType.Menu, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(10, "Thumbstick Position", AxisType.DualAxis, DeviceInputType.ThumbStick, MixedRealityInputAction.None),
-            new MixedRealityInteractionMapping(11, "Thumbstick Press", AxisType.Digital, DeviceInputType.ThumbStickPress, MixedRealityInputAction.None),
+            new MixedRealityInteractionMapping("Spatial Pointer", AxisType.SixDof, DeviceInputType.SpatialPointer),
+            new MixedRealityInteractionMapping("Spatial Grip", AxisType.SixDof, DeviceInputType.SpatialGrip),
+            new MixedRealityInteractionMapping("Grip Press", AxisType.SingleAxis, DeviceInputType.TriggerPress),
+            new MixedRealityInteractionMapping("Trigger Position", AxisType.SingleAxis, DeviceInputType.Trigger),
+            new MixedRealityInteractionMapping("Trigger Touched", AxisType.Digital, DeviceInputType.TriggerTouch),
+            new MixedRealityInteractionMapping("Trigger Press (Select)", AxisType.Digital, DeviceInputType.Select),
+            new MixedRealityInteractionMapping("Touchpad Position", AxisType.DualAxis, DeviceInputType.Touchpad),
+            new MixedRealityInteractionMapping("Touchpad Touch", AxisType.Digital, DeviceInputType.TouchpadTouch),
+            new MixedRealityInteractionMapping("Touchpad Press", AxisType.Digital, DeviceInputType.TouchpadPress),
+            new MixedRealityInteractionMapping("Menu Press", AxisType.Digital, DeviceInputType.Menu),
+            new MixedRealityInteractionMapping("Thumbstick Position", AxisType.DualAxis, DeviceInputType.ThumbStick),
+            new MixedRealityInteractionMapping("Thumbstick Press", AxisType.Digital, DeviceInputType.ThumbStickPress),
         };
 
         /// <inheritdoc />
@@ -53,12 +54,6 @@ namespace XRTK.WindowsMixedReality.Controllers
 
         /// <inheritdoc />
         public override MixedRealityInteractionMapping[] DefaultRightHandedInteractions => DefaultInteractions;
-
-        /// <inheritdoc />
-        public override void SetupDefaultInteractions(Handedness controllerHandedness)
-        {
-            AssignControllerMappings(DefaultInteractions);
-        }
 
 #if UNITY_WSA
 
@@ -133,7 +128,7 @@ namespace XRTK.WindowsMixedReality.Controllers
                         UpdateMenuData(interactionSourceState, interactionMapping);
                         break;
                     default:
-                        Debug.LogError($"Input [{interactionMapping.InputType}] is not handled for this controller [{GetType().Name}]");
+                        Debug.LogError($"Input [{interactionMapping.Description}.{interactionMapping.InputType}] is not handled for this controller [{GetType().Name}]");
                         Enabled = false;
                         break;
                 }

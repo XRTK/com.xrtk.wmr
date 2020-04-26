@@ -6,6 +6,7 @@ using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
@@ -19,7 +20,6 @@ using WsaGestureSettings = UnityEngine.XR.WSA.Input.GestureSettings;
 #endif // UNITY_WSA
 
 #if WINDOWS_UWP
-using System;
 using Windows.ApplicationModel.Core;
 using Windows.Perception;
 using Windows.Storage.Streams;
@@ -387,57 +387,53 @@ namespace XRTK.WindowsMixedReality.Controllers
         /// <param name="interactionSource">Source State provided by the SDK</param>
         /// <param name="addController">Should the Source be added as a controller if it isn't found?</param>
         /// <returns>New or Existing Controller Input Source</returns>
-        private WindowsMixedRealityController GetController(InteractionSource interactionSource, bool addController = false)
+        private WindowsMixedRealityMotionController GetController(InteractionSource interactionSource, bool addController = false)
         {
             //If a device is already registered with the ID provided, just return it.
             if (activeControllers.ContainsKey(interactionSource.id))
             {
-                var controller = activeControllers[interactionSource.id] as WindowsMixedRealityController;
+                var controller = activeControllers[interactionSource.id] as WindowsMixedRealityMotionController;
                 Debug.Assert(controller != null);
                 return controller;
             }
 
             if (!addController) { return null; }
 
-            Handedness controllingHand;
+            Handedness handedness;
+
             switch (interactionSource.handedness)
             {
                 default:
-                    controllingHand = Handedness.None;
+                    handedness = Handedness.None;
                     break;
                 case InteractionSourceHandedness.Left:
-                    controllingHand = Handedness.Left;
+                    handedness = Handedness.Left;
                     break;
                 case InteractionSourceHandedness.Right:
-                    controllingHand = Handedness.Right;
+                    handedness = Handedness.Right;
                     break;
             }
 
-            var pointers = interactionSource.supportsPointing ? RequestPointers(typeof(WindowsMixedRealityController), controllingHand) : null;
-            var nameModifier = controllingHand == Handedness.None ? interactionSource.kind.ToString() : controllingHand.ToString();
-            var inputSource = MixedRealityToolkit.InputSystem?.RequestNewGenericInputSource($"Mixed Reality Controller {nameModifier}", pointers);
-            var detectedController = new WindowsMixedRealityController(this, TrackingState.NotApplicable, controllingHand, inputSource);
+            WindowsMixedRealityMotionController detectedController;
 
-            if (!detectedController.SetupConfiguration(typeof(WindowsMixedRealityController)))
+            try
             {
-                // Controller failed to be setup correctly.
-                // Return null so we don't raise the source detected.
+                detectedController = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(typeof(WindowsMixedRealityMotionController), handedness));
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to create {nameof(WindowsMixedRealityMotionController)}!\n{e}");
                 return null;
             }
 
             TryRenderControllerModel(interactionSource, detectedController);
-
-            for (int i = 0; i < detectedController.InputSource?.Pointers?.Length; i++)
-            {
-                detectedController.InputSource.Pointers[i].Controller = detectedController;
-            }
 
             activeControllers.Add(interactionSource.id, detectedController);
             AddController(detectedController);
             return detectedController;
         }
 
-        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityController controller)
+        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
         {
 #if WINDOWS_UWP
             if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque) { return; }
@@ -481,11 +477,10 @@ namespace XRTK.WindowsMixedReality.Controllers
                     Debug.LogError("Failed to load model data!");
                 }
 
-                // This really isn't an error, we actually can call TryRenderControllerModelAsync here.
-                await controller.TryRenderControllerModelAsync(typeof(WindowsMixedRealityController), glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
+                await controller.TryRenderControllerModelAsync(glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
             }
 #else
-            await controller.TryRenderControllerModelAsync(typeof(WindowsMixedRealityController), null, interactionSource.kind == InteractionSourceKind.Hand);
+            await controller.TryRenderControllerModelAsync(null, interactionSource.kind == InteractionSourceKind.Hand);
 #endif // WINDOWS_UWP
         }
 

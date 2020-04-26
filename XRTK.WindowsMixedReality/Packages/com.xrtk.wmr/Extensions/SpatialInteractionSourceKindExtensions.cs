@@ -22,7 +22,7 @@ namespace XRTK.WindowsMixedReality.Extensions
             switch (spatialInteractionSourceKind)
             {
                 case SpatialInteractionSourceKind.Controller:
-                    return typeof(WindowsMixedRealityController);
+                    return typeof(WindowsMixedRealityMotionController);
                 case SpatialInteractionSourceKind.Hand:
                     return typeof(MixedRealityHandController);
                 default:
