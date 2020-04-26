@@ -1,12 +1,15 @@
-﻿using UnityEngine;
+﻿// Copyright (c) XRTK. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using UnityEngine;
 using XRTK.Attributes;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
+using XRTK.WindowsMixedReality.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Windows Mixed Reality", fileName = "WindowsMixedRealityControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
     public class WindowsMixedRealityControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
     {
         [EnumFlags]
@@ -49,5 +52,15 @@ namespace XRTK.WindowsMixedReality.Profiles
         private AutoStartBehavior windowsGestureAutoStart = AutoStartBehavior.AutoStart;
 
         public AutoStartBehavior WindowsGestureAutoStart => windowsGestureAutoStart;
+
+        public override ControllerDefinition[] GetDefaultControllerOptions()
+        {
+            return new[]
+               {
+                 new ControllerDefinition("HoloLensController", typeof(WindowsMixedRealityMotionController)),
+                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
+                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
+            };
+        }
     }
 }
