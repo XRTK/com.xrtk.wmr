@@ -8,14 +8,10 @@ using Windows.UI.Input.Spatial;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Controllers;
 
-#endif // WINDOWS_UWP
-
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class SpatialInteractionSourceKindExtensions
     {
-#if WINDOWS_UWP
-
         /// <summary>
         /// Maps the native <see cref="SpatialInteractionSourceKind"/> to a XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type.
         /// </summary>
@@ -34,6 +30,6 @@ namespace XRTK.WindowsMixedReality.Extensions
             }
         }
 
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP

@@ -6,14 +6,10 @@
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Utilities;
 
-#endif // WINDOWS_UWP
-
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class SpatialInteractionSourceHandednessExtensions
     {
-#if WINDOWS_UWP
-
         /// <summary>
         /// Converts the native <see cref="SpatialInteractionSourceHandedness"/> to a XRTK <see cref="Handedness"/>.
         /// </summary>
@@ -32,6 +28,6 @@ namespace XRTK.WindowsMixedReality.Extensions
             }
         }
 
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP

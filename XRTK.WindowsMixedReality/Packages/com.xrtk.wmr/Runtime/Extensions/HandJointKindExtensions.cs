@@ -6,14 +6,10 @@
 using Windows.Perception.People;
 using XRTK.Definitions.Controllers.Hands;
 
-#endif // WINDOWS_UWP
-
 namespace XRTK.WindowsMixedReality.Extensions
 {
     public static class HandJointKindExtensions
     {
-#if WINDOWS_UWP
-
         public static TrackedHandJoint ToTrackedHandJoint(this HandJointKind handJointKind)
         {
             switch (handJointKind)
@@ -54,7 +50,6 @@ namespace XRTK.WindowsMixedReality.Extensions
                 default: return TrackedHandJoint.None;
             }
         }
-
-#endif // WINDOWS_UWP
     }
 }
+#endif // WINDOWS_UWP
