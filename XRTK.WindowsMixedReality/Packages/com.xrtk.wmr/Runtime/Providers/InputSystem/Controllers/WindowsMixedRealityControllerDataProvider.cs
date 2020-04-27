@@ -27,7 +27,7 @@ using Windows.UI.Input.Spatial;
 using XRTK.Utilities;
 #endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Controllers
+namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
 {
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
