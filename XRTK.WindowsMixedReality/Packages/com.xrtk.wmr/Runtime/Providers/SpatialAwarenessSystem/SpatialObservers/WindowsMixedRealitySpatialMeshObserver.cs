@@ -15,7 +15,7 @@ using XRTK.Services;
 using XRTK.Utilities;
 #endif // UNITY_WSA
 
-namespace XRTK.WindowsMixedReality.SpatialObservers
+namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObservers
 {
     /// <summary>
     /// The Windows Mixed Reality Spatial Mesh Observer.
