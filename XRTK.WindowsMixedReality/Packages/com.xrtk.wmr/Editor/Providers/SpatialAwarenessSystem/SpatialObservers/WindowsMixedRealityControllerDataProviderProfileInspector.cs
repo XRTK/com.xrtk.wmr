@@ -3,8 +3,8 @@
 
 using UnityEditor;
 using UnityEngine;
-using XRTK.Inspectors.Extensions;
-using XRTK.Inspectors.Profiles.InputSystem.Controllers;
+using XRTK.Editor.Extensions;
+using XRTK.Editor.Profiles.InputSystem.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
 namespace XRTK.WindowsMixedReality.Editor.Providers.SpatialAwarenessSystem.SpatialObservers
