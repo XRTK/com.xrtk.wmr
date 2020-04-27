@@ -3,23 +3,22 @@
 
 using UnityEditor;
 using UnityEngine;
-using XRTK.Inspectors.Extensions;
-using XRTK.Inspectors.Profiles.InputSystem.Controllers;
+using XRTK.Editor.Extensions;
+using XRTK.Editor.Profiles.InputSystem.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
-namespace XRTK.WindowsMixedReality.Inspectors
+namespace XRTK.WindowsMixedReality.Editor.Providers.SpatialAwarenessSystem.SpatialObservers
 {
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
     public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityControllerDataProviderProfileInspector
     {
+        private static readonly GUIContent GestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
+
         private SerializedProperty manipulationGestures;
         private SerializedProperty useRailsNavigation;
         private SerializedProperty navigationGestures;
         private SerializedProperty railsNavigationGestures;
         private SerializedProperty windowsGestureAutoStart;
-
-        bool showGestureSettings = true;
-        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
 
         protected override void OnEnable()
         {
@@ -38,14 +37,15 @@ namespace XRTK.WindowsMixedReality.Inspectors
 
             serializedObject.Update();
             EditorGUILayout.Space();
-            showGestureSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showGestureSettings, gestureSettingsFoldoutHeader, true);
-            if (showGestureSettings)
+
+            if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(GestureSettingsFoldoutHeader))
             {
-                EditorGUILayout.PropertyField(windowsGestureAutoStart);
+                EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(manipulationGestures);
                 EditorGUILayout.PropertyField(navigationGestures);
                 EditorGUILayout.PropertyField(useRailsNavigation);
                 EditorGUILayout.PropertyField(railsNavigationGestures);
+                EditorGUI.indentLevel--;
             }
 
             serializedObject.ApplyModifiedProperties();

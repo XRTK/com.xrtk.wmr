@@ -22,7 +22,7 @@ using XRTK.WindowsMixedReality.Utilities;
 
 #endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Controllers
+namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
 {
     /// <summary>
     /// The Windows Mixed Reality Data Provider for hand controller support.

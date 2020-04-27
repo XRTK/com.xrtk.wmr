@@ -6,7 +6,7 @@ using XRTK.Attributes;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
-using XRTK.WindowsMixedReality.Controllers;
+using XRTK.WindowsMixedReality.Providers.InputSystem.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
