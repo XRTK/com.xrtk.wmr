@@ -7,6 +7,7 @@ using XRTK.Providers.CameraSystem;
 
 namespace XRTK.WindowsMixedReality.Providers.CameraSystem
 {
+    [System.Runtime.InteropServices.Guid("0F33B864-E4B9-4697-AF40-F7772F3BC596")]
     public class WindowsMixedRealityCameraDataProvider : BaseCameraDataProvider
     {
         /// <inheritdoc />
