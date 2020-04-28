@@ -32,6 +32,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
     /// </summary>
+    [System.Runtime.InteropServices.Guid("12E02EF8-4177-46AB-BC50-19AF7148BD4A")]
     public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
     {
         /// <inheritdoc />
