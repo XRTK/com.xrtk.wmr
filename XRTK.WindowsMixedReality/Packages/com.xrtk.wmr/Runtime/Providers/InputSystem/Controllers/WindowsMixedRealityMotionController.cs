@@ -19,9 +19,11 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
     /// <summary>
     /// A Windows Mixed Reality Controller Instance.
     /// </summary>
+    [System.Runtime.InteropServices.Guid("37AA1554-3D46-4C72-AAC4-31023775F62B")]
     public class WindowsMixedRealityMotionController : BaseController
     {
-        public WindowsMixedRealityMotionController() : base() { }
+        /// <inheritdoc />
+        public WindowsMixedRealityMotionController() { }
 
         /// <inheritdoc />
         public WindowsMixedRealityMotionController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, MixedRealityControllerMappingProfile controllerMappingProfile)

@@ -28,6 +28,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
     /// The Windows Mixed Reality Data Provider for hand controller support.
     /// It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
+    [System.Runtime.InteropServices.Guid("F2E0D0EF-6393-4F96-90CC-DF78CA1DC8A2")]
     public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
     {
         /// <inheritdoc />

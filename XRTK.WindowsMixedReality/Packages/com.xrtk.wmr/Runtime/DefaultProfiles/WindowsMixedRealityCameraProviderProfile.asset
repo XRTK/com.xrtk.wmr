@@ -22,7 +22,7 @@ MonoBehaviour:
   backgroundColorTransparentDisplay: {r: 0, g: 0, b: 0, a: 0}
   transparentQualityLevel: 0
   cameraRigType:
-    reference: XRTK.Services.CameraSystem.DefaultCameraRig, XRTK
+    reference: 8e0ee4fc-c8a5-4b10-9fca-ee55b6d421ff
   defaultHeadHeight: 0
   bodyAdjustmentAngle: 60
   bodyAdjustmentSpeed: 1
