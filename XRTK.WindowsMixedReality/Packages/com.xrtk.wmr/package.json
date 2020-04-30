@@ -18,7 +18,7 @@
     "com.xrtk.core": "0.2.0",
     "com.unity.xr.windowsmr.metro": "1.0.19"
   },
-  "samples": [
+  "profiles": [
     {
       "displayName": "Default Profiles",
       "path": "Profiles~/"
