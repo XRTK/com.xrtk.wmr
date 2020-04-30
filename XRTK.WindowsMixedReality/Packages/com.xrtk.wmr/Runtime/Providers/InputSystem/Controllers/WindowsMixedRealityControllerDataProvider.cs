@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Attributes;
+using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
@@ -32,6 +34,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
     /// </summary>
+    [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("12E02EF8-4177-46AB-BC50-19AF7148BD4A")]
     public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
     {
