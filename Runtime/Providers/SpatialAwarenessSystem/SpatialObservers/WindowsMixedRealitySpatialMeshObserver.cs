@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Attributes;
+using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.SpatialAwarenessSystem;
 using XRTK.Providers.SpatialObservers;
 using XRTK.WindowsMixedReality.Profiles;
@@ -20,6 +22,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
     /// <summary>
     /// The Windows Mixed Reality Spatial Mesh Observer.
     /// </summary>
+    [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("0861C801-E20E-4E76-8C4E-711C1CB43DDF")]
     public class WindowsMixedRealitySpatialMeshObserver : BaseMixedRealitySpatialMeshObserver
     {

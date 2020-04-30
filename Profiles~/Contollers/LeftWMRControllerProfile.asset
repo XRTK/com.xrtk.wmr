@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d420c170b42dfe0438e2aa2a829775ed, type: 3}
+  m_Name: LeftWMRControllerProfile
+  m_EditorClassIdentifier: 
+  controllerType:
+    reference: 37aa1554-3d46-4c72-aac4-31023775f62b
+  handedness: 1
+  visualizationProfile: {fileID: 11400000, guid: f381de7e7e4e4974a9c264a1b9453066,
+    type: 2}
+  useCustomInteractions: 0
+  interactionMappingProfiles:
+  - {fileID: 11400000, guid: 4eabae8f23a506948894ceab3ed56bed, type: 2}
+  - {fileID: 11400000, guid: b10b88729da78e243b99b30e15b3f810, type: 2}
+  - {fileID: 11400000, guid: 7e4ecf81e5712754c8d245537978d758, type: 2}
+  - {fileID: 11400000, guid: c6849f14c4d742d4e918c4ce1bf2b4b4, type: 2}
+  - {fileID: 11400000, guid: 20ebd784cd7d33c4c8e046ad905f8fd6, type: 2}
+  - {fileID: 11400000, guid: f244c21bf0106a64a903950d2fbd60f9, type: 2}
+  - {fileID: 11400000, guid: 2e61fbdb1f55b0146a52033f2ebbfbff, type: 2}
+  - {fileID: 11400000, guid: 49266328add1c764e8b882e1e9bb89d4, type: 2}
+  - {fileID: 11400000, guid: 3070249a19481544a88c8edb12bdb4f1, type: 2}
+  - {fileID: 11400000, guid: 8374fc38e78c9174f812db35adecc959, type: 2}
+  - {fileID: 11400000, guid: 2394acc9efbc4a649bbc8a4af8279a85, type: 2}
+  - {fileID: 11400000, guid: f19cadd37dae8c7449b4bf2a9ec8f262, type: 2}

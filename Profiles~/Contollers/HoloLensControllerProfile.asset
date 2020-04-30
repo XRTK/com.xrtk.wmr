@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d420c170b42dfe0438e2aa2a829775ed, type: 3}
+  m_Name: HoloLensControllerProfile
+  m_EditorClassIdentifier: 
+  controllerType:
+    reference: 37aa1554-3d46-4c72-aac4-31023775f62b
+  handedness: 0
+  visualizationProfile: {fileID: 0}
+  useCustomInteractions: 1
+  interactionMappingProfiles:
+  - {fileID: 11400000, guid: 276d084c2bceed04b94fd467c7e5fc14, type: 2}
+  - {fileID: 11400000, guid: f3146fda244cb8d4693c2edc69bdb2c3, type: 2}
+  - {fileID: 11400000, guid: 5f74fb8ba2c5a29448299a01af87774b, type: 2}
