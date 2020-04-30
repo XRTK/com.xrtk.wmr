@@ -12,7 +12,7 @@ namespace XRTK.WindowsMixedReality.Editor
     [InitializeOnLoad]
     internal static class WindowsMixedRealityPackageInstaller
     {
-        private static readonly string DefaultPath = $"{MixedRealityPreferences.ProfileGenerationPath}WindowsMixedReality\\";
+        private static readonly string DefaultPath = $"{MixedRealityPreferences.ProfileGenerationPath}WindowsMixedReality";
         private static readonly string HiddenPath = Path.GetFullPath($"{PathFinderUtility.ResolvePath<IPathFinder>(typeof(WindowsMixedRealityPathFinder)).ToForwardSlashes()}\\{MixedRealityPreferences.HIDDEN_PROFILES_PATH}");
 
         static WindowsMixedRealityPackageInstaller()
