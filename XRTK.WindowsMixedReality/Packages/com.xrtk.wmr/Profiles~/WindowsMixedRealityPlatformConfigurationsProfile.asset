@@ -15,7 +15,6 @@ MonoBehaviour:
   platformEntries:
     runtimePlatforms:
     - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-    - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
     - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
   configurations:
   - instancedType:
@@ -25,7 +24,6 @@ MonoBehaviour:
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 57a7de86787ebb74ead8edbc180d4d14, type: 2}
   - instancedType:
@@ -35,7 +33,6 @@ MonoBehaviour:
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 8e0139954c0b0ab41a6f5fce7c0594e1, type: 2}
   - instancedType:
@@ -45,7 +42,6 @@ MonoBehaviour:
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 11ef7a331fa0a164bb9ac3e5cae510ff, type: 2}
   - instancedType:
@@ -55,6 +51,5 @@ MonoBehaviour:
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 0}
