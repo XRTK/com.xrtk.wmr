@@ -27,9 +27,6 @@ MonoBehaviour:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
-      - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
-      - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 57a7de86787ebb74ead8edbc180d4d14, type: 2}
   - instancedType:
       reference: 12e02ef8-4177-46ab-bc50-19af7148bd4a
@@ -37,9 +34,6 @@ MonoBehaviour:
     priority: 1
     platformEntries:
       runtimePlatforms:
-      - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
-      - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
@@ -53,9 +47,6 @@ MonoBehaviour:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
-      - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
-      - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 11ef7a331fa0a164bb9ac3e5cae510ff, type: 2}
   - instancedType:
       reference: 0861c801-e20e-4e76-8c4e-711c1cb43ddf
@@ -63,9 +54,6 @@ MonoBehaviour:
     priority: 3
     platformEntries:
       runtimePlatforms:
-      - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
-      - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
-      - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 58de2d2a-db5f-4090-a949-4028b8ea3afd
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
