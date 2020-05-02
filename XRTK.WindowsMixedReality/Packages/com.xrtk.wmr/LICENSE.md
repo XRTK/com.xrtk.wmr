@@ -1,5 +1,6 @@
 MIT License
 
+Copyright (c) 2019 Microsoft Corporation
 Copyright (c) 2020 XRTK
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
