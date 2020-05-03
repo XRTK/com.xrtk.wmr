@@ -14,7 +14,6 @@ using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
-using XRTK.WindowsMixedReality.Utilities;
 using XRTK.Extensions;
 
 #endif // WINDOWS_UWP
