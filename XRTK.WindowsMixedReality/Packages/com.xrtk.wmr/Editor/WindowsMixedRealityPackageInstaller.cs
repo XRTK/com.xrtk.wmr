@@ -19,7 +19,7 @@ namespace XRTK.WindowsMixedReality.Editor
         {
             if (!EditorPreferences.Get($"{nameof(WindowsMixedRealityPackageInstaller)}", false))
             {
-                EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}", PackageInstaller.TryInstallProfiles(HiddenPath, DefaultPath));
+                EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}", PackageInstaller.TryInstallAssets(HiddenPath, $"{DefaultPath}\\Profiles"));
             }
         }
     }
