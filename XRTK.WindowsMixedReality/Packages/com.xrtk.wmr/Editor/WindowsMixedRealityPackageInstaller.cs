@@ -17,9 +17,27 @@ namespace XRTK.WindowsMixedReality.Editor
 
         static WindowsMixedRealityPackageInstaller()
         {
-            if (!EditorPreferences.Get($"{nameof(WindowsMixedRealityPackageInstaller)}", false))
+            EditorApplication.delayCall += CheckPackage;
+        }
+
+        [MenuItem("Mixed Reality Toolkit/Packages/Install Windows Mixed Realty Package Assets...", true)]
+        private static bool ImportPackageAssetsValidation()
+        {
+            return !Directory.Exists($"{DefaultPath}\\Profiles");
+        }
+
+        [MenuItem("Mixed Reality Toolkit/Packages/Install Windows Mixed Realty Package Assets...")]
+        private static void ImportPackageAssets()
+        {
+            EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}.Profiles", false);
+            EditorApplication.delayCall += CheckPackage;
+        }
+
+        private static void CheckPackage()
+        {
+            if (!EditorPreferences.Get($"{nameof(WindowsMixedRealityPackageInstaller)}.Profiles", false))
             {
-                EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}", PackageInstaller.TryInstallProfiles(HiddenPath, DefaultPath));
+                EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}.Profiles", PackageInstaller.TryInstallAssets(HiddenPath, $"{DefaultPath}\\Profiles"));
             }
         }
     }
