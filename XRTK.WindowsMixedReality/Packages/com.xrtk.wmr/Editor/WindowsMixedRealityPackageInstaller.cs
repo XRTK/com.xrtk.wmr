@@ -21,13 +21,13 @@ namespace XRTK.WindowsMixedReality.Editor
         }
 
         [MenuItem("Mixed Reality Toolkit/Packages/Install Windows Mixed Realty Package Assets...", true)]
-        private static bool ImportLuminPackageAssetsValidation()
+        private static bool ImportPackageAssetsValidation()
         {
             return !Directory.Exists($"{DefaultPath}\\Profiles");
         }
 
         [MenuItem("Mixed Reality Toolkit/Packages/Install Windows Mixed Realty Package Assets...")]
-        private static void ImportLuminPackageAssets()
+        private static void ImportPackageAssets()
         {
             EditorPreferences.Set($"{nameof(WindowsMixedRealityPackageInstaller)}.Profiles", false);
             EditorApplication.delayCall += CheckPackage;
