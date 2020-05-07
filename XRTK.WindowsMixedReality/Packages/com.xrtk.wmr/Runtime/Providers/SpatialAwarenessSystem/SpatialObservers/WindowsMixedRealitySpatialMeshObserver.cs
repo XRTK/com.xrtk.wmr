@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+#pragma warning disable 618
+
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.SpatialAwarenessSystem;
@@ -31,7 +33,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             : base(name, priority, profile, parentService)
         {
 #if UNITY_WSA
-#if UNITY_EDITOR 
+#if UNITY_EDITOR
             if (!UnityEditor.PlayerSettings.WSA.GetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception))
             {
                 UnityEditor.PlayerSettings.WSA.SetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception, true);
@@ -97,9 +99,9 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         /// </summary>
         private Vector3 currentObserverOrigin = Vector3.zero;
 
-        /// <summary> 
-        /// The observation extents that are currently in use by the surface observer. 
-        /// </summary> 
+        /// <summary>
+        /// The observation extents that are currently in use by the surface observer.
+        /// </summary>
         private Vector3 currentObserverExtents = Vector3.zero;
 
         /// <summary>

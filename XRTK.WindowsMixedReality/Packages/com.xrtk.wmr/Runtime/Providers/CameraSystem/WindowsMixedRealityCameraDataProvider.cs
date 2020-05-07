@@ -25,7 +25,9 @@ namespace XRTK.WindowsMixedReality.Providers.CameraSystem
             get
             {
 #if UNITY_WSA
+#pragma warning disable 618
                 return UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque;
+#pragma warning restore 618
 #else
                 return base.IsOpaque;
 #endif
