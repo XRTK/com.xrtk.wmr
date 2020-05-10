@@ -75,13 +75,6 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
         #region IMixedRealityControllerDataProvider lifecycle implementation
 
         /// <inheritdoc/>
-        public override void Initialize()
-        {
-            base.Initialize();
-            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = RenderingMode == HandRenderingMode.Mesh;
-        }
-
-        /// <inheritdoc/>
         public override void Update()
         {
             base.Update();
@@ -93,6 +86,8 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
             {
                 return;
             }
+
+            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = RenderingMode == HandRenderingMode.Mesh;
 
             bool isLeftHandTracked = false;
             bool isRightHandTracked = false;
