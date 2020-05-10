@@ -21,6 +21,7 @@ using XRTK.Definitions.Devices;
 using XRTK.Services;
 using XRTK.Utilities;
 using XRTK.WindowsMixedReality.Extensions;
+using XRTK.Definitions.Controllers.Hands;
 
 #endif // WINDOWS_UWP
 
@@ -77,7 +78,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
         public override void Initialize()
         {
             base.Initialize();
-            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = HandMeshingEnabled;
+            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = RenderingMode == HandRenderingMode.Mesh;
         }
 
         /// <inheritdoc/>
