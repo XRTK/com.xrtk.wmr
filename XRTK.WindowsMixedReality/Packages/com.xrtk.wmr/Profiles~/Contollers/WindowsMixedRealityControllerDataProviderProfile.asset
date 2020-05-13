@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe9eeb08f95b1c1419ad17953d9a48ee, type: 3}
+  m_Name: WMRControllerDataProviderProfile
+  m_EditorClassIdentifier: 
+  hasSetupDefaults: 1
+  controllerMappingProfiles:
+  - {fileID: 11400000, guid: aaa9b82b55ce7834bb43c9d726ff893e, type: 2}
+  - {fileID: 11400000, guid: 752ece58d1e10d4458ac9d6ad664cc58, type: 2}
+  - {fileID: 11400000, guid: 87a124892ea548a4ea4cbba488e06b5a, type: 2}
+  manipulationGestures: 0
+  navigationGestures: 0
+  useRailsNavigation: 0
+  railsNavigationGestures: 0
+  windowsGestureAutoStart: 0
