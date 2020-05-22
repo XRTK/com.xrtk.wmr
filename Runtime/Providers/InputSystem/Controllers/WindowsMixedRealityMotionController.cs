@@ -231,26 +231,26 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
             switch (interactionMapping.AxisType)
             {
                 case AxisType.SixDof:
+                    interactionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
+                    interactionSourceState.sourcePose.TryGetRotation(out currentGripRotation);
+
+                    var cameraRig = MixedRealityToolkit.CameraSystem?.MainCameraRig;
+
+                    if (cameraRig != null &&
+                        cameraRig.PlayspaceTransform != null)
                     {
-                        interactionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
-                        interactionSourceState.sourcePose.TryGetRotation(out currentGripRotation, InteractionSourceNode.Grip);
-
-                        var cameraRig = MixedRealityToolkit.CameraSystem?.MainCameraRig;
-
-                        if (cameraRig != null &&
-                            cameraRig.PlayspaceTransform != null)
-                        {
-                            currentGripPose.Position = cameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
-                            currentGripPose.Rotation = Quaternion.Euler(cameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
-                        }
-                        else
-                        {
-                            currentGripPose.Position = currentGripPosition;
-                            currentGripPose.Rotation = currentGripRotation;
-                        }
-
-                        interactionMapping.PoseData = currentGripPose;
+                        currentGripPose.Position = cameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
+                        currentGripPose.Rotation =
+                            Quaternion.Euler(
+                                cameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
                     }
+                    else
+                    {
+                        currentGripPose.Position = currentGripPosition;
+                        currentGripPose.Rotation = currentGripRotation;
+                    }
+
+                    interactionMapping.PoseData = currentGripPose;
                     break;
             }
         }
@@ -265,20 +265,14 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
             switch (interactionMapping.InputType)
             {
                 case DeviceInputType.TouchpadTouch:
-                    {
-                        interactionMapping.BoolData = interactionSourceState.touchpadTouched;
-                        break;
-                    }
+                    interactionMapping.BoolData = interactionSourceState.touchpadTouched;
+                    break;
                 case DeviceInputType.TouchpadPress:
-                    {
-                        interactionMapping.BoolData = interactionSourceState.touchpadPressed;
-                        break;
-                    }
+                    interactionMapping.BoolData = interactionSourceState.touchpadPressed;
+                    break;
                 case DeviceInputType.Touchpad:
-                    {
-                        interactionMapping.Vector2Data = interactionSourceState.touchpadPosition;
-                        break;
-                    }
+                    interactionMapping.Vector2Data = interactionSourceState.touchpadPosition;
+                    break;
             }
         }
 
@@ -292,15 +286,11 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
             switch (interactionMapping.InputType)
             {
                 case DeviceInputType.ThumbStickPress:
-                    {
-                        interactionMapping.BoolData = interactionSourceState.thumbstickPressed;
-                        break;
-                    }
+                    interactionMapping.BoolData = interactionSourceState.thumbstickPressed;
+                    break;
                 case DeviceInputType.ThumbStick:
-                    {
-                        interactionMapping.Vector2Data = interactionSourceState.thumbstickPosition;
-                        break;
-                    }
+                    interactionMapping.Vector2Data = interactionSourceState.thumbstickPosition;
+                    break;
             }
         }
 
@@ -315,45 +305,41 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
             {
                 case DeviceInputType.TriggerPress:
                     interactionMapping.BoolData = interactionSourceState.grasped;
+                    Debug.Log($"{interactionMapping.Description}:{interactionMapping.BoolData}:{interactionMapping.MixedRealityInputAction.Description}:{interactionSourceState.grasped}");
                     break;
                 case DeviceInputType.Select:
+                    bool selectPressed = interactionSourceState.selectPressed;
+                    Debug.Log($"{interactionMapping.Description}:{interactionMapping.BoolData}:{interactionMapping.MixedRealityInputAction.Description}:{interactionSourceState.selectPressed}");
+
+                    // BEGIN WORKAROUND: Unity issue #1033526
+                    // See https://issuetracker.unity3d.com/issues/hololens-interactionsourcestate-dot-selectpressed-is-false-when-air-tap-and-hold
+                    // Bug was discovered May 2018 and still exists as of today Feb 2019 in version 2018.3.4f1, timeline for fix is unknown
+                    // The bug only affects the development workflow via Holographic Remoting or Simulation
+                    if (interactionSourceState.source.kind == InteractionSourceKind.Hand)
                     {
-                        bool selectPressed = interactionSourceState.selectPressed;
+                        Debug.Assert(!(UnityEngine.XR.WSA.HolographicRemoting.ConnectionState == UnityEngine.XR.WSA.HolographicStreamerConnectionState.Connected
+                                       && interactionSourceState.selectPressed),
+                                     "Unity issue #1033526 seems to have been resolved. Please remove this ugly workaround!");
 
-                        // BEGIN WORKAROUND: Unity issue #1033526
-                        // See https://issuetracker.unity3d.com/issues/hololens-interactionsourcestate-dot-selectpressed-is-false-when-air-tap-and-hold
-                        // Bug was discovered May 2018 and still exists as of today Feb 2019 in version 2018.3.4f1, timeline for fix is unknown
-                        // The bug only affects the development workflow via Holographic Remoting or Simulation
-                        if (interactionSourceState.source.kind == InteractionSourceKind.Hand)
-                        {
-                            Debug.Assert(!(UnityEngine.XR.WSA.HolographicRemoting.ConnectionState == UnityEngine.XR.WSA.HolographicStreamerConnectionState.Connected
-                                           && interactionSourceState.selectPressed),
-                                         "Unity issue #1033526 seems to have been resolved. Please remove this ugly workaround!");
+                        // This workaround is safe as long as all these assumptions hold:
+                        Debug.Assert(!interactionSourceState.source.supportsGrasp);
+                        Debug.Assert(!interactionSourceState.source.supportsMenu);
+                        Debug.Assert(!interactionSourceState.source.supportsPointing);
+                        Debug.Assert(!interactionSourceState.source.supportsThumbstick);
+                        Debug.Assert(!interactionSourceState.source.supportsTouchpad);
 
-                            // This workaround is safe as long as all these assumptions hold:
-                            Debug.Assert(!interactionSourceState.source.supportsGrasp);
-                            Debug.Assert(!interactionSourceState.source.supportsMenu);
-                            Debug.Assert(!interactionSourceState.source.supportsPointing);
-                            Debug.Assert(!interactionSourceState.source.supportsThumbstick);
-                            Debug.Assert(!interactionSourceState.source.supportsTouchpad);
-
-                            selectPressed = interactionSourceState.anyPressed;
-                        }
-                        // END WORKAROUND: Unity issue #1033526
-
-                        interactionMapping.BoolData = selectPressed;
-                        break;
+                        selectPressed = interactionSourceState.anyPressed;
                     }
+                    // END WORKAROUND: Unity issue #1033526
+
+                    interactionMapping.BoolData = selectPressed;
+                    break;
                 case DeviceInputType.Trigger:
-                    {
-                        interactionMapping.FloatData = interactionSourceState.selectPressedAmount;
-                        break;
-                    }
+                    interactionMapping.FloatData = interactionSourceState.selectPressedAmount;
+                    break;
                 case DeviceInputType.TriggerTouch:
-                    {
-                        interactionMapping.BoolData = interactionSourceState.selectPressedAmount > 0;
-                        break;
-                    }
+                    interactionMapping.BoolData = interactionSourceState.selectPressedAmount > 0;
+                    break;
             }
         }
 
