@@ -28,8 +28,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// Constructor.
         /// </summary>
         /// <param name="handedness">Handedness of the hand this converter is created for.</param>
-        /// <param name="trackedPoses">The tracked poses collection to use for pose recognition.</param>
-        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<HandControllerPoseDefinition> trackedPoses)
+        public WindowsMixedRealityHandDataConverter(Handedness handedness)
         {
             this.handedness = handedness;
         }

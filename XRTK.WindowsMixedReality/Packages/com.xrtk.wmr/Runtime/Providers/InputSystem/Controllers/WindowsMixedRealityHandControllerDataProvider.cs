@@ -39,8 +39,8 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
-            leftHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Left, TrackedPoses);
-            rightHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Right, TrackedPoses);
+            leftHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Left);
+            rightHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Right);
 
             postProcessor = new HandDataPostProcessor(TrackedPoses);
         }
