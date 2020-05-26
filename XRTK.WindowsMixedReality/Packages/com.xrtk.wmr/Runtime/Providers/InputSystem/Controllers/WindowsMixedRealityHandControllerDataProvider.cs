@@ -41,10 +41,13 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
         {
             leftHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Left, TrackedPoses);
             rightHandConverter = new WindowsMixedRealityHandDataConverter(Handedness.Right, TrackedPoses);
+
+            postProcessor = new HandDataPostProcessor(TrackedPoses);
         }
 
         private readonly WindowsMixedRealityHandDataConverter leftHandConverter;
         private readonly WindowsMixedRealityHandDataConverter rightHandConverter;
+        private readonly HandDataPostProcessor postProcessor;
 
 #if WINDOWS_UWP
 
@@ -103,12 +106,16 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
 
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController leftHandController))
                     {
-                        leftHandController.UpdateController(leftHandConverter.GetHandData(sourceState));
+                        var handData = leftHandConverter.GetHandData(sourceState);
+                        postProcessor.PostProcess(handData);
+                        leftHandController.UpdateController(handData);
                     }
                     else
                     {
                         leftHandController = CreateController(spatialInteractionSource);
-                        leftHandController.UpdateController(leftHandConverter.GetHandData(sourceState));
+                        var handData = leftHandConverter.GetHandData(sourceState);
+                        postProcessor.PostProcess(handData);
+                        leftHandController.UpdateController(handData);
                     }
                 }
 
@@ -118,12 +125,16 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
 
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController rightHandController))
                     {
-                        rightHandController.UpdateController(rightHandConverter.GetHandData(sourceState));
+                        var handData = rightHandConverter.GetHandData(sourceState);
+                        postProcessor.PostProcess(handData);
+                        rightHandController.UpdateController(handData);
                     }
                     else
                     {
                         rightHandController = CreateController(spatialInteractionSource);
-                        rightHandController.UpdateController(rightHandConverter.GetHandData(sourceState));
+                        var handData = rightHandConverter.GetHandData(sourceState);
+                        postProcessor.PostProcess(handData);
+                        rightHandController.UpdateController(handData);
                     }
                 }
             }

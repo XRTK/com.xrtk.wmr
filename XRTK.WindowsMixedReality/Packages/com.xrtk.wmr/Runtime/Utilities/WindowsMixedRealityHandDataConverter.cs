@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
-using XRTK.Providers.Controllers.Hands;
 
 #if WINDOWS_UWP
 
@@ -23,27 +22,19 @@ namespace XRTK.WindowsMixedReality.Utilities
     /// <summary>
     /// Converts windows mixed reality hand data to <see cref="HandData"/>.
     /// </summary>
-    public sealed class WindowsMixedRealityHandDataConverter : BaseHandDataConverter
+    public sealed class WindowsMixedRealityHandDataConverter
     {
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="handedness">Handedness of the hand this converter is created for.</param>
         /// <param name="trackedPoses">The tracked poses collection to use for pose recognition.</param>
-        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<HandControllerPoseDefinition> trackedPoses) : base(handedness, trackedPoses)
-        { }
+        public WindowsMixedRealityHandDataConverter(Handedness handedness, IReadOnlyList<HandControllerPoseDefinition> trackedPoses)
+        {
+            this.handedness = handedness;
+        }
 
-        /// <inheritdoc />
-        protected override bool PlatformProvidesPointerPose => false;
-
-        /// <inheritdoc />
-        protected override bool PlatformProvidesIsPinching => false;
-
-        /// <inheritdoc />
-        protected override bool PlatformProvidesPinchStrength => false;
-
-        /// <inheritdoc />
-        protected override bool PlatformProvidesIsPointing => false;
+        private readonly Handedness handedness;
 
 #if WINDOWS_UWP
 
@@ -102,7 +93,7 @@ namespace XRTK.WindowsMixedReality.Utilities
             HandData updatedHandData = new HandData
             {
                 IsTracked = handPose != null,
-                TimeStamp = DateTimeOffset.UtcNow.Ticks
+                UpdatedAt = DateTimeOffset.UtcNow.Ticks
             };
 
             if (updatedHandData.IsTracked)
@@ -206,7 +197,6 @@ namespace XRTK.WindowsMixedReality.Utilities
                 }
             }
 
-            PostProcess(updatedHandData);
             return updatedHandData;
         }
 
