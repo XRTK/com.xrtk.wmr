@@ -1,13 +1,13 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System.Collections.Generic;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
 
 #if WINDOWS_UWP
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
