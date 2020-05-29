@@ -107,14 +107,14 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController leftHandController))
                     {
                         var handData = leftHandConverter.GetHandData(sourceState);
-                        postProcessor.PostProcess(handData);
+                        postProcessor.PostProcess(Handedness.Left, handData);
                         leftHandController.UpdateController(handData);
                     }
                     else
                     {
                         leftHandController = CreateController(spatialInteractionSource);
                         var handData = leftHandConverter.GetHandData(sourceState);
-                        postProcessor.PostProcess(handData);
+                        postProcessor.PostProcess(Handedness.Left, handData);
                         leftHandController.UpdateController(handData);
                     }
                 }
@@ -126,14 +126,14 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
                     if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController rightHandController))
                     {
                         var handData = rightHandConverter.GetHandData(sourceState);
-                        postProcessor.PostProcess(handData);
+                        postProcessor.PostProcess(Handedness.Right, handData);
                         rightHandController.UpdateController(handData);
                     }
                     else
                     {
                         rightHandController = CreateController(spatialInteractionSource);
                         var handData = rightHandConverter.GetHandData(sourceState);
-                        postProcessor.PostProcess(handData);
+                        postProcessor.PostProcess(Handedness.Right, handData);
                         rightHandController.UpdateController(handData);
                     }
                 }
