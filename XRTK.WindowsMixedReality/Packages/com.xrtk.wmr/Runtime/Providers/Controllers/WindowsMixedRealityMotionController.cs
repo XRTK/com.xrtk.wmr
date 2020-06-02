@@ -305,11 +305,9 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             {
                 case DeviceInputType.TriggerPress:
                     interactionMapping.BoolData = interactionSourceState.grasped;
-                    Debug.Log($"{interactionMapping.Description}:{interactionMapping.BoolData}:{interactionMapping.MixedRealityInputAction.Description}:{interactionSourceState.grasped}");
                     break;
                 case DeviceInputType.Select:
                     bool selectPressed = interactionSourceState.selectPressed;
-                    Debug.Log($"{interactionMapping.Description}:{interactionMapping.BoolData}:{interactionMapping.MixedRealityInputAction.Description}:{interactionSourceState.selectPressed}");
 
                     // BEGIN WORKAROUND: Unity issue #1033526
                     // See https://issuetracker.unity3d.com/issues/hololens-interactionsourcestate-dot-selectpressed-is-false-when-air-tap-and-hold
