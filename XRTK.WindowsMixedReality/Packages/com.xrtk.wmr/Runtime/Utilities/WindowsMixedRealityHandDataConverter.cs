@@ -84,24 +84,25 @@ namespace XRTK.WindowsMixedReality.Utilities
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
                 if (HandMeshingEnabled)
                 {
-                    if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) && !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
+                    if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) &&
+                        !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
                     {
                         SetHandMeshObserver(spatialInteractionSourceState);
                     }
 
                     if (handMeshObservers.TryGetValue(spatialInteractionSourceState.Source.Handedness, out var handMeshObserver) && handMeshTriangleIndices == null)
                     {
-                        uint indexCount = handMeshObserver.TriangleIndexCount;
-                        ushort[] indices = new ushort[indexCount];
+                        var indexCount = handMeshObserver.TriangleIndexCount;
+                        var indices = new ushort[indexCount];
                         handMeshObserver.GetTriangleIndices(indices);
                         handMeshTriangleIndices = new int[indexCount];
                         Array.Copy(indices, handMeshTriangleIndices, (int)handMeshObserver.TriangleIndexCount);
 
                         // Compute neutral pose
-                        Vector3[] neutralPoseVertices = new Vector3[handMeshObserver.VertexCount];
-                        HandPose neutralPose = handMeshObserver.NeutralPose;
+                        var neutralPoseVertices = new Vector3[handMeshObserver.VertexCount];
+                        var neutralPose = handMeshObserver.NeutralPose;
                         var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
-                        HandMeshVertexState handMeshVertexState = handMeshObserver.GetVertexStateForPose(neutralPose);
+                        var handMeshVertexState = handMeshObserver.GetVertexStateForPose(neutralPose);
                         handMeshVertexState.GetVertices(vertexAndNormals);
 
                         for (int i = 0; i < handMeshObserver.VertexCount; i++)
@@ -122,10 +123,7 @@ namespace XRTK.WindowsMixedReality.Utilities
                         var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
                         if (meshTransform.HasValue)
                         {
-                            System.Numerics.Vector3 scale;
-                            System.Numerics.Quaternion rotation;
-                            System.Numerics.Vector3 translation;
-                            System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out scale, out rotation, out translation);
+                            System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out var scale, out var rotation, out var translation);
 
                             var handMeshVertices = new Vector3[handMeshObserver.VertexCount];
                             var handMeshNormals = new Vector3[handMeshObserver.VertexCount];

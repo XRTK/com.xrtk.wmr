@@ -14,7 +14,7 @@ using XRTK.Extensions;
 using XRTK.Services;
 #endif
 
-namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
+namespace XRTK.WindowsMixedReality.Providers.Controllers
 {
     /// <summary>
     /// A Windows Mixed Reality Controller Instance.
