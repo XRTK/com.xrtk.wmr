@@ -6,7 +6,7 @@
 using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Providers.Controllers.Hands;
-using XRTK.WindowsMixedReality.Controllers;
+using XRTK.WindowsMixedReality.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
