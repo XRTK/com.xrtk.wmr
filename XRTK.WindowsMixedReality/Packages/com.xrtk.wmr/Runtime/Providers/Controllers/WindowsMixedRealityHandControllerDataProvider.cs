@@ -24,7 +24,7 @@ using XRTK.WindowsMixedReality.Utilities;
 
 #endif // WINDOWS_UWP
 
-namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
+namespace XRTK.WindowsMixedReality.Providers.Controllers
 {
     /// <summary>
     /// The Windows Mixed Reality Data Provider for hand controller support.
@@ -101,7 +101,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
                 {
                     isLeftHandTracked = true;
 
-                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController leftHandController))
+                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out var leftHandController))
                     {
                         leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
                     }
@@ -116,7 +116,7 @@ namespace XRTK.WindowsMixedReality.Providers.InputSystem.Controllers
                 {
                     isRightHandTracked = true;
 
-                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out MixedRealityHandController rightHandController))
+                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out var rightHandController))
                     {
                         rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
                     }
