@@ -26,7 +26,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Perception;
 using Windows.Storage.Streams;
 using Windows.UI.Input.Spatial;
-using XRTK.Utilities;
+using XRTK.WindowsMixedReality.Utilities;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Providers.Controllers
