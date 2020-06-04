@@ -18,7 +18,6 @@ using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
 using XRTK.Services;
-using XRTK.Utilities;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.WindowsMixedReality.Utilities;
 
@@ -165,7 +164,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             // Articulated hand support is only present in the 18362 version and beyond Windows
             // SDK (which contains the V8 drop of the Universal API Contract). In particular,
             // the HandPose related APIs are only present on this version and above.
-            if (WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
+            if (XRTK.WindowsMixedReality.Utilities.WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
             {
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
                 var sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
