@@ -1,10 +1,11 @@
 stages:
-- stage: Build
+- stage:
   displayName: ${{ format('{0} build agent', parameters.platform) }}
 
   jobs:
     - job:
       displayName: ${{ format('{0}', parameters.image) }}
+      timeoutInMinutes: 120
       variables:
       - group: Global Pipeline Settings
       pool:
