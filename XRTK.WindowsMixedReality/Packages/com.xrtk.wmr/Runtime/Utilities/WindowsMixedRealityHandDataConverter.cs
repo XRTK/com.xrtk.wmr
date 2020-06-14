@@ -14,6 +14,7 @@ using Windows.UI.Input.Spatial;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Extensions;
+using XRTK.Definitions.Devices;
 
 #endif // WINDOWS_UWP
 
@@ -36,11 +37,6 @@ namespace XRTK.WindowsMixedReality.Utilities
         private readonly Handedness handedness;
 
 #if WINDOWS_UWP
-
-        /// <summary>
-        /// Gets or sets whether hand mesh data should be read and converted.
-        /// </summary>
-        public static bool HandMeshingEnabled { get; set; }
 
         private readonly Vector3[] unityJointPositions = new Vector3[jointIndices.Length];
         private readonly Quaternion[] unityJointOrientations = new Quaternion[jointIndices.Length];
@@ -85,20 +81,21 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// Gets updated hand data for the current frame.
         /// </summary>
         /// <param name="spatialInteractionSourceState">Platform provided current input source state for the hand.</param>
+        /// <param name="includeMeshData">If set, hand mesh information will be included in <see cref="HandData.Mesh"/>.</param>
         /// <returns>Platform agnostics hand data.</returns>
-        public HandData GetHandData(SpatialInteractionSourceState spatialInteractionSourceState)
+        public HandData GetHandData(SpatialInteractionSourceState spatialInteractionSourceState, bool includeMeshData)
         {
             HandPose handPose = spatialInteractionSourceState.TryGetHandPose();
             HandData updatedHandData = new HandData
             {
-                IsTracked = handPose != null,
+                TrackingState = handPose != null ? TrackingState.Tracked : TrackingState.NotTracked,
                 UpdatedAt = DateTimeOffset.UtcNow.Ticks
             };
 
-            if (updatedHandData.IsTracked)
+            if (updatedHandData.TrackingState == TrackingState.Tracked)
             {
                 // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
-                if (HandMeshingEnabled)
+                if (includeMeshData)
                 {
                     if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) &&
                         !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
@@ -154,9 +151,7 @@ namespace XRTK.WindowsMixedReality.Utilities
                                 handMeshVertices,
                                 handMeshTriangleIndices,
                                 handMeshNormals,
-                                handMeshUVs,
-                                translation.ToUnity(),
-                                rotation.ToUnity());
+                                handMeshUVs);
                         }
                     }
                 }
