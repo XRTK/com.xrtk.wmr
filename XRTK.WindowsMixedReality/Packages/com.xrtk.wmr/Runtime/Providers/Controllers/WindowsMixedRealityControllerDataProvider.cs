@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Attributes;
@@ -440,10 +440,24 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
         {
 #if WINDOWS_UWP
-            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque) { return; }
+            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque)
+            {
+                return;
+            }
+
             IRandomAccessStreamWithContentType stream = null;
 
-            if (!WindowsApiChecker.UniversalApiContractV5_IsAvailable) { return; }
+            if (!WindowsApiChecker.IsMethodAvailable(
+                "Windows.UI.Input.Spatial",
+                "SpatialInteractionManager",
+                "GetForCurrentView") ||
+                !WindowsApiChecker.IsMethodAvailable(
+                    "Windows.UI.Input.Spatial",
+                    "SpatialInteractionController",
+                    "TryGetRenderableModelAsync"))
+            {
+                return;
+            }
 
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, DispatchedHandler);
 
