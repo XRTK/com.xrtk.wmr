@@ -163,13 +163,17 @@ namespace XRTK.WindowsMixedReality.Utilities
             // put the controller pose into world space. We also want all joint poses to be
             // relative to the hand's root pose, so we account for that as well.
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+            jointPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPosition);
+            jointRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointRotation;
+
+            // To camera space
             var cameraTransform = MixedRealityToolkit.CameraSystem != null
                 ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                 : CameraCache.Main.transform;
 
-            jointPosition = playspaceTransform.TransformPoint(jointPosition) - handRootPose.Position;
-            //jointRotation = playspaceTransform.rotation * jointRotation;
-            //Quaternion.Inverse(handRootPose.Rotation) *
+            // To hand root space
+            jointPosition -= handRootPose.Position;
+            //jointRotation = cameraTransform.rotation * jointRotation;
 
             return new MixedRealityPose(jointPosition, jointRotation);
         }
@@ -184,20 +188,10 @@ namespace XRTK.WindowsMixedReality.Utilities
             // For WMR we use the wrist pose as the hand root pose.
             var wristPose = platformJointPoses[(int)HandJointKind.Wrist];
 
-            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            var cameraTransform = MixedRealityToolkit.CameraSystem != null
-                ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
-                : CameraCache.Main.transform;
-
             // Convert to playspace.
+            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
             var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * wristPose.Position.ToUnity());
             var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
-
-            // Transform to camera space.
-            Debug.Log($"Camera: {cameraTransform.localPosition}");
-            Debug.Log($"Hand Before: {rootPosition}");
-            rootPosition.y += cameraTransform.position.y;
-            Debug.Log($"Hand After: {rootPosition}");
 
             return new MixedRealityPose(rootPosition, rootRotation);
         }
