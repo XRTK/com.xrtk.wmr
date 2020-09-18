@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Definitions.Controllers.Hands;
-using XRTK.Definitions.Utilities;
 
 #if WINDOWS_UWP
 
@@ -15,6 +14,7 @@ using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Extensions;
 using XRTK.Definitions.Devices;
+using XRTK.Definitions.Utilities;
 using XRTK.Utilities;
 
 #endif // WINDOWS_UWP
@@ -28,6 +28,20 @@ namespace XRTK.WindowsMixedReality.Utilities
     {
 #if WINDOWS_UWP
 
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~WindowsMixedRealityHandDataConverter()
+        {
+            if (!conversionProxyRootTransform.IsNull())
+            {
+                conversionProxyTransforms.Clear();
+                conversionProxyRootTransform.Destroy();
+            }
+        }
+
+        private Transform conversionProxyRootTransform;
+        private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
         private readonly Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver> handMeshObservers = new Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver>();
         private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
 
@@ -96,8 +110,8 @@ namespace XRTK.WindowsMixedReality.Utilities
             // and other data needed for updating the hand controller's state.
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                handData.RootPose = GetHandRootPose(platformJointPoses);
-                handData.Joints = GetJointPoses(platformJointPoses, handData.RootPose);
+                handData.RootPose = GetHandRootPose(spatialInteractionSourceState.Source.Handedness, platformJointPoses);
+                handData.Joints = GetJointPoses(spatialInteractionSourceState.Source.Handedness, platformJointPoses, handData.RootPose);
 
                 if (includeMeshData && TryGetUpdatedHandMeshData(spatialInteractionSourceState, handPose, out HandMeshData data))
                 {
@@ -134,15 +148,16 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// <summary>
         /// Gets updated joint poses for all <see cref="TrackedHandJoint"/>s.
         /// </summary>
+        /// <param name="handedness">Handedness of the hand the joints belong to.</param>
         /// <param name="platformJointPoses">Joint poses retrieved from the platform.</param>
         /// <param name="handRootPose">The hand's root pose.</param>
         /// <returns>Joint poses in <see cref="TrackedHandJoint"/> order.</returns>
-        private MixedRealityPose[] GetJointPoses(JointPose[] platformJointPoses, MixedRealityPose handRootPose)
+        private MixedRealityPose[] GetJointPoses(SpatialInteractionSourceHandedness handedness, JointPose[] platformJointPoses, MixedRealityPose handRootPose)
         {
             for (int i = 0; i < platformJointPoses.Length; i++)
             {
                 var handJoint = jointIndices[i].ToTrackedHandJoint();
-                jointPoses[(int)handJoint] = GetJointPose(platformJointPoses[i], handRootPose);
+                jointPoses[(int)handJoint] = GetJointPose(handedness, handJoint, handRootPose, platformJointPoses[i]);
             }
 
             return jointPoses;
@@ -151,49 +166,51 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// <summary>
         /// Gets a single joint's pose relative to the hand root pose.
         /// </summary>
+        /// <param name="handedness">Handedness of the hand.</param>
+        /// <param name="handJointKind">The ID of the joint to convert pose for.</param>
         /// <param name="jointPose">Joint pose data retrieved from the platform.</param>
-        /// <param name="handRootPose">The hand's root pose.</param>
         /// <returns>Converted joint pose in hand space.</returns>
-        private MixedRealityPose GetJointPose(JointPose jointPose, MixedRealityPose handRootPose)
+        private MixedRealityPose GetJointPose(SpatialInteractionSourceHandedness handedness, TrackedHandJoint trackedHandJoint, MixedRealityPose handRootPose, JointPose jointPose)
         {
-            var jointPosition = jointPose.Position.ToUnity();
-            var jointRotation = jointPose.Orientation.ToUnity();
-
-            // We want the controller to follow the Playspace, so fold in the playspace transform here to 
-            // put the controller pose into world space. We also want all joint poses to be
-            // relative to the hand's root pose, so we account for that as well.
+            var jointTransform = GetProxyTransform(handedness, trackedHandJoint);
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            jointPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPosition);
-            jointRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointRotation;
 
-            // To camera space
-            var cameraTransform = MixedRealityToolkit.CameraSystem != null
-                ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
-                : CameraCache.Main.transform;
+            if (trackedHandJoint == TrackedHandJoint.Wrist)
+            {
+                jointTransform.localPosition = handRootPose.Position;
+                jointTransform.localRotation = handRootPose.Rotation;
+            }
+            else
+            {
+                jointTransform.parent = playspaceTransform;
+                jointTransform.localPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPose.Position.ToUnity());
+                jointTransform.localRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointPose.Orientation.ToUnity();
+                jointTransform.parent = conversionProxyRootTransform;
+            }
 
-            // To hand root space
-            jointPosition -= handRootPose.Position;
-            //jointRotation = cameraTransform.rotation * jointRotation;
-
-            return new MixedRealityPose(jointPosition, jointRotation);
+            return new MixedRealityPose(
+                conversionProxyRootTransform.InverseTransformPoint(jointTransform.position),
+                Quaternion.Inverse(conversionProxyRootTransform.rotation) * jointTransform.rotation);
         }
 
         /// <summary>
         /// Gets the hand's root pose.
         /// </summary>
+        /// <param name="handedness">Handedness of the hand.</param>
         /// <param name="platformJointPoses">Joint poses retrieved from the platform.</param>
         /// <returns>The hands <see cref="HandData.RootPose"/> value.</returns>
-        private MixedRealityPose GetHandRootPose(JointPose[] platformJointPoses)
+        private MixedRealityPose GetHandRootPose(SpatialInteractionSourceHandedness handedness, JointPose[] platformJointPoses)
         {
             // For WMR we use the wrist pose as the hand root pose.
             var wristPose = platformJointPoses[(int)HandJointKind.Wrist];
+            var wristProxyTransform = GetProxyTransform(handedness, TrackedHandJoint.Wrist);
 
             // Convert to playspace.
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * wristPose.Position.ToUnity());
-            var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
+            wristProxyTransform.position = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * wristPose.Position.ToUnity());
+            wristProxyTransform.rotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
 
-            return new MixedRealityPose(rootPosition, rootRotation);
+            return new MixedRealityPose(wristProxyTransform.position, wristProxyTransform.rotation);
         }
 
         /// <summary>
@@ -328,6 +345,45 @@ namespace XRTK.WindowsMixedReality.Utilities
             handedness == SpatialInteractionSourceHandedness.Left ?
             hasRequestedHandMeshObserverLeftHand :
             handedness == SpatialInteractionSourceHandedness.Right && hasRequestedHandMeshObserverRightHand;
+
+        /// <summary>
+        /// The oculus APIs return joint poses relative to their parent joint unlike
+        /// other platforms where joint poses are relative to the hand root. To convert
+        /// the joint-->parent-joint relation to joint-->hand-root relations proxy <see cref="Transform"/>s
+        /// are used. The proxies are parented to their respective parent <see cref="Transform"/>.
+        /// That way we can make use of Unity APIs to translate coordinate spaces.
+        /// </summary>
+        /// <param name="handedness">Handedness of the hand the proxy <see cref="Transform"/> belongs to.</param>
+        /// <param name="handJointKind">The joint ID to lookup the proxy <see cref="Transform"/> for.</param>
+        /// <returns>The proxy <see cref="Transform"/>.</returns>
+        private Transform GetProxyTransform(SpatialInteractionSourceHandedness handedness, TrackedHandJoint handJointKind)
+        {
+            if (conversionProxyRootTransform.IsNull())
+            {
+                conversionProxyRootTransform = new GameObject("WMR Hand Conversion Proxy").transform;
+                conversionProxyRootTransform.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+                conversionProxyRootTransform.gameObject.SetActive(false);
+            }
+
+            // Depending on the handedness we are currently working on, we need to rotate the conversion root.
+            //conversionProxyRootTransform.localRotation = Quaternion.Euler(0f, handedness == SpatialInteractionSourceHandedness.Right ? 180f : 0f, 0f);
+
+            if (handJointKind == TrackedHandJoint.Wrist)
+            {
+                return conversionProxyRootTransform;
+            }
+
+            if (conversionProxyTransforms.ContainsKey(handJointKind))
+            {
+                return conversionProxyTransforms[handJointKind];
+            }
+
+            var transform = new GameObject($"WMR Hand {handJointKind} Proxy").transform;
+            transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+            conversionProxyTransforms.Add(handJointKind, transform);
+
+            return transform;
+        }
 
 #endif // WINDOWS_UWP
     }
