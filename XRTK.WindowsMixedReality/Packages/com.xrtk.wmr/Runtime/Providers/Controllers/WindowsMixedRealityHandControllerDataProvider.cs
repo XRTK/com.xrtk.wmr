@@ -39,7 +39,10 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             : base(name, priority, profile, parentService)
         {
             handDataProvider = new WindowsMixedRealityHandDataConverter();
-            postProcessor = new HandDataPostProcessor(TrackedPoses);
+            postProcessor = new HandDataPostProcessor(TrackedPoses)
+            {
+                PlatformProvidesPointerPose = true
+            };
         }
 
         private readonly WindowsMixedRealityHandDataConverter handDataProvider;

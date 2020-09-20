@@ -111,6 +111,7 @@ namespace XRTK.WindowsMixedReality.Utilities
             {
                 handData.RootPose = GetHandRootPose(platformJointPoses);
                 handData.Joints = GetJointPoses(platformJointPoses, handData.RootPose);
+                handData.PointerPose = GetPointerPose(spatialInteractionSourceState);
 
                 if (includeMeshData && TryGetUpdatedHandMeshData(spatialInteractionSourceState, handPose, out HandMeshData data))
                 {
@@ -195,7 +196,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// Gets the hand's root <see cref="MixedRealityPose"/> in playspace.
         /// </summary>
         /// <param name="platformJointPoses"><see cref="JointPose"/>s retrieved from the platform.</param>
-        /// <returns>The hands <see cref="HandData.RootPose"/> <see cref="MixedRealityPose"/>.</returns>
+        /// <returns>The hand's <see cref="HandData.RootPose"/> <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(JointPose[] platformJointPoses)
         {
             // For WMR we use the wrist pose as the hand root pose.
@@ -208,6 +209,30 @@ namespace XRTK.WindowsMixedReality.Utilities
             wristProxyTransform.rotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
 
             return new MixedRealityPose(wristProxyTransform.position, wristProxyTransform.rotation);
+        }
+
+        /// <summary>
+        /// Gets the hand's spatial pointer <see cref="MixedRealityPose"/> in playspace.
+        /// </summary>
+        /// <param name="spatialInteractionSourceState">Current <see cref="SpatialInteractionSourceState"/> snapshot of the hand.</param>
+        /// <returns>The hand's <see cref="HandData.PointerPose"/> in playspace.</returns>
+        private MixedRealityPose GetPointerPose(SpatialInteractionSourceState spatialInteractionSourceState)
+        {
+            var spatialPointerPose = spatialInteractionSourceState.TryGetPointerPose(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+            if (spatialPointerPose != null)
+            {
+                var interactionSourcePose = spatialPointerPose.TryGetInteractionSourcePose(spatialInteractionSourceState.Source);
+                if (interactionSourcePose != null)
+                {
+                    var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+                    var pointerPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * interactionSourcePose.Position.ToUnity());
+                    var pointerRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * interactionSourcePose.Orientation.ToUnity();
+
+                    return new MixedRealityPose(pointerPosition, pointerRotation);
+                }
+            }
+
+            return MixedRealityPose.ZeroIdentity;
         }
 
         /// <summary>
