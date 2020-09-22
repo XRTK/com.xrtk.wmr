@@ -1,10 +1,8 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
 using Windows.Foundation.Metadata;
-#elif (UNITY_WSA && DOTNETWINRT_PRESENT)
-using Microsoft.Windows.Foundation.Metadata;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Utilities
@@ -28,11 +26,11 @@ namespace XRTK.WindowsMixedReality.Utilities
             string className,
             string methodName)
         {
-#if WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#if WINDOWS_UWP
             return ApiInformation.IsMethodPresent($"{namespaceName}.{className}", methodName);
 #else
             return false;
-#endif // WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#endif // WINDOWS_UWP
         }
 
         /// <summary>
@@ -47,11 +45,11 @@ namespace XRTK.WindowsMixedReality.Utilities
             string className,
             string propertyName)
         {
-#if WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#if WINDOWS_UWP
             return ApiInformation.IsPropertyPresent($"{namespaceName}.{className}", propertyName);
 #else
             return false;
-#endif // WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#endif // WINDOWS_UWP
         }
 
         /// <summary>
@@ -64,11 +62,11 @@ namespace XRTK.WindowsMixedReality.Utilities
             string namespaceName,
             string typeName)
         {
-#if WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#if WINDOWS_UWP
             return ApiInformation.IsTypePresent($"{namespaceName}.{typeName}");
 #else
             return false;
-#endif // UNITY_WSA && WINDOWS_UWP || (UNITY_WSA && DOTNETWINRT_PRESENT)
+#endif // WINDOWS_UWP
         }
     }
 }
