@@ -447,14 +447,8 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
             IRandomAccessStreamWithContentType stream = null;
 
-            if (!WindowsApiChecker.IsMethodAvailable(
-                "Windows.UI.Input.Spatial",
-                "SpatialInteractionManager",
-                "GetForCurrentView") ||
-                !WindowsApiChecker.IsMethodAvailable(
-                    "Windows.UI.Input.Spatial",
-                    "SpatialInteractionController",
-                    "TryGetRenderableModelAsync"))
+            if (!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                !WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionController), nameof(SpatialInteractionController.TryGetRenderableModelAsync)))
             {
                 return;
             }

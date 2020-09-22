@@ -42,18 +42,15 @@ namespace XRTK.WindowsMixedReality.Extensions
 
         public static void StartHaptics(this InteractionSource interactionSource, float intensity, float durationInSeconds)
         {
+#if WINDOWS_UWP
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if ((!WindowsApiChecker.IsMethodAvailable(
-                "Windows.UI.Input.Spatial",
-                "SpatialInteractionManager",
-                "GetForCurrentView") ||
-                !WindowsApiChecker.IsTypeAvailable("Windows.Devices.Haptics", "SimpleHapticsController")) && !Application.isEditor)
+            if ((!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                 !WindowsApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
             {
                 return;
             }
 
-#if WINDOWS_UWP
             UnityEngine.WSA.Application.InvokeOnUIThread(() =>
             {
                 IReadOnlyList<SpatialInteractionSourceState> sources = SpatialInteractionManager.GetForCurrentView().GetDetectedSourcesAtTimestamp(PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now));
@@ -88,18 +85,15 @@ namespace XRTK.WindowsMixedReality.Extensions
 
         public static void StopHaptics(this InteractionSource interactionSource)
         {
+#if WINDOWS_UWP
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if ((!WindowsApiChecker.IsMethodAvailable(
-                "Windows.UI.Input.Spatial",
-                "SpatialInteractionManager",
-                "GetForCurrentView") ||
-                !WindowsApiChecker.IsTypeAvailable("Windows.Devices.Haptics", "SimpleHapticsController")) && !Application.isEditor)
+            if ((!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                 !WindowsApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
             {
                 return;
             }
 
-#if WINDOWS_UWP
             UnityEngine.WSA.Application.InvokeOnUIThread(() =>
             {
                 IReadOnlyList<SpatialInteractionSourceState> sources = SpatialInteractionManager.GetForCurrentView().GetDetectedSourcesAtTimestamp(PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now));

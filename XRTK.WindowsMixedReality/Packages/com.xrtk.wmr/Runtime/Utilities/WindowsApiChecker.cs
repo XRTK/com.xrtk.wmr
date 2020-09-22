@@ -2,71 +2,57 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
+
+using System;
 using Windows.Foundation.Metadata;
-#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
     /// <summary>
     /// Helper class for determining if a Windows API contract is available.
     /// </summary>
-    /// <remarks> See https://docs.microsoft.com/uwp/extension-sdks/windows-universal-sdk
-    /// for a full list of contracts.</remarks>
+    /// <remarks>
+    /// See https://docs.microsoft.com/uwp/extension-sdks/windows-universal-sdk for a full list of contracts.
+    /// </remarks>
     public static class WindowsApiChecker
     {
         /// <summary>
         /// Checks to see if the requested method is present on the current platform.
         /// </summary>
-        /// <param name="namespaceName">The namespace (ex: "Windows.UI.Input.Spatial") containing the class.</param>
-        /// <param name="className">The name of the class containing the method (ex: "SpatialInteractionMananger").</param>
+        /// <param name="type">The <see cref="Type"/> of the class to check.</param>
         /// <param name="methodName">The name of the method (ex: "IsSourceKindSupported").</param>
         /// <returns>True if the method is available and can be called. Otherwise, false.</returns>
-        public static bool IsMethodAvailable(
-            string namespaceName,
-            string className,
-            string methodName)
+        public static bool IsMethodAvailable(Type type, string methodName)
         {
-#if WINDOWS_UWP
-            return ApiInformation.IsMethodPresent($"{namespaceName}.{className}", methodName);
-#else
-            return false;
-#endif // WINDOWS_UWP
+            if (type == null || string.IsNullOrWhiteSpace(type.FullName)) { throw new ArgumentException(); }
+            if (string.IsNullOrWhiteSpace(methodName)) { throw new ArgumentException(); }
+            return ApiInformation.IsMethodPresent(type.FullName, methodName);
         }
 
         /// <summary>
         /// Checks to see if the requested property is present on the current platform.
         /// </summary>
-        /// <param name="namespaceName">The namespace (ex: "Windows.UI.Input.Spatial") containing the class.</param>
-        /// <param name="className">The name of the class containing the method (ex: "SpatialPointerPose").</param>
+        /// <param name="type">The <see cref="Type"/> of the class to check.</param>
         /// <param name="propertyName">The name of the method (ex: "Eyes").</param>
         /// <returns>True if the property is available and can be called. Otherwise, false.</returns>
-        public static bool IsPropertyAvailable(
-            string namespaceName,
-            string className,
-            string propertyName)
+        public static bool IsPropertyAvailable(Type type, string propertyName)
         {
-#if WINDOWS_UWP
-            return ApiInformation.IsPropertyPresent($"{namespaceName}.{className}", propertyName);
-#else
-            return false;
-#endif // WINDOWS_UWP
+            if (type == null || string.IsNullOrWhiteSpace(type.FullName)) { throw new ArgumentException(); }
+            if (string.IsNullOrWhiteSpace(propertyName)) { throw new ArgumentException(); }
+            return ApiInformation.IsPropertyPresent(type.FullName, propertyName);
         }
 
         /// <summary>
         /// Checks to see if the requested type is present on the current platform.
         /// </summary>
-        /// <param name="namespaceName">The namespace (ex: "Windows.UI.Input.Spatial") containing the class.</param>
-        /// <param name="typeName">The name of the class containing the method (ex: "SpatialPointerPose").</param>
+        /// <param name="type">The <see cref="Type"/> of the class to check.</param>
         /// <returns>True if the type is available and can be called. Otherwise, false.</returns>
-        public static bool IsTypeAvailable(
-            string namespaceName,
-            string typeName)
+        public static bool IsTypeAvailable(Type type)
         {
-#if WINDOWS_UWP
-            return ApiInformation.IsTypePresent($"{namespaceName}.{typeName}");
-#else
-            return false;
-#endif // WINDOWS_UWP
+            if (type == null || string.IsNullOrWhiteSpace(type.FullName)) { throw new ArgumentException(); }
+            return ApiInformation.IsTypePresent(type.FullName);
         }
     }
 }
+
+#endif // WINDOWS_UWP
