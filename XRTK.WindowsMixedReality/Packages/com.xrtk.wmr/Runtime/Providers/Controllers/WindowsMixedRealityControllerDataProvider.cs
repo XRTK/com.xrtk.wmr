@@ -440,10 +440,24 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
         {
 #if WINDOWS_UWP
-            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque) { return; }
+            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque)
+            {
+                return;
+            }
+
             IRandomAccessStreamWithContentType stream = null;
 
-            if (!WindowsApiChecker.UniversalApiContractV5_IsAvailable) { return; }
+            if (!WindowsApiChecker.IsMethodAvailable(
+                "Windows.UI.Input.Spatial",
+                "SpatialInteractionManager",
+                "GetForCurrentView") ||
+                !WindowsApiChecker.IsMethodAvailable(
+                    "Windows.UI.Input.Spatial",
+                    "SpatialInteractionController",
+                    "TryGetRenderableModelAsync"))
+            {
+                return;
+            }
 
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, DispatchedHandler);
 

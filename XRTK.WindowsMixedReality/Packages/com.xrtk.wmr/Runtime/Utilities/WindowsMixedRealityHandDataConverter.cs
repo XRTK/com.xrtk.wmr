@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using XRTK.Definitions.Controllers.Hands;
 
 #if WINDOWS_UWP
 
@@ -8,27 +10,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
-using XRTK.Definitions.Controllers.Hands;
-using XRTK.Definitions.Utilities;
-using XRTK.Extensions;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
+using XRTK.Extensions;
+using XRTK.Definitions.Devices;
+using XRTK.Definitions.Utilities;
+
+#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
     /// <summary>
-    /// Converts windows mixed reality hand data to <see cref="HandData"/>.
+    /// Converts windows mixed reality hand data to XRTK's <see cref="HandData"/>.
     /// </summary>
     public sealed class WindowsMixedRealityHandDataConverter
     {
-        /// <summary>
-        /// Gets or sets whether hand mesh data should be read and converted.
-        /// </summary>
-        public static bool HandMeshingEnabled { get; set; }
+#if WINDOWS_UWP
 
-        private readonly Vector3[] unityJointPositions = new Vector3[jointIndices.Length];
-        private readonly Quaternion[] unityJointOrientations = new Quaternion[jointIndices.Length];
+        /// <summary>
+        /// Destructor.
+        /// </summary>
+        ~WindowsMixedRealityHandDataConverter()
+        {
+            if (!conversionProxyRootTransform.IsNull())
+            {
+                conversionProxyTransforms.Clear();
+                conversionProxyRootTransform.Destroy();
+            }
+        }
+
+        private Transform conversionProxyRootTransform;
+        private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
         private readonly Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver> handMeshObservers = new Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver>();
+        private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
 
         private int[] handMeshTriangleIndices = null;
         private bool hasRequestedHandMeshObserverLeftHand = false;
@@ -69,116 +83,228 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// Gets updated hand data for the current frame.
         /// </summary>
         /// <param name="spatialInteractionSourceState">Platform provided current input source state for the hand.</param>
-        /// <returns>Platform agnostics hand data.</returns>
-        public HandData GetHandData(SpatialInteractionSourceState spatialInteractionSourceState)
+        /// <param name="includeMeshData">If set, hand mesh information will be included in <see cref="HandData.Mesh"/>.</param>
+        /// <param name="handData">The output <see cref="HandData"/>.</param>
+        /// <returns>True, if data conversion was a success.</returns>
+        public bool TryGetHandData(SpatialInteractionSourceState spatialInteractionSourceState, bool includeMeshData, out HandData handData)
         {
+            // Here we check whether the hand is being tracked at all by the WMR system.
             HandPose handPose = spatialInteractionSourceState.TryGetHandPose();
-            HandData updatedHandData = new HandData
+            if (handPose == null)
             {
-                IsTracked = handPose != null,
-                TimeStamp = DateTimeOffset.UtcNow.Ticks
+                handData = default;
+                return false;
+            }
+
+            // The hand is being tracked, next we verify it meets our confidence requirements to consider
+            // it tracked.
+            var platformJointPoses = new JointPose[jointIndices.Length];
+            handData = new HandData
+            {
+                TrackingState = handPose.TryGetJoints(WindowsMixedRealityUtilities.SpatialCoordinateSystem, jointIndices, platformJointPoses) ? TrackingState.Tracked : TrackingState.NotTracked,
+                UpdatedAt = DateTimeOffset.UtcNow.Ticks
             };
 
-            if (updatedHandData.IsTracked)
+            // If the hand is tracked per requirements, we get updated joint data
+            // and other data needed for updating the hand controller's state.
+            if (handData.TrackingState == TrackingState.Tracked)
             {
-                // Accessing the hand mesh data involves copying quite a bit of data, so only do it if application requests it.
-                if (HandMeshingEnabled)
+                handData.RootPose = GetHandRootPose(platformJointPoses);
+                handData.Joints = GetJointPoses(platformJointPoses, handData.RootPose);
+                handData.PointerPose = GetPointerPose(spatialInteractionSourceState);
+
+                if (includeMeshData && TryGetUpdatedHandMeshData(spatialInteractionSourceState, handPose, out HandMeshData data))
                 {
-                    if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) &&
-                        !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
+                    handData.Mesh = data;
+                }
+                else
+                {
+                    // if hand mesh visualization is disabled make sure to destroy our hand mesh observer
+                    // if it has already been created.
+                    if (handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness))
                     {
-                        SetHandMeshObserver(spatialInteractionSourceState);
-                    }
-
-                    if (handMeshObservers.TryGetValue(spatialInteractionSourceState.Source.Handedness, out var handMeshObserver) && handMeshTriangleIndices == null)
-                    {
-                        var indexCount = handMeshObserver.TriangleIndexCount;
-                        var indices = new ushort[indexCount];
-                        handMeshObserver.GetTriangleIndices(indices);
-                        handMeshTriangleIndices = new int[indexCount];
-                        Array.Copy(indices, handMeshTriangleIndices, (int)handMeshObserver.TriangleIndexCount);
-
-                        // Compute neutral pose
-                        var neutralPoseVertices = new Vector3[handMeshObserver.VertexCount];
-                        var neutralPose = handMeshObserver.NeutralPose;
-                        var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
-                        var handMeshVertexState = handMeshObserver.GetVertexStateForPose(neutralPose);
-                        handMeshVertexState.GetVertices(vertexAndNormals);
-
-                        for (int i = 0; i < handMeshObserver.VertexCount; i++)
+                        if (spatialInteractionSourceState.Source.Handedness == SpatialInteractionSourceHandedness.Left)
                         {
-                            neutralPoseVertices[i] = vertexAndNormals[i].Position.ToUnity();
+                            hasRequestedHandMeshObserverLeftHand = false;
+                        }
+                        else if (spatialInteractionSourceState.Source.Handedness == SpatialInteractionSourceHandedness.Right)
+                        {
+                            hasRequestedHandMeshObserverRightHand = false;
                         }
 
-                        // Compute UV mapping
-                        InitializeHandMeshUVs(neutralPoseVertices);
+                        handMeshObservers.Remove(spatialInteractionSourceState.Source.Handedness);
                     }
 
-                    if (handMeshObserver != null && handMeshTriangleIndices != null)
-                    {
-                        var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
-                        var handMeshVertexState = handMeshObserver.GetVertexStateForPose(handPose);
-                        handMeshVertexState.GetVertices(vertexAndNormals);
-
-                        var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
-                        if (meshTransform.HasValue)
-                        {
-                            System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out var scale, out var rotation, out var translation);
-
-                            var handMeshVertices = new Vector3[handMeshObserver.VertexCount];
-                            var handMeshNormals = new Vector3[handMeshObserver.VertexCount];
-
-                            for (int i = 0; i < handMeshObserver.VertexCount; i++)
-                            {
-                                handMeshVertices[i] = vertexAndNormals[i].Position.ToUnity();
-                                handMeshNormals[i] = vertexAndNormals[i].Normal.ToUnity();
-                            }
-
-                            updatedHandData.Mesh = new HandMeshData(
-                                handMeshVertices,
-                                handMeshTriangleIndices,
-                                handMeshNormals,
-                                handMeshUVs,
-                                translation.ToUnity(),
-                                rotation.ToUnity());
-                        }
-                    }
-                }
-                else if (handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness))
-                {
-                    // if hand mesh visualization is disabled make sure to destroy our hand mesh observer if it has already been created
-                    if (spatialInteractionSourceState.Source.Handedness == SpatialInteractionSourceHandedness.Left)
-                    {
-                        hasRequestedHandMeshObserverLeftHand = false;
-                    }
-                    else if (spatialInteractionSourceState.Source.Handedness == SpatialInteractionSourceHandedness.Right)
-                    {
-                        hasRequestedHandMeshObserverRightHand = false;
-                    }
-
-                    handMeshObservers.Remove(spatialInteractionSourceState.Source.Handedness);
-                }
-
-                JointPose[] jointPoses = new JointPose[jointIndices.Length];
-                if (handPose.TryGetJoints(WindowsMixedRealityUtilities.SpatialCoordinateSystem, jointIndices, jointPoses))
-                {
-                    for (int i = 0; i < jointPoses.Length; i++)
-                    {
-                        unityJointOrientations[i] = jointPoses[i].Orientation.ToUnity();
-                        unityJointPositions[i] = jointPoses[i].Position.ToUnity();
-
-                        // We want the controller to follow the Playspace, so fold in the playspace transform here to 
-                        // put the controller pose into world space.
-                        unityJointPositions[i] = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform.TransformPoint(unityJointPositions[i]);
-                        unityJointOrientations[i] = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform.rotation * unityJointOrientations[i];
-
-                        TrackedHandJoint handJoint = jointIndices[i].ToTrackedHandJoint();
-                        updatedHandData.Joints[(int)handJoint] = new MixedRealityPose(unityJointPositions[i], unityJointOrientations[i]);
-                    }
+                    handData.Mesh = HandMeshData.Empty;
                 }
             }
 
-            return updatedHandData;
+            // Even if the hand is being tracked by the system but the confidence did not
+            // meet our requirements, we return true. This allows the hand controller and visualizers
+            // to react to tracking loss and keep the hand up for a given time before destroying the controller.
+            return true;
+        }
+
+        /// <summary>
+        /// Gets updated joint <see cref="MixedRealityPose"/>s for all <see cref="TrackedHandJoint"/>s of a hand.
+        /// </summary>
+        /// <param name="platformJointPoses"><see cref="JointPose"/>s retrieved from the platform.</param>
+        /// <param name="handRootPose">The hand's root <see cref="MixedRealityPose"/>.</param>
+        /// <returns>Joint <see cref="MixedRealityPose"/>s in <see cref="TrackedHandJoint"/> ascending order.</returns>
+        private MixedRealityPose[] GetJointPoses(JointPose[] platformJointPoses, MixedRealityPose handRootPose)
+        {
+            for (int i = 0; i < platformJointPoses.Length; i++)
+            {
+                var handJoint = jointIndices[i].ToTrackedHandJoint();
+                jointPoses[(int)handJoint] = GetJointPose(handJoint, handRootPose, platformJointPoses[i]);
+            }
+
+            return jointPoses;
+        }
+
+        /// <summary>
+        /// Gets a single joint's <see cref="MixedRealityPose"/> relative to the hand root pose.
+        /// </summary>
+        /// <param name="trackedHandJoint">The <see cref="TrackedHandJoint"/> Id for the joint to get a <see cref="MixedRealityPose"/> for.</param>
+        /// <param name="handRootPose">The hand's root <see cref="MixedRealityPose"/>. Joint poses are always relative to the root pose.</param>
+        /// <param name="jointPose"><see cref="JointPose"/> retrieved from the platform.</param>
+        /// <returns>Joint <see cref="MixedRealityPose"/> relative to the hand's root pose.</returns>
+        private MixedRealityPose GetJointPose(TrackedHandJoint trackedHandJoint, MixedRealityPose handRootPose, JointPose jointPose)
+        {
+            var jointTransform = GetProxyTransform(trackedHandJoint);
+            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+
+            if (trackedHandJoint == TrackedHandJoint.Wrist)
+            {
+                jointTransform.localPosition = handRootPose.Position;
+                jointTransform.localRotation = handRootPose.Rotation;
+            }
+            else
+            {
+                jointTransform.parent = playspaceTransform;
+                jointTransform.localPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPose.Position.ToUnity());
+                jointTransform.localRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointPose.Orientation.ToUnity();
+                jointTransform.parent = conversionProxyRootTransform;
+            }
+
+            return new MixedRealityPose(
+                conversionProxyRootTransform.InverseTransformPoint(jointTransform.position),
+                Quaternion.Inverse(conversionProxyRootTransform.rotation) * jointTransform.rotation);
+        }
+
+        /// <summary>
+        /// Gets the hand's root <see cref="MixedRealityPose"/> in playspace.
+        /// </summary>
+        /// <param name="platformJointPoses"><see cref="JointPose"/>s retrieved from the platform.</param>
+        /// <returns>The hand's <see cref="HandData.RootPose"/> <see cref="MixedRealityPose"/>.</returns>
+        private MixedRealityPose GetHandRootPose(JointPose[] platformJointPoses)
+        {
+            // For WMR we use the wrist pose as the hand root pose.
+            var wristPose = platformJointPoses[(int)HandJointKind.Wrist];
+            var wristProxyTransform = GetProxyTransform(TrackedHandJoint.Wrist);
+
+            // Convert to playspace.
+            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+            wristProxyTransform.position = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * wristPose.Position.ToUnity());
+            wristProxyTransform.rotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
+
+            return new MixedRealityPose(wristProxyTransform.position, wristProxyTransform.rotation);
+        }
+
+        /// <summary>
+        /// Gets the hand's spatial pointer <see cref="MixedRealityPose"/> in playspace.
+        /// </summary>
+        /// <param name="spatialInteractionSourceState">Current <see cref="SpatialInteractionSourceState"/> snapshot of the hand.</param>
+        /// <returns>The hand's <see cref="HandData.PointerPose"/> in playspace.</returns>
+        private MixedRealityPose GetPointerPose(SpatialInteractionSourceState spatialInteractionSourceState)
+        {
+            var spatialPointerPose = spatialInteractionSourceState.TryGetPointerPose(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+            if (spatialPointerPose != null)
+            {
+                var interactionSourcePose = spatialPointerPose.TryGetInteractionSourcePose(spatialInteractionSourceState.Source);
+                if (interactionSourcePose != null)
+                {
+                    var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+                    var pointerPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * interactionSourcePose.Position.ToUnity());
+                    var pointerRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * interactionSourcePose.Orientation.ToUnity();
+
+                    return new MixedRealityPose(pointerPosition, pointerRotation);
+                }
+            }
+
+            return MixedRealityPose.ZeroIdentity;
+        }
+
+        /// <summary>
+        /// Attempts to get updated hand mesh data.
+        /// </summary>
+        /// <param name="spatialInteractionSourceState">Platform provided current input source state for the hand.</param>
+        /// <param name="handPose">Hand pose information retrieved for joint conversion.</param>
+        /// <param name="data">Mesh information retrieved in case of success.</param>
+        /// <returns>True, if mesh data could be loaded.</returns>
+        private bool TryGetUpdatedHandMeshData(SpatialInteractionSourceState spatialInteractionSourceState, HandPose handPose, out HandMeshData data)
+        {
+            if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) &&
+                        !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
+            {
+                SetHandMeshObserver(spatialInteractionSourceState);
+            }
+
+            if (handMeshObservers.TryGetValue(spatialInteractionSourceState.Source.Handedness, out var handMeshObserver) && handMeshTriangleIndices == null)
+            {
+                var indexCount = handMeshObserver.TriangleIndexCount;
+                var indices = new ushort[indexCount];
+                handMeshObserver.GetTriangleIndices(indices);
+                handMeshTriangleIndices = new int[indexCount];
+                Array.Copy(indices, handMeshTriangleIndices, (int)handMeshObserver.TriangleIndexCount);
+
+                // Compute neutral pose
+                var neutralPoseVertices = new Vector3[handMeshObserver.VertexCount];
+                var neutralPose = handMeshObserver.NeutralPose;
+                var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
+                var handMeshVertexState = handMeshObserver.GetVertexStateForPose(neutralPose);
+                handMeshVertexState.GetVertices(vertexAndNormals);
+
+                for (int i = 0; i < handMeshObserver.VertexCount; i++)
+                {
+                    neutralPoseVertices[i] = vertexAndNormals[i].Position.ToUnity();
+                }
+
+                // Compute UV mapping
+                InitializeHandMeshUVs(neutralPoseVertices);
+            }
+
+            if (handMeshObserver != null && handMeshTriangleIndices != null)
+            {
+                var vertexAndNormals = new HandMeshVertex[handMeshObserver.VertexCount];
+                var handMeshVertexState = handMeshObserver.GetVertexStateForPose(handPose);
+                handMeshVertexState.GetVertices(vertexAndNormals);
+
+                var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+                if (meshTransform.HasValue)
+                {
+                    System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out var scale, out var rotation, out var translation);
+
+                    var handMeshVertices = new Vector3[handMeshObserver.VertexCount];
+                    var handMeshNormals = new Vector3[handMeshObserver.VertexCount];
+
+                    for (int i = 0; i < handMeshObserver.VertexCount; i++)
+                    {
+                        handMeshVertices[i] = vertexAndNormals[i].Position.ToUnity();
+                        handMeshNormals[i] = vertexAndNormals[i].Normal.ToUnity();
+                    }
+
+                    data = new HandMeshData(
+                        handMeshVertices,
+                        handMeshTriangleIndices,
+                        handMeshNormals,
+                        handMeshUVs);
+
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void InitializeHandMeshUVs(Vector3[] neutralPoseVertices)
@@ -237,13 +363,37 @@ namespace XRTK.WindowsMixedReality.Utilities
             hasRequestedHandMeshObserverRightHand = sourceState.Source.Handedness == SpatialInteractionSourceHandedness.Right;
         }
 
-        private bool HasRequestedHandMeshObserver(SpatialInteractionSourceHandedness handedness)
+        private bool HasRequestedHandMeshObserver(SpatialInteractionSourceHandedness handedness) =>
+            handedness == SpatialInteractionSourceHandedness.Left ?
+            hasRequestedHandMeshObserverLeftHand :
+            handedness == SpatialInteractionSourceHandedness.Right && hasRequestedHandMeshObserverRightHand;
+
+        private Transform GetProxyTransform(TrackedHandJoint handJointKind)
         {
-            return handedness == SpatialInteractionSourceHandedness.Left
-                ? hasRequestedHandMeshObserverLeftHand
-                : handedness == SpatialInteractionSourceHandedness.Right && hasRequestedHandMeshObserverRightHand;
+            if (conversionProxyRootTransform.IsNull())
+            {
+                conversionProxyRootTransform = new GameObject("WMR Hand Conversion Proxy").transform;
+                conversionProxyRootTransform.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+                conversionProxyRootTransform.gameObject.SetActive(false);
+            }
+
+            if (handJointKind == TrackedHandJoint.Wrist)
+            {
+                return conversionProxyRootTransform;
+            }
+
+            if (conversionProxyTransforms.ContainsKey(handJointKind))
+            {
+                return conversionProxyTransforms[handJointKind];
+            }
+
+            var transform = new GameObject($"WMR Hand {handJointKind} Proxy").transform;
+            transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+            conversionProxyTransforms.Add(handJointKind, transform);
+
+            return transform;
         }
 
+#endif // WINDOWS_UWP
     }
 }
-#endif // WINDOWS_UWP
