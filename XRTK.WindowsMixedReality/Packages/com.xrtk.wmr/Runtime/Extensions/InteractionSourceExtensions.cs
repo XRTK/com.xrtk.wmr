@@ -2,15 +2,15 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if UNITY_WSA
-using XRTK.WindowsMixedReality.Utilities;
 using UnityEngine.XR.WSA.Input;
-using Application = UnityEngine.Application;
 #if WINDOWS_UWP
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Haptics;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
+using XRTK.WindowsMixedReality.Utilities;
+using Application = UnityEngine.Application;
 #elif UNITY_EDITOR_WIN
 using System.Runtime.InteropServices;
 #endif
