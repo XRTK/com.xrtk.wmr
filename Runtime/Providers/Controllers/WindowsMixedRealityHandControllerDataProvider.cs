@@ -6,6 +6,7 @@ using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Profiles;
+using XRTK.WindowsMixedReality.Utilities;
 
 #if WINDOWS_UWP
 
@@ -16,10 +17,10 @@ using UnityEngine;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Devices;
-using XRTK.Definitions.Utilities;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
-using XRTK.WindowsMixedReality.Utilities;
+using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.Utilities;
 
 #endif // WINDOWS_UWP
 
@@ -37,11 +38,18 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
+            handDataProvider = new WindowsMixedRealityHandDataConverter();
+            postProcessor = new HandDataPostProcessor(TrackedPoses)
+            {
+                PlatformProvidesPointerPose = true
+            };
         }
+
+        private readonly WindowsMixedRealityHandDataConverter handDataProvider;
+        private readonly HandDataPostProcessor postProcessor;
 
 #if WINDOWS_UWP
 
-        private readonly WindowsMixedRealityHandDataConverter handDataConverter = new WindowsMixedRealityHandDataConverter();
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
 
         private SpatialInteractionManager spatialInteractionManager = null;
@@ -69,61 +77,40 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         #region IMixedRealityControllerDataProvider lifecycle implementation
 
         /// <inheritdoc/>
-        public override void Initialize()
-        {
-            base.Initialize();
-            WindowsMixedRealityHandDataConverter.HandMeshingEnabled = HandMeshingEnabled;
-        }
-
-        /// <inheritdoc/>
         public override void Update()
         {
             base.Update();
 
-            // Update existing controllers or create a new one if needed.
-            var sources = GetCurrentSources();
-
-            if (sources == null)
-            {
-                return;
-            }
-
             bool isLeftHandTracked = false;
             bool isRightHandTracked = false;
 
-            for (int i = 0; i < sources.Count; i++)
+            if (TryGetCurrentHandSources(out var sources))
             {
-                var sourceState = sources[i];
-                var spatialInteractionSource = sourceState.Source;
-
-                if (spatialInteractionSource.Handedness == SpatialInteractionSourceHandedness.Left)
+                for (int i = 0; i < sources.Count; i++)
                 {
-                    isLeftHandTracked = true;
+                    var sourceState = sources[i];
+                    var spatialInteractionSource = sourceState.Source;
+                    var handedness = spatialInteractionSource.Handedness.ToHandedness();
 
-                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out var leftHandController))
+                    if (!TryGetController(handedness, out MixedRealityHandController controller))
                     {
-                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
+                        controller = CreateController(spatialInteractionSource);
                     }
-                    else
-                    {
-                        leftHandController = CreateController(spatialInteractionSource);
-                        leftHandController.UpdateController(handDataConverter.GetHandData(sourceState));
-                    }
-                }
 
-                if (spatialInteractionSource.Handedness == SpatialInteractionSourceHandedness.Right)
-                {
-                    isRightHandTracked = true;
+                    if (handDataProvider.TryGetHandData(sourceState, RenderingMode == HandRenderingMode.Mesh, out var handData))
+                    {
+                        if (handedness == Handedness.Left)
+                        {
+                            isLeftHandTracked = true;
+                        }
+                        else if (handedness == Handedness.Right)
+                        {
+                            isRightHandTracked = true;
+                        }
+                    }
 
-                    if (TryGetController(spatialInteractionSource.Handedness.ToHandedness(), out var rightHandController))
-                    {
-                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
-                    }
-                    else
-                    {
-                        rightHandController = CreateController(spatialInteractionSource);
-                        rightHandController.UpdateController(handDataConverter.GetHandData(sourceState));
-                    }
+                    handData = postProcessor.PostProcess(handedness, handData);
+                    controller.UpdateController(handData);
                 }
             }
 
@@ -159,23 +146,31 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         /// Reads currently detected input sources by the current <see cref="SpatialInteractionManager"/> instance.
         /// </summary>
         /// <returns>List of sources. Can be null.</returns>
-        private IReadOnlyList<SpatialInteractionSourceState> GetCurrentSources()
+        private bool TryGetCurrentHandSources(out IReadOnlyList<SpatialInteractionSourceState> sources)
         {
             // Articulated hand support is only present in the 18362 version and beyond Windows
             // SDK (which contains the V8 drop of the Universal API Contract). In particular,
             // the HandPose related APIs are only present on this version and above.
-            if (XRTK.WindowsMixedReality.Utilities.WindowsApiChecker.UniversalApiContractV8_IsAvailable && SpatialInteractionManager != null)
+            // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
+            // We need only check for one of them.
+            if (WindowsApiChecker.IsMethodAvailable(
+                "Windows.UI.Input.Spatial",
+                "SpatialInteractionManager",
+                "GetForCurrentView") &&
+                SpatialInteractionManager != null)
             {
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
-                var sources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
+                var allSources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
 
-                if (sources != null)
+                if (allSources != null)
                 {
-                    return sources.Where(s => s.Source.Kind == SpatialInteractionSourceKind.Hand).ToList();
+                    sources = allSources.Where(s => s.Source.Kind == SpatialInteractionSourceKind.Hand).ToList();
+                    return true;
                 }
             }
 
-            return null;
+            sources = null;
+            return false;
         }
 
         private bool TryGetController(Handedness handedness, out MixedRealityHandController controller)
