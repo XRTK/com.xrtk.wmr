@@ -153,10 +153,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             // the HandPose related APIs are only present on this version and above.
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if (WindowsApiChecker.IsMethodAvailable(
-                "Windows.UI.Input.Spatial",
-                "SpatialInteractionManager",
-                "GetForCurrentView") &&
+            if (WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) &&
                 SpatialInteractionManager != null)
             {
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
