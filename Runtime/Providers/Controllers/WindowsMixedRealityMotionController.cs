@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using XRTK.Definitions.Controllers;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
@@ -19,6 +20,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
     /// <summary>
     /// A Windows Mixed Reality Controller Instance.
     /// </summary>
+    [Obsolete]
     [System.Runtime.InteropServices.Guid("37AA1554-3D46-4C72-AAC4-31023775F62B")]
     public class WindowsMixedRealityMotionController : BaseController
     {
