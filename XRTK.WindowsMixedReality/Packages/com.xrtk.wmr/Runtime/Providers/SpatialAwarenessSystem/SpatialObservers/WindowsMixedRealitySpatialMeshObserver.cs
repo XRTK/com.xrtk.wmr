@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.SpatialAwarenessSystem;
@@ -8,7 +9,6 @@ using XRTK.Providers.SpatialObservers;
 using XRTK.WindowsMixedReality.Profiles;
 
 #if UNITY_WSA
-using System;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 using XRTK.Definitions.SpatialAwarenessSystem;
