@@ -22,6 +22,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
     /// <summary>
     /// The Windows Mixed Reality Spatial Mesh Observer.
     /// </summary>
+    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("0861C801-E20E-4E76-8C4E-711C1CB43DDF")]
     public class WindowsMixedRealitySpatialMeshObserver : BaseMixedRealitySpatialMeshObserver
