@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-#if UNITY_WSA
 using System;
+
+#if UNITY_WSA
 using UnityEngine.XR.WSA.Input;
 #if WINDOWS_UWP
-using System;
 using System.Collections.Generic;
 using Windows.Devices.Haptics;
 using Windows.Perception;
