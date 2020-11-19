@@ -3,12 +3,14 @@
 
 #if WINDOWS_UWP
 
+using System;
 using System.Runtime.InteropServices;
 using UnityEngine.XR.WSA;
 using Windows.Perception.Spatial;
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
+    [Obsolete]
     public static class WindowsMixedRealityUtilities
     {
         private static SpatialCoordinateSystem spatialCoordinateSystem = null;

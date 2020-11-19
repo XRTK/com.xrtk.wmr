@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
+
 #if UNITY_WSA
 using UnityEngine.XR.WSA.Input;
 #if WINDOWS_UWP
-using System;
 using System.Collections.Generic;
 using Windows.Devices.Haptics;
 using Windows.Perception;
@@ -21,6 +22,7 @@ namespace XRTK.WindowsMixedReality.Extensions
     /// <summary>
     /// Extensions for the InteractionSource class to add haptics and expose the renderable model.
     /// </summary>
+    [Obsolete]
     public static class InteractionSourceExtensions
     {
 #if UNITY_EDITOR_WIN && UNITY_WSA
