@@ -24,6 +24,14 @@ namespace XRTK.WindowsMixedReality.Providers.BoundarySystem
         {
         }
 
+        /// <inheritdoc />
+        public override void Enable()
+        {
+            base.Enable();
+
+            MixedRealityToolkit.BoundarySystem.SetupBoundary(this);
+        }
+
         #region IMixedRealityBoundaryDataProvider Implementation
 
         /// <inheritdoc />
