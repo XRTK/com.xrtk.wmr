@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &888890962389326207
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7398244499265140811, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_Name
+      value: DefaultRightHandControllerVisualizer
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355368130211572882, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355368130211572882, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355368130211572882, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1355368130211572882, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3076132558849983539, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: handedness
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3076132558849983539, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: jointsModePrefab
+      value: 
+      objectReference: {fileID: 359003569130992022, guid: 1d9336d86c602194bb2bd581c9389ce7,
+        type: 3}
+    - target: {fileID: 3076132558849983539, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: meshModePrefab
+      value: 
+      objectReference: {fileID: 3866922547383302811, guid: ea935581bf93125478b7586a9a3c3f76,
+        type: 3}
+    - target: {fileID: 4191434239757458300, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2089245550809874106, guid: 61feeca21178ba54682d3c61ff5f89a1,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 61feeca21178ba54682d3c61ff5f89a1, type: 3}

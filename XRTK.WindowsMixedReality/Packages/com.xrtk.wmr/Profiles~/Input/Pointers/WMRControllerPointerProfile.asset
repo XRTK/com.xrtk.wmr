@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c156ea3e1a7a493dac236ed84c4a819a, type: 3}
+  m_Name: ControllerPointerProfile
+  m_EditorClassIdentifier: 
+  pointerPrefab: {fileID: 1247086986094436, guid: 54d78dc3333741c5b7f30fe3506096ba,
+    type: 3}
+  pointingExtent: 10
+  pointingRaycastLayerMasks:
+  - serializedVersion: 2
+    m_Bits: 4294967291
+  drawDebugPointingRays: 0
+  debugPointingRayColors:
+  - {r: 0, g: 1, b: 0, a: 1}
