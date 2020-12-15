@@ -18,9 +18,9 @@ MonoBehaviour:
     axisType: 3
     inputType: 13
     inputAction:
-      profileGuid: 1f6893f98bc96dd47b9e70e4ff211ed7
+      profileGuid: 399335ccc89c4d12b79f3539ca7771db
       id: 7
-      description: Grip Press
+      description: Grip Strength
       axisConstraint: 3
     keyCode: 0
     inputName: 
