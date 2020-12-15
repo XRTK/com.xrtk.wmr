@@ -20,7 +20,7 @@ MonoBehaviour:
     inputAction:
       profileGuid: 399335ccc89c4d12b79f3539ca7771db
       id: 16
-      description: Grip
+      description: Grip Press
       axisConstraint: 2
     keyCode: 0
     inputName: 
