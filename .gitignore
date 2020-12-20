@@ -64,8 +64,7 @@ artifacts/
 ThirdParty/
 ThirdParty.meta
 --Version/
-XRTK-Core/Assets/StreamingAssets/GltfModels/
-XRTK-Core/Assets/StreamingAssets/GltfModels.meta
-XRTK-Core/Assets/StreamingAssets.meta
+
+XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality.meta
 XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality/Profiles
 XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality/Profiles.meta
