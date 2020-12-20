@@ -154,7 +154,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 var spatialMeshObject = await RequestSpatialMeshObject(surfaceId.handle);
                 spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId.handle.ToString()}";
                 var worldAnchor = spatialMeshObject.GameObject.EnsureComponent<WorldAnchor>();
-                var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, MeshTrianglesPerCubicMeter, true);
+                var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, 1000 * (int)MeshLevelOfDetail, true);
 
                 if (!observer.RequestMeshAsync(surfaceData, OnDataReady))
                 {
