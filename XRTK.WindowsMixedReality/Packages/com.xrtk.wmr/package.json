@@ -1,7 +1,7 @@
 {
   "name": "com.xrtk.wmr",
   "displayName": "XRTK.WindowsMixedReality",
-  "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit",
+  "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit.",
   "keywords": [
     "xrtk",
     "vr",
@@ -10,12 +10,19 @@
     "mixed",
     "reality"
   ],
-  "version": "0.1.12",
-  "unity": "2019.1",
+  "version": "0.2.0",
+  "unity": "2019.4",
   "license": "MIT",
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.1.32",
-    "com.unity.xr.windowsmr.metro": "1.0.19"
-  }
+    "com.xrtk.core": "0.2.0",
+    "com.unity.xr.windowsmr.metro": "4.2.3"
+  },
+  "profiles": [
+    {
+      "displayName": "Default Profiles",
+      "path": "Profiles~/"
+    }
+  ],
+  "unityRelease": "17f1"
 }

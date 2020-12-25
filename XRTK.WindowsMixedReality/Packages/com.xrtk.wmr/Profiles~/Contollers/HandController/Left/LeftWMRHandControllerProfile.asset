@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d420c170b42dfe0438e2aa2a829775ed, type: 3}
+  m_Name: LeftWMRHandControllerProfile
+  m_EditorClassIdentifier: 
+  controllerType:
+    reference: b18a9a6c-e5fd-40ae-89e9-9822415ec62b
+  handedness: 1
+  visualizationProfile: {fileID: 11400000, guid: 3abd690db72df6441b4b544fa9d4f45c,
+    type: 2}
+  useCustomInteractions: 0
+  interactionMappingProfiles:
+  - {fileID: 11400000, guid: 39ac0e550d1d4bd4ba2332856cf8730d, type: 2}
+  - {fileID: 11400000, guid: bb9ede70a5842fc48bf57dd2bf5976b8, type: 2}
+  - {fileID: 11400000, guid: ff5f31010a412aa44a18c14d4e15ec4c, type: 2}
+  - {fileID: 11400000, guid: 88f4fe6fb92ad794dbaf93a8af391746, type: 2}
+  - {fileID: 11400000, guid: 2f5396882cd64b343b54395530e552c6, type: 2}
+  - {fileID: 11400000, guid: d853789019a41714a85a38865620bbee, type: 2}
