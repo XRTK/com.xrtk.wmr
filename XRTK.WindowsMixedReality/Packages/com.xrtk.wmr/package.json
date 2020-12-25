@@ -15,7 +15,7 @@
   "license": "MIT",
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.2.0-preview.173",
+    "com.xrtk.core": "0.2.0",
     "com.unity.xr.windowsmr.metro": "4.2.3"
   },
   "profiles": [
