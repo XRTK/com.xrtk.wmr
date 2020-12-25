@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using XRTK.Attributes;
 using XRTK.Definitions;
+using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.BoundarySystem;
 using XRTK.Services;
 
@@ -15,6 +17,7 @@ using XRTK.Extensions;
 
 namespace XRTK.WindowsMixedReality.Providers.BoundarySystem
 {
+    [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("e61b047a-56ac-421a-b5f7-683fd44dd33c")]
     public class WindowsMixedRealityBoundaryDataProvider : BaseDataProvider, IMixedRealityBoundaryDataProvider
     {
