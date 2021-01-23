@@ -108,7 +108,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.xrtk.core": "0.2.1",
+        "com.xrtk.core": "0.2.2",
         "com.unity.xr.windowsmr.metro": "4.2.3"
       }
     },
