@@ -18,7 +18,6 @@ using UnityEngine;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Devices;
-using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
