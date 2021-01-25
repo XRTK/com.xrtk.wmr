@@ -5,9 +5,10 @@ using System;
 using XRTK.Definitions.Controllers;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
+using XRTK.Interfaces.CameraSystem;
 using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Providers.Controllers;
-
+using XRTK.Utilities;
 #if UNITY_WSA
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
@@ -187,22 +188,22 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             // Raise input system events if it is enabled.
             if (lastState != TrackingState)
             {
-                MixedRealityToolkit.InputSystem?.RaiseSourceTrackingStateChanged(InputSource, this, TrackingState);
+                InputSystem?.RaiseSourceTrackingStateChanged(InputSource, this, TrackingState);
             }
 
             if (TrackingState == TrackingState.Tracked && lastControllerPose != currentControllerPose)
             {
                 if (IsPositionAvailable && IsRotationAvailable)
                 {
-                    MixedRealityToolkit.InputSystem?.RaiseSourcePoseChanged(InputSource, this, currentControllerPose);
+                    InputSystem?.RaiseSourcePoseChanged(InputSource, this, currentControllerPose);
                 }
                 else if (IsPositionAvailable && !IsRotationAvailable)
                 {
-                    MixedRealityToolkit.InputSystem?.RaiseSourcePositionChanged(InputSource, this, currentControllerPosition);
+                    InputSystem?.RaiseSourcePositionChanged(InputSource, this, currentControllerPosition);
                 }
                 else if (!IsPositionAvailable && IsRotationAvailable)
                 {
-                    MixedRealityToolkit.InputSystem?.RaiseSourceRotationChanged(InputSource, this, currentControllerRotation);
+                    InputSystem?.RaiseSourceRotationChanged(InputSource, this, currentControllerRotation);
                 }
             }
         }
@@ -236,15 +237,10 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                     interactionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
                     interactionSourceState.sourcePose.TryGetRotation(out currentGripRotation);
 
-                    var cameraRig = MixedRealityToolkit.CameraSystem?.MainCameraRig;
-
-                    if (cameraRig != null &&
-                        cameraRig.PlayspaceTransform != null)
+                    if (MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem))
                     {
-                        currentGripPose.Position = cameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
-                        currentGripPose.Rotation =
-                            Quaternion.Euler(
-                                cameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
+                        currentGripPose.Position = cameraSystem.MainCameraRig.PlayspaceTransform.TransformPoint(currentGripPosition);
+                        currentGripPose.Rotation = Quaternion.Euler(cameraSystem.MainCameraRig.PlayspaceTransform.TransformDirection(currentGripRotation.eulerAngles));
                     }
                     else
                     {
