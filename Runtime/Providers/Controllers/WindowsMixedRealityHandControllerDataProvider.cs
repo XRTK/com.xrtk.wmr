@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using XRTK.Services;
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
@@ -17,7 +18,6 @@ using UnityEngine;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Devices;
-using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
@@ -40,7 +40,13 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             : base(name, priority, profile, parentService)
         {
             handDataProvider = new WindowsMixedRealityHandDataConverter();
-            postProcessor = new HandDataPostProcessor(TrackedPoses)
+
+            var globalSettingsProfile = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile;
+            var isGrippingThreshold = profile.GripThreshold != globalSettingsProfile.GripThreshold
+                ? profile.GripThreshold
+                : globalSettingsProfile.GripThreshold;
+
+            postProcessor = new HandDataPostProcessor(TrackedPoses, isGrippingThreshold)
             {
                 PlatformProvidesPointerPose = true
             };
