@@ -91,7 +91,7 @@
       "url": "https://packages.unity.com"
     },
     "com.xrtk.core": {
-      "version": "0.2.1",
+      "version": "0.2.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {
