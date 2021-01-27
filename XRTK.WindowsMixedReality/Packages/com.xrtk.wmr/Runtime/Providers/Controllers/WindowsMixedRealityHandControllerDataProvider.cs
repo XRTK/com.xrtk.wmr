@@ -231,7 +231,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                 detectedController.InputSource.Pointers[i].Controller = detectedController;
             }
 
-            MixedRealityToolkit.InputSystem?.RaiseSourceDetected(detectedController.InputSource, detectedController);
+            InputSystem?.RaiseSourceDetected(detectedController.InputSource, detectedController);
 
             detectedController.TryRenderControllerModel();
 
@@ -244,7 +244,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         {
             if (TryGetController(handedness, out var controller))
             {
-                MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
+                InputSystem?.RaiseSourceLost(controller.InputSource, controller);
 
                 if (removeFromRegistry)
                 {
