@@ -4,6 +4,7 @@
 using System;
 using XRTK.Services;
 using XRTK.Attributes;
+using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers.Hands;
@@ -39,12 +40,16 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         public WindowsMixedRealityHandControllerDataProvider(string name, uint priority, WindowsMixedRealityHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
+            if (!MixedRealityToolkit.TryGetSystemProfile<IMixedRealityInputSystem, MixedRealityInputSystemProfile>(out var inputSystemProfile))
+            {
+                throw new ArgumentException($"Unable to get a valid {nameof(MixedRealityInputSystemProfile)}!");
+            }
+
             handDataProvider = new WindowsMixedRealityHandDataConverter();
 
-            var globalSettingsProfile = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile;
-            var isGrippingThreshold = profile.GripThreshold != globalSettingsProfile.GripThreshold
+            var isGrippingThreshold = profile.GripThreshold != inputSystemProfile.GripThreshold
                 ? profile.GripThreshold
-                : globalSettingsProfile.GripThreshold;
+                : inputSystemProfile.GripThreshold;
 
             postProcessor = new HandDataPostProcessor(TrackedPoses, isGrippingThreshold)
             {
