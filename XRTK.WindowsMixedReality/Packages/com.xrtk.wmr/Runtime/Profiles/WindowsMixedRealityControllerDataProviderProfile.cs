@@ -59,7 +59,8 @@ namespace XRTK.WindowsMixedReality.Profiles
         {
             return new[]
                {
-                 new ControllerDefinition("HoloLensController", typeof(WindowsMixedRealityMotionController)),
+                 new ControllerDefinition(typeof(HololensOneController), Handedness.Left),
+                 new ControllerDefinition(typeof(HololensOneController), Handedness.Right),
                  new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
                  new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
             };
