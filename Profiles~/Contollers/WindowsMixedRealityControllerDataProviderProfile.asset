@@ -11,10 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe9eeb08f95b1c1419ad17953d9a48ee, type: 3}
   m_Name: WindowsMixedRealityControllerDataProviderProfile
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   hasSetupDefaults: 1
   controllerMappingProfiles:
   - {fileID: 11400000, guid: aaa9b82b55ce7834bb43c9d726ff893e, type: 2}
+  - {fileID: 11400000, guid: ff201f2397a3513458d415382ee6f1d0, type: 2}
   - {fileID: 11400000, guid: 752ece58d1e10d4458ac9d6ad664cc58, type: 2}
   - {fileID: 11400000, guid: 87a124892ea548a4ea4cbba488e06b5a, type: 2}
   manipulationGestures: 0

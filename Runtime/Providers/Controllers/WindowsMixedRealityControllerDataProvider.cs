@@ -419,11 +419,15 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                     break;
             }
 
+
             WindowsMixedRealityMotionController detectedController;
+            var controllerType = interactionSource.kind == InteractionSourceKind.Hand
+                ? typeof(HololensOneController)
+                : typeof(WindowsMixedRealityMotionController);
 
             try
             {
-                detectedController = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(typeof(WindowsMixedRealityMotionController), handedness));
+                detectedController = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(controllerType, handedness));
             }
             catch (Exception e)
             {
