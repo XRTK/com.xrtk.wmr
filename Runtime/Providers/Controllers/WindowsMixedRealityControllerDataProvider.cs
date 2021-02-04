@@ -409,8 +409,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             switch (interactionSource.handedness)
             {
                 default:
-                    handedness = Handedness.None;
-                    break;
+                    return null;
                 case InteractionSourceHandedness.Left:
                     handedness = Handedness.Left;
                     break;
