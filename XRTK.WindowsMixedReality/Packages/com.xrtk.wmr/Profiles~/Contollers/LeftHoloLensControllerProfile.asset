@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d420c170b42dfe0438e2aa2a829775ed, type: 3}
-  m_Name: HoloLensControllerProfile
+  m_Name: LeftHoloLensControllerProfile
   m_EditorClassIdentifier: 
   controllerType:
-    reference: 37aa1554-3d46-4c72-aac4-31023775f62b
-  handedness: 0
+    reference: 6ce43357-54e7-4471-b1b7-4bf4912984b1
+  handedness: 1
   visualizationProfile: {fileID: 0}
   useCustomInteractions: 1
   interactionMappingProfiles:
