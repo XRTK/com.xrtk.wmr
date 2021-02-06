@@ -10,12 +10,12 @@
     "mixed",
     "reality"
   ],
-  "version": "0.2.3",
+  "version": "0.2.4",
   "unity": "2019.4",
   "license": "MIT",
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.2.4",
+    "com.xrtk.core": "0.2.5",
     "com.unity.xr.windowsmr.metro": "4.2.3"
   },
   "profiles": [
