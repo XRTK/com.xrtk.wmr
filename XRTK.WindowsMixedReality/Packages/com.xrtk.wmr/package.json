@@ -2,7 +2,7 @@
   "name": "com.xrtk.wmr",
   "displayName": "XRTK.WindowsMixedReality",
   "description": "The Windows Mixed Reality components for the Mixed Reality Toolkit.",
-  "keywords": [
+  "tags": [
     "xrtk",
     "vr",
     "ar",
@@ -10,9 +10,13 @@
     "mixed",
     "reality"
   ],
-  "version": "0.2.4",
+  "version": "0.2.5",
   "unity": "2019.4",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XRTK/WindowsMixedReality.git"
+  },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
     "com.xrtk.core": "0.2.6-preview.1",
