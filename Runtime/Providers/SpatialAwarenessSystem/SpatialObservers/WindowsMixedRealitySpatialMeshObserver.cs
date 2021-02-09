@@ -13,6 +13,7 @@ using UnityEngine;
 using UnityEngine.XR.WSA;
 using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Extensions;
+using XRTK.Interfaces.CameraSystem;
 using XRTK.Services;
 using XRTK.Utilities;
 #endif // UNITY_WSA
@@ -64,8 +65,8 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             // Update the observer location if it is not stationary
             if (!IsStationaryObserver)
             {
-                ObserverOrigin = MixedRealityToolkit.CameraSystem != null
-                    ? MixedRealityToolkit.CameraSystem.MainCameraRig.CameraTransform.localPosition
+                ObserverOrigin = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                    ? cameraSystem.MainCameraRig.CameraTransform.localPosition
                     : CameraCache.Main.transform.position;
             }
 
