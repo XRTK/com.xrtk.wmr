@@ -3,7 +3,8 @@
 
 using System;
 using XRTK.Definitions.Controllers.Hands;
-
+using XRTK.Interfaces.CameraSystem;
+using XRTK.Utilities;
 #if WINDOWS_UWP
 
 using System.Collections.Generic;
@@ -50,7 +51,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         private bool hasRequestedHandMeshObserverRightHand = false;
         private Vector2[] handMeshUVs;
 
-        private static readonly HandJointKind[] jointIndices = new HandJointKind[]
+        private static readonly HandJointKind[] jointIndices =
         {
             HandJointKind.Palm,
             HandJointKind.Wrist,
@@ -79,6 +80,22 @@ namespace XRTK.WindowsMixedReality.Utilities
             HandJointKind.LittleDistal,
             HandJointKind.LittleTip
         };
+
+        private Transform playspaceTransform = null;
+
+        private Transform PlayspaceTransform
+        {
+            get
+            {
+                if (playspaceTransform == null)
+                {
+                    playspaceTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                        ? cameraSystem.MainCameraRig.PlayspaceTransform
+                        : CameraCache.Main.transform.parent;
+                }
+                return playspaceTransform;
+            }
+        }
 
         /// <summary>
         /// Gets updated hand data for the current frame.
@@ -173,7 +190,6 @@ namespace XRTK.WindowsMixedReality.Utilities
         private MixedRealityPose GetJointPose(TrackedHandJoint trackedHandJoint, MixedRealityPose handRootPose, JointPose jointPose)
         {
             var jointTransform = GetProxyTransform(trackedHandJoint);
-            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
 
             if (trackedHandJoint == TrackedHandJoint.Wrist)
             {
@@ -182,9 +198,9 @@ namespace XRTK.WindowsMixedReality.Utilities
             }
             else
             {
-                jointTransform.parent = playspaceTransform;
-                jointTransform.localPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPose.Position.ToUnity());
-                jointTransform.localRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointPose.Orientation.ToUnity();
+                jointTransform.parent = PlayspaceTransform;
+                jointTransform.localPosition = PlayspaceTransform.InverseTransformPoint(PlayspaceTransform.position + PlayspaceTransform.rotation * jointPose.Position.ToUnity());
+                jointTransform.localRotation = Quaternion.Inverse(PlayspaceTransform.rotation) * PlayspaceTransform.rotation * jointPose.Orientation.ToUnity();
                 jointTransform.parent = conversionProxyRootTransform;
             }
 
@@ -205,9 +221,8 @@ namespace XRTK.WindowsMixedReality.Utilities
             var wristProxyTransform = GetProxyTransform(TrackedHandJoint.Wrist);
 
             // Convert to playspace.
-            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            wristProxyTransform.position = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * wristPose.Position.ToUnity());
-            wristProxyTransform.rotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * wristPose.Orientation.ToUnity();
+            wristProxyTransform.position = PlayspaceTransform.InverseTransformPoint(PlayspaceTransform.position + PlayspaceTransform.rotation * wristPose.Position.ToUnity());
+            wristProxyTransform.rotation = Quaternion.Inverse(PlayspaceTransform.rotation) * PlayspaceTransform.rotation * wristPose.Orientation.ToUnity();
 
             return new MixedRealityPose(wristProxyTransform.position, wristProxyTransform.rotation);
         }
@@ -225,9 +240,8 @@ namespace XRTK.WindowsMixedReality.Utilities
                 var interactionSourcePose = spatialPointerPose.TryGetInteractionSourcePose(spatialInteractionSourceState.Source);
                 if (interactionSourcePose != null)
                 {
-                    var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-                    var pointerPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * interactionSourcePose.Position.ToUnity());
-                    var pointerRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * interactionSourcePose.Orientation.ToUnity();
+                    var pointerPosition = PlayspaceTransform.InverseTransformPoint(PlayspaceTransform.position + PlayspaceTransform.rotation * interactionSourcePose.Position.ToUnity());
+                    var pointerRotation = Quaternion.Inverse(PlayspaceTransform.rotation) * PlayspaceTransform.rotation * interactionSourcePose.Orientation.ToUnity();
 
                     return new MixedRealityPose(pointerPosition, pointerRotation);
                 }
@@ -246,7 +260,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         private bool TryGetUpdatedHandMeshData(SpatialInteractionSourceState spatialInteractionSourceState, HandPose handPose, out HandMeshData data)
         {
             if (!handMeshObservers.ContainsKey(spatialInteractionSourceState.Source.Handedness) &&
-                        !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
+                !HasRequestedHandMeshObserver(spatialInteractionSourceState.Source.Handedness))
             {
                 SetHandMeshObserver(spatialInteractionSourceState);
             }
@@ -374,7 +388,7 @@ namespace XRTK.WindowsMixedReality.Utilities
             if (conversionProxyRootTransform.IsNull())
             {
                 conversionProxyRootTransform = new GameObject("WMR Hand Conversion Proxy").transform;
-                conversionProxyRootTransform.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+                conversionProxyRootTransform.transform.SetParent(PlayspaceTransform, false);
                 conversionProxyRootTransform.gameObject.SetActive(false);
             }
 
@@ -389,7 +403,7 @@ namespace XRTK.WindowsMixedReality.Utilities
             }
 
             var transform = new GameObject($"WMR Hand {handJointKind} Proxy").transform;
-            transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
+            transform.SetParent(PlayspaceTransform, false);
             conversionProxyTransforms.Add(handJointKind, transform);
 
             return transform;

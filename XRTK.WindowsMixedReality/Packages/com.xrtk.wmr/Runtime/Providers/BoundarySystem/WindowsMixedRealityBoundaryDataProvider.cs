@@ -25,14 +25,17 @@ namespace XRTK.WindowsMixedReality.Providers.BoundarySystem
         public WindowsMixedRealityBoundaryDataProvider(string name, uint priority, BaseMixedRealityProfile profile, IMixedRealityBoundarySystem parentService)
             : base(name, priority, profile, parentService)
         {
+            boundarySystem = parentService;
         }
+
+        private readonly IMixedRealityBoundarySystem boundarySystem;
 
         /// <inheritdoc />
         public override void Enable()
         {
             base.Enable();
 
-            MixedRealityToolkit.BoundarySystem.SetupBoundary(this);
+            boundarySystem.SetupBoundary(this);
         }
 
         #region IMixedRealityBoundaryDataProvider Implementation
