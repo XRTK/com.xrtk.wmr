@@ -3,10 +3,8 @@
     "references": [
         "GUID:f3241d040533491e8a1e2714b27c3111",
         "GUID:e67d30660ec243e4836aac191d3f36fb",
-        "GUID:395bd8dd25074437ba735310022f8f0a",
         "GUID:d497b6a1e2ec4433aa221a5b82ae1b68"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -16,5 +14,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }
