@@ -22,7 +22,7 @@ namespace XRTK.WindowsMixedReality.Editor
 
 #if UNITY_2020_1_OR_NEWER
         private static readonly string wmrDependencyPackageName = "com.unity.xr.windowsmr";
-        private static readonly string wmrDependencyPackageVersion = "4.2.1";
+        private static readonly string wmrDependencyPackageVersion = "4.4.1";
 #else
         private static readonly string wmrDependencyPackageName = "com.unity.xr.windowsmr.metro";
         private static readonly string wmrDependencyPackageVersion = "4.2.3";
