@@ -7,26 +7,22 @@ using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
+using XRTK.WindowsMixedReality.Extensions;
 
-#if UNITY_WSA
+#if WINDOWS_UWP
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR.WSA.Input;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.InputSystem;
 using XRTK.Definitions.Utilities;
-using XRTK.Extensions;
 using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Services;
-using WsaGestureSettings = UnityEngine.XR.WSA.Input.GestureSettings;
-#endif // UNITY_WSA
-
-#if WINDOWS_UWP
 using Windows.ApplicationModel.Core;
 using Windows.Perception;
 using Windows.Storage.Streams;
 using Windows.UI.Input.Spatial;
 using XRTK.WindowsMixedReality.Utilities;
+using Windows.UI.Input;
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Providers.Controllers
@@ -34,7 +30,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
     /// <summary>
     /// The device manager for Windows Mixed Reality controllers.
     /// </summary>
-    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("12E02EF8-4177-46AB-BC50-19AF7148BD4A")]
     public class WindowsMixedRealityControllerDataProvider : BaseControllerDataProvider
@@ -59,7 +54,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 #endif // UNITY_WSA
         }
 
-#if UNITY_WSA
+#if WINDOWS_UWP
 
         private readonly AutoStartBehavior gestureAutoStartBehavior;
 
@@ -92,6 +87,28 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         public InteractionSourceState[] LastInteractionManagerStateReading { get; protected set; }
 
         private static bool gestureRecognizerEnabled;
+
+        private SpatialInteractionManager spatialInteractionManager = null;
+
+        /// <summary>
+        /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instance for the current application
+        /// state.
+        /// </summary>
+        private SpatialInteractionManager SpatialInteractionManager
+        {
+            get
+            {
+                if (spatialInteractionManager == null)
+                {
+                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
+                    {
+                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
+                    }, true);
+                }
+
+                return spatialInteractionManager;
+            }
+        }
 
         /// <summary>
         /// Enables or disables the gesture recognizer.
@@ -285,8 +302,8 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                 }
             }
 
-            InteractionManager.InteractionSourceDetected += InteractionManager_InteractionSourceDetected;
-            InteractionManager.InteractionSourceLost += InteractionManager_InteractionSourceLost;
+            SpatialInteractionManager.SourceDetected += SpatialInteractionManager_SourceDetected;
+            SpatialInteractionManager.SourceLost += SpatialInteractionManager_SourceLost;
 
             numInteractionManagerStates = InteractionManager.GetCurrentReading(interactionManagerStates);
 
@@ -363,8 +380,8 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             navigationGestureRecognizer.NavigationCompleted -= NavigationGestureRecognizer_NavigationCompleted;
             navigationGestureRecognizer.NavigationCanceled -= NavigationGestureRecognizer_NavigationCanceled;
 
-            InteractionManager.InteractionSourceDetected -= InteractionManager_InteractionSourceDetected;
-            InteractionManager.InteractionSourceLost -= InteractionManager_InteractionSourceLost;
+            SpatialInteractionManager.SourceDetected -= SpatialInteractionManager_SourceDetected;
+            SpatialInteractionManager.SourceLost -= SpatialInteractionManager_SourceLost;
 
             InteractionSourceState[] states = InteractionManager.GetCurrentReading();
 
@@ -387,64 +404,58 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         #region Controller Utilities
 
         /// <summary>
-        /// Retrieve the source controller from the Active Store, or create a new device and register it
+        /// Attempts to retrieve a <see cref="SpatialInteractionSource"/> controller from the active store.
         /// </summary>
-        /// <param name="interactionSource">Source State provided by the SDK</param>
+        /// <param name="spatialInteractionSource">Source provided by the SDK.</param>
+        /// <param name="controller">Controller reference from active store.</param>
         /// <param name="addController">Should the Source be added as a controller if it isn't found?</param>
-        /// <returns>New or Existing Controller Input Source</returns>
-        private WindowsMixedRealityMotionController GetController(InteractionSource interactionSource, bool addController = false)
+        /// <returns>True, if controller was found or created.</returns>
+        private bool TryGetController(SpatialInteractionSource spatialInteractionSource, out WindowsMixedRealityMotionController controller, bool addController = false)
         {
-            //If a device is already registered with the ID provided, just return it.
-            if (activeControllers.ContainsKey(interactionSource.id))
+            if (activeControllers.ContainsKey(spatialInteractionSource.Id))
             {
-                var controller = activeControllers[interactionSource.id] as WindowsMixedRealityMotionController;
+                controller = activeControllers[spatialInteractionSource.Id] as WindowsMixedRealityMotionController;
                 Debug.Assert(controller != null);
-                return controller;
+                return true;
             }
 
-            if (!addController) { return null; }
-
-            Handedness handedness;
-
-            switch (interactionSource.handedness)
+            if (!addController)
             {
-                default:
-                    return null;
-                case InteractionSourceHandedness.Left:
-                    handedness = Handedness.Left;
-                    break;
-                case InteractionSourceHandedness.Right:
-                    handedness = Handedness.Right;
-                    break;
+                controller = null;
+                return false;
             }
 
-
-            WindowsMixedRealityMotionController detectedController;
-            var controllerType = interactionSource.kind == InteractionSourceKind.Hand
+            var handedness = spatialInteractionSource.Handedness.ToHandedness();
+            var controllerType = spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand
                 ? typeof(HololensOneController)
                 : typeof(WindowsMixedRealityMotionController);
 
             try
             {
-                detectedController = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(controllerType, handedness));
+                controller = new WindowsMixedRealityMotionController(this, TrackingState.NotApplicable, handedness, GetControllerMappingProfile(controllerType, handedness));
+                TryRenderControllerModel(spatialInteractionSource, controller);
+
+                activeControllers.Add(spatialInteractionSource.Id, controller);
+                AddController(controller);
+
+                return true;
             }
             catch (Exception e)
             {
                 Debug.LogError($"Failed to create {nameof(WindowsMixedRealityMotionController)}!\n{e}");
-                return null;
+                controller = null;
+                return false;
             }
-
-            TryRenderControllerModel(interactionSource, detectedController);
-
-            activeControllers.Add(interactionSource.id, detectedController);
-            AddController(detectedController);
-            return detectedController;
         }
 
-        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
+        /// <summary>
+        /// Attempts to render a model of the <see cref="SpatialInteractionSource"/>. Only works with occluded display headsets.
+        /// </summary>
+        /// <param name="spatialInteractionSource">Source provided by the SDK.</param>
+        /// <param name="controller">The controller instance for the provided <paramref name="spatialInteractionSource"/>.</param>
+        private static async void TryRenderControllerModel(SpatialInteractionSource spatialInteractionSource, WindowsMixedRealityMotionController controller)
         {
-#if WINDOWS_UWP
-            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque)
+            if (!Windows.Graphics.Holographic.HolographicDisplay.GetDefault().IsOpaque)
             {
                 return;
             }
@@ -469,7 +480,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
                 for (var i = 0; i < sources?.Count; i++)
                 {
-                    if (sources[i].Source.Id.Equals(interactionSource.id))
+                    if (sources[i].Source.Id.Equals(spatialInteractionSource.id))
                     {
                         stream = await sources[i].Source.Controller.TryGetRenderableModelAsync();
                         break;
@@ -493,31 +504,26 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                     Debug.LogError("Failed to load model data!");
                 }
 
-                await controller.TryRenderControllerModelAsync(glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
+                await controller.TryRenderControllerModelAsync(glbModelData, spatialInteractionSource.Kind == SpatialInteractionSourceKind.Hand);
             }
-#else
-            await controller.TryRenderControllerModelAsync(null, interactionSource.kind == InteractionSourceKind.Hand);
-#endif // WINDOWS_UWP
         }
 
         /// <summary>
-        /// Remove the selected controller from the Active Store
+        /// Removes a controller from the active store.
         /// </summary>
-        /// <param name="interactionSourceState">Source State provided by the SDK to remove</param>
+        /// <param name="spatialInteractionSourceState">Source state provided by the SDK.</param>
         /// <param name="clearFromRegistry">Should the controller be removed from the registry?</param>
-        private void RemoveController(InteractionSourceState interactionSourceState, bool clearFromRegistry = true)
+        private void RemoveController(SpatialInteractionSourceState spatialInteractionSourceState, bool clearFromRegistry = true)
         {
-            var controller = GetController(interactionSourceState.source);
-
-            if (controller != null)
+            if (TryGetController(spatialInteractionSourceState.Source, out var controller))
             {
                 InputSystem?.RaiseSourceLost(controller.InputSource, controller);
-            }
 
-            if (clearFromRegistry)
-            {
-                RemoveController(controller);
-                activeControllers.Remove(interactionSourceState.source.id);
+                if (clearFromRegistry)
+                {
+                    RemoveController(controller);
+                    activeControllers.Remove(spatialInteractionSourceState.Source.Id);
+                }
             }
         }
 
@@ -525,36 +531,17 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         #region Unity InteractionManager Events
 
-        /// <summary>
-        /// SDK Interaction Source Detected Event handler
-        /// </summary>
-        /// <param name="args">SDK source detected event arguments</param>
-        private void InteractionManager_InteractionSourceDetected(InteractionSourceDetectedEventArgs args)
+        private void SpatialInteractionManager_SourceDetected(SpatialInteractionManager sender, SpatialInteractionSourceEventArgs args)
         {
-            if (args.state.sourcePose.positionAccuracy == InteractionSourcePositionAccuracy.None)
-            {
-                return;
-            }
-
-            var raiseSourceDetected = !activeControllers.ContainsKey(args.state.source.id);
-            var controller = GetController(args.state.source, true);
-
-            if (controller != null && raiseSourceDetected)
+            if (TryGetController(args.State.Source, out var controller, true))
             {
                 InputSystem?.RaiseSourceDetected(controller.InputSource, controller);
             }
 
-            controller?.UpdateController(args.state);
+            controller?.UpdateController(args.State);
         }
 
-        /// <summary>
-        /// SDK Interaction Source Lost Event handler
-        /// </summary>
-        /// <param name="args">SDK source updated event arguments</param>
-        private void InteractionManager_InteractionSourceLost(InteractionSourceLostEventArgs args)
-        {
-            RemoveController(args.state);
-        }
+        private void SpatialInteractionManager_SourceLost(SpatialInteractionManager sender, SpatialInteractionSourceEventArgs args) => RemoveController(args.State);
 
         #endregion Unity InteractionManager Events
 
@@ -606,7 +593,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void GestureRecognizer_ManipulationStarted(ManipulationStartedEventArgs args)
+        private void GestureRecognizer_ManipulationStarted(SpatialManipulationStartedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -615,7 +602,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void GestureRecognizer_ManipulationUpdated(ManipulationUpdatedEventArgs args)
+        private void GestureRecognizer_ManipulationUpdated(SpatialManipulationUpdatedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -624,7 +611,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void GestureRecognizer_ManipulationCompleted(ManipulationCompletedEventArgs args)
+        private void GestureRecognizer_ManipulationCompleted(SpatialManipulationCompletedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -633,7 +620,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void GestureRecognizer_ManipulationCanceled(ManipulationCanceledEventArgs args)
+        private void GestureRecognizer_ManipulationCanceled(SpatialManipulationCanceledEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -646,7 +633,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         #region Navigation Recognizer Events
 
-        private void NavigationGestureRecognizer_NavigationStarted(NavigationStartedEventArgs args)
+        private void NavigationGestureRecognizer_NavigationStarted(SpatialNavigationStartedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -655,7 +642,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void NavigationGestureRecognizer_NavigationUpdated(NavigationUpdatedEventArgs args)
+        private void NavigationGestureRecognizer_NavigationUpdated(SpatialNavigationUpdatedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -664,7 +651,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void NavigationGestureRecognizer_NavigationCompleted(NavigationCompletedEventArgs args)
+        private void NavigationGestureRecognizer_NavigationCompleted(SpatialNavigationCompletedEventArgs args)
         {
             var controller = GetController(args.source);
             if (controller != null)
@@ -673,9 +660,9 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             }
         }
 
-        private void NavigationGestureRecognizer_NavigationCanceled(NavigationCanceledEventArgs args)
+        private void NavigationGestureRecognizer_NavigationCanceled(SpatialNavigationCanceledEventArgs args)
         {
-            var controller = GetController(args.source);
+            var controller = GetController(args);
             if (controller != null)
             {
                 InputSystem.RaiseGestureCanceled(controller, navigationAction);
@@ -684,7 +671,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         #endregion Navigation Recognizer Events
 
-#endif // UNITY_WSA
+#endif // WINDOWS_UWP
 
     }
 }
