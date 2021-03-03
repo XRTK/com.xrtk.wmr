@@ -38,7 +38,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
-#if UNITY_WSA
+#if WINDOWS_UWP
             if (MixedRealityToolkit.TryGetSystemProfile<IMixedRealityInputSystem, MixedRealityInputSystemProfile>(out var inputSystemProfile))
             {
                 gestures = inputSystemProfile.GesturesProfile.Gestures;
@@ -51,7 +51,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             UseRailsNavigation = profile.UseRailsNavigation;
             gestureRecognizer = new GestureRecognizer();
             navigationGestureRecognizer = new GestureRecognizer();
-#endif // UNITY_WSA
+#endif // WINDOWS_UWP
         }
 
 #if WINDOWS_UWP
