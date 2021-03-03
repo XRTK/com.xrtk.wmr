@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
@@ -31,7 +31,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
     /// The Windows Mixed Reality Data Provider for hand controller support.
     /// It's responsible for converting the platform data to agnostic data the <see cref="MixedRealityHandController"/> can work with.
     /// </summary>
-    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("F2E0D0EF-6393-4F96-90CC-DF78CA1DC8A2")]
     public class WindowsMixedRealityHandControllerDataProvider : BaseHandControllerDataProvider
@@ -45,8 +44,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                 throw new ArgumentException($"Unable to get a valid {nameof(MixedRealityInputSystemProfile)}!");
             }
 
-            handDataProvider = new WindowsMixedRealityHandDataConverter();
-
             var isGrippingThreshold = profile.GripThreshold != inputSystemProfile.GripThreshold
                 ? profile.GripThreshold
                 : inputSystemProfile.GripThreshold;
@@ -57,12 +54,12 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             };
         }
 
-        private readonly WindowsMixedRealityHandDataConverter handDataProvider;
         private readonly HandDataPostProcessor postProcessor;
 
 #if WINDOWS_UWP
 
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
+        private WindowsMixedRealityHandDataConverter handDataProvider;
 
         private SpatialInteractionManager spatialInteractionManager = null;
 
@@ -83,6 +80,16 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                 }
 
                 return spatialInteractionManager;
+            }
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+
+            if (Application.isPlaying)
+            {
+                handDataProvider = new WindowsMixedRealityHandDataConverter(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
             }
         }
 
@@ -165,7 +172,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             // the HandPose related APIs are only present on this version and above.
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if (WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) &&
+            if (WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) &&
                 SpatialInteractionManager != null)
             {
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);

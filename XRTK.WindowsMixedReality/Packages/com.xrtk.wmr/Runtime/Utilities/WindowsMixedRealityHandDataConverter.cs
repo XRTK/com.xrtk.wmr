@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Definitions.Controllers.Hands;
+using Windows.Perception.Spatial;
 
 #if WINDOWS_UWP
 
@@ -30,6 +31,15 @@ namespace XRTK.WindowsMixedReality.Utilities
 #if WINDOWS_UWP
 
         /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="spatialCoordinateSystem">The <see cref="SpatialCoordinateSystem"/> used to translate joint poses to Unity world space.</param>
+        public WindowsMixedRealityHandDataConverter(SpatialCoordinateSystem spatialCoordinateSystem)
+        {
+            this.spatialCoordinateSystem = spatialCoordinateSystem;
+        }
+
+        /// <summary>
         /// Destructor.
         /// </summary>
         ~WindowsMixedRealityHandDataConverter()
@@ -42,6 +52,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         }
 
         private Transform conversionProxyRootTransform;
+        private readonly SpatialCoordinateSystem spatialCoordinateSystem;
         private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
         private readonly Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver> handMeshObservers = new Dictionary<SpatialInteractionSourceHandedness, HandMeshObserver>();
         private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
@@ -119,7 +130,7 @@ namespace XRTK.WindowsMixedReality.Utilities
             var platformJointPoses = new JointPose[jointIndices.Length];
             handData = new HandData
             {
-                TrackingState = handPose.TryGetJoints(WindowsMixedRealityUtilities.SpatialCoordinateSystem, jointIndices, platformJointPoses) ? TrackingState.Tracked : TrackingState.NotTracked,
+                TrackingState = handPose.TryGetJoints(spatialCoordinateSystem, jointIndices, platformJointPoses) ? TrackingState.Tracked : TrackingState.NotTracked,
                 UpdatedAt = DateTimeOffset.UtcNow.Ticks
             };
 
@@ -234,7 +245,7 @@ namespace XRTK.WindowsMixedReality.Utilities
         /// <returns>The hand's <see cref="HandData.PointerPose"/> in playspace.</returns>
         private MixedRealityPose GetPointerPose(SpatialInteractionSourceState spatialInteractionSourceState)
         {
-            var spatialPointerPose = spatialInteractionSourceState.TryGetPointerPose(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+            var spatialPointerPose = spatialInteractionSourceState.TryGetPointerPose(spatialCoordinateSystem);
             if (spatialPointerPose != null)
             {
                 var interactionSourcePose = spatialPointerPose.TryGetInteractionSourcePose(spatialInteractionSourceState.Source);
@@ -295,7 +306,7 @@ namespace XRTK.WindowsMixedReality.Utilities
                 var handMeshVertexState = handMeshObserver.GetVertexStateForPose(handPose);
                 handMeshVertexState.GetVertices(vertexAndNormals);
 
-                var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+                var meshTransform = handMeshVertexState.CoordinateSystem.TryGetTransformTo(spatialCoordinateSystem);
                 if (meshTransform.HasValue)
                 {
                     System.Numerics.Matrix4x4.Decompose(meshTransform.Value, out var scale, out var rotation, out var translation);

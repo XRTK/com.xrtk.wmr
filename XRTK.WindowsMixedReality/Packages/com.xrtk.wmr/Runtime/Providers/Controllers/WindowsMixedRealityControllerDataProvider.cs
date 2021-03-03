@@ -1,15 +1,15 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
-using XRTK.WindowsMixedReality.Extensions;
 
 #if WINDOWS_UWP
+using System;
+using XRTK.WindowsMixedReality.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 using XRTK.Definitions.Devices;
@@ -462,8 +462,8 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
             IRandomAccessStreamWithContentType stream = null;
 
-            if (!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
-                !WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionController), nameof(SpatialInteractionController.TryGetRenderableModelAsync)))
+            if (!WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                !WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionController), nameof(SpatialInteractionController.TryGetRenderableModelAsync)))
             {
                 return;
             }

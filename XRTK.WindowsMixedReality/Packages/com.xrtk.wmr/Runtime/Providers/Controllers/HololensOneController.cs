@@ -7,7 +7,9 @@ using XRTK.Definitions.Utilities;
 namespace XRTK.WindowsMixedReality.Providers.Controllers
 {
     /// <summary>
-    /// First generation HoloLens controller.
+    /// First generation HoloLens controller. The HoloLens controller is not a physical controller,
+    /// it's the user's hand with a limited set of gestures recognized. HoloLens first generation does not support
+    /// fully articulated hand tracking.
     /// </summary>
     [System.Runtime.InteropServices.Guid("6CE43357-54E7-4471-B1B7-4BF4912984B1")]
     public class HololensOneController : WindowsMixedRealityMotionController

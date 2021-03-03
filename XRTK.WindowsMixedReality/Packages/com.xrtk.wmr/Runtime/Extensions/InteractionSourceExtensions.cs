@@ -47,8 +47,8 @@ namespace XRTK.WindowsMixedReality.Extensions
 #if WINDOWS_UWP
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if ((!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
-                 !WindowsApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
+            if ((!WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                 !WindowsUniversalApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
             {
                 return;
             }
@@ -90,8 +90,8 @@ namespace XRTK.WindowsMixedReality.Extensions
 #if WINDOWS_UWP
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
-            if ((!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
-                 !WindowsApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
+            if ((!WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
+                 !WindowsUniversalApiChecker.IsTypeAvailable(typeof(SimpleHapticsController))) && !Application.isEditor)
             {
                 return;
             }
