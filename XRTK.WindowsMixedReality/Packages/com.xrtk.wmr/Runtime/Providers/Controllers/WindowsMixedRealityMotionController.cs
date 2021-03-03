@@ -55,7 +55,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         /// <inheritdoc />
         public override MixedRealityInteractionMapping[] DefaultRightHandedInteractions => DefaultInteractions;
 
-#if UNITY_WSA
+#if WINDOWS_UWP
 
         /// <summary>
         /// The last updated source state reading for this Windows Mixed Reality Controller.
@@ -305,6 +305,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         private void UpdateMenuData(SpatialInteractionSourceState spatialInteractionSourceState, MixedRealityInteractionMapping interactionMapping) => interactionMapping.BoolData = spatialInteractionSourceState.IsMenuPressed;
 
-#endif // UNITY_WSA
+#endif // WINDOWS_UWP
     }
 }

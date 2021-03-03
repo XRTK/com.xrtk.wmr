@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using XRTK.Definitions.Controllers.Hands;
-using Windows.Perception.Spatial;
 
 #if WINDOWS_UWP
 
@@ -13,6 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
+using Windows.Perception.Spatial;
 using XRTK.Services;
 using XRTK.WindowsMixedReality.Extensions;
 using XRTK.Extensions;
