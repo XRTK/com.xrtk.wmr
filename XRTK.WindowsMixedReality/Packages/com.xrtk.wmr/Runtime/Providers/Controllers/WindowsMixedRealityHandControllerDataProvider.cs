@@ -61,8 +61,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
         private WindowsMixedRealityHandDataConverter handDataProvider;
 
-
-
         public override void Initialize()
         {
             base.Initialize();
