@@ -4,6 +4,7 @@
 #if WINDOWS_UWP
 
 using Windows.Perception.Spatial;
+using Windows.UI.Input.Spatial;
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
@@ -28,6 +29,28 @@ namespace XRTK.WindowsMixedReality.Utilities
                 spatialCoordinateSystem = stationaryFrameOfReference.CoordinateSystem;
 
                 return spatialCoordinateSystem;
+            }
+        }
+
+        private static SpatialInteractionManager spatialInteractionManager = null;
+
+        /// <summary>
+        /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instance for the current application
+        /// state.
+        /// </summary>
+        public static SpatialInteractionManager SpatialInteractionManager
+        {
+            get
+            {
+                if (spatialInteractionManager == null)
+                {
+                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
+                    {
+                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
+                    }, true);
+                }
+
+                return spatialInteractionManager;
             }
         }
     }

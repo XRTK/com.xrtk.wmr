@@ -61,27 +61,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
         private WindowsMixedRealityHandDataConverter handDataProvider;
 
-        private SpatialInteractionManager spatialInteractionManager = null;
 
-        /// <summary>
-        /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instance for the current application
-        /// state.
-        /// </summary>
-        private SpatialInteractionManager SpatialInteractionManager
-        {
-            get
-            {
-                if (spatialInteractionManager == null)
-                {
-                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
-                    {
-                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
-                    }, true);
-                }
-
-                return spatialInteractionManager;
-            }
-        }
 
         public override void Initialize()
         {
@@ -173,10 +153,10 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             // GetForCurrentView and GetDetectedSourcesAtTimestamp were both introduced in the same Windows version.
             // We need only check for one of them.
             if (WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) &&
-                SpatialInteractionManager != null)
+                WindowsMixedRealityUtilities.SpatialInteractionManager != null)
             {
                 var perceptionTimestamp = PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now);
-                var allSources = SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
+                var allSources = WindowsMixedRealityUtilities.SpatialInteractionManager.GetDetectedSourcesAtTimestamp(perceptionTimestamp);
 
                 if (allSources != null)
                 {
