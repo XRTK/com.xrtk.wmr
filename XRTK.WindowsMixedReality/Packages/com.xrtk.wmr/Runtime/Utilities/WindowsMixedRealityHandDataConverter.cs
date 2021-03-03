@@ -1,12 +1,13 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using XRTK.Definitions.Controllers.Hands;
-using XRTK.Interfaces.CameraSystem;
-using XRTK.Utilities;
+
 #if WINDOWS_UWP
 
+using System;
+using XRTK.Interfaces.CameraSystem;
+using XRTK.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
@@ -24,7 +25,6 @@ namespace XRTK.WindowsMixedReality.Utilities
     /// <summary>
     /// Converts windows mixed reality hand data to XRTK's <see cref="HandData"/>.
     /// </summary>
-    [Obsolete]
     public sealed class WindowsMixedRealityHandDataConverter
     {
 #if WINDOWS_UWP
