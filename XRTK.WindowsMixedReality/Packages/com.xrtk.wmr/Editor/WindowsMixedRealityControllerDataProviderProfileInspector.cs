@@ -1,16 +1,14 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using UnityEditor;
 using UnityEngine;
 using XRTK.Editor.Extensions;
 using XRTK.Editor.Profiles.InputSystem.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
-namespace XRTK.WindowsMixedReality.Editor.Providers.SpatialAwarenessSystem.SpatialObservers
+namespace XRTK.WindowsMixedReality.Editor
 {
-    [Obsolete]
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
     public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityControllerDataProviderProfileInspector
     {
