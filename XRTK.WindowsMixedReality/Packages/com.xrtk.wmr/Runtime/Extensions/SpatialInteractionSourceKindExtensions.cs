@@ -10,7 +10,6 @@ using XRTK.WindowsMixedReality.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
-    [Obsolete]
     public static class SpatialInteractionSourceKindExtensions
     {
         /// <summary>
@@ -33,4 +32,5 @@ namespace XRTK.WindowsMixedReality.Extensions
 
     }
 }
+
 #endif // WINDOWS_UWP

@@ -53,4 +53,5 @@ namespace XRTK.WindowsMixedReality.Extensions
         }
     }
 }
+
 #endif // WINDOWS_UWP
