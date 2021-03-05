@@ -10,7 +10,6 @@ using XRTK.Providers.CameraSystem;
 
 namespace XRTK.WindowsMixedReality.Providers.CameraSystem
 {
-    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("0F33B864-E4B9-4697-AF40-F7772F3BC596")]
     public class WindowsMixedRealityCameraDataProvider : BaseCameraDataProvider
@@ -26,11 +25,11 @@ namespace XRTK.WindowsMixedReality.Providers.CameraSystem
         {
             get
             {
-#if UNITY_WSA
-                return UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque;
+#if WINDOWS_UWP
+                return Windows.Graphics.Holographic.HolographicDisplay.GetDefault().IsOpaque;
 #else
                 return base.IsOpaque;
-#endif
+#endif // WINDOWS_UWP
             }
         }
     }
