@@ -12,7 +12,7 @@ namespace XRTK.WindowsMixedReality.Editor
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
     public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityControllerDataProviderProfileInspector
     {
-        private static readonly GUIContent GestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
+        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
 
         private SerializedProperty manipulationGestures;
         private SerializedProperty useRailsNavigation;
@@ -38,7 +38,7 @@ namespace XRTK.WindowsMixedReality.Editor
             serializedObject.Update();
             EditorGUILayout.Space();
 
-            if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(GestureSettingsFoldoutHeader))
+            if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(gestureSettingsFoldoutHeader))
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(manipulationGestures);
