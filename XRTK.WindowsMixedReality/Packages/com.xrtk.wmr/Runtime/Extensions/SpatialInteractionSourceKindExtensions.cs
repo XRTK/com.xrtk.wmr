@@ -10,6 +10,10 @@ using XRTK.WindowsMixedReality.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
+    /// <summary>
+    /// Provides convenience extension for converting native <see cref="SpatialInteractionSourceKind"/> to
+    /// XRTK's <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type.
+    /// </summary>
     public static class SpatialInteractionSourceKindExtensions
     {
         /// <summary>
@@ -19,15 +23,14 @@ namespace XRTK.WindowsMixedReality.Extensions
         /// <returns>The XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type representing the source kind.</returns>
         public static Type ToControllerType(this SpatialInteractionSourceKind spatialInteractionSourceKind)
         {
-            switch (spatialInteractionSourceKind)
+            return spatialInteractionSourceKind switch
             {
-                case SpatialInteractionSourceKind.Controller:
-                    return typeof(WindowsMixedRealityMotionController);
-                case SpatialInteractionSourceKind.Hand:
-                    return typeof(MixedRealityHandController);
-                default:
-                    return null;
-            }
+                SpatialInteractionSourceKind.Controller => typeof(WindowsMixedRealityMotionController),
+                SpatialInteractionSourceKind.Other => null,
+                SpatialInteractionSourceKind.Hand => typeof(MixedRealityHandController),
+                SpatialInteractionSourceKind.Voice => null,
+                _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceKind)}.{spatialInteractionSourceKind} could not be mapped to {nameof(Interfaces.Providers.Controllers.IMixedRealityController)}")
+            };
         }
 
     }

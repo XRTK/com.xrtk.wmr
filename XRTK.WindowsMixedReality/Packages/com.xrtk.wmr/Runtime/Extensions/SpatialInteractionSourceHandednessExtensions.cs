@@ -3,11 +3,16 @@
 
 #if WINDOWS_UWP
 
+using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Utilities;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
+    /// <summary>
+    /// Provides convenience extension for converting native <see cref="SpatialInteractionSourceHandedness"/> to
+    /// XRTK's <see cref="Handedness"/>.
+    /// </summary>
     public static class SpatialInteractionSourceHandednessExtensions
     {
         /// <summary>
@@ -17,15 +22,13 @@ namespace XRTK.WindowsMixedReality.Extensions
         /// <returns>The XRTK <see cref="Handedness"/> value.</returns>
         public static Handedness ToHandedness(this SpatialInteractionSourceHandedness spatialInteractionSourceHandedness)
         {
-            switch (spatialInteractionSourceHandedness)
+            return spatialInteractionSourceHandedness switch
             {
-                case SpatialInteractionSourceHandedness.Left:
-                    return Handedness.Left;
-                case SpatialInteractionSourceHandedness.Right:
-                    return Handedness.Right;
-                default:
-                    return Handedness.None;
-            }
+                SpatialInteractionSourceHandedness.Left => Handedness.Left,
+                SpatialInteractionSourceHandedness.Right => Handedness.Right,
+                SpatialInteractionSourceHandedness.Unspecified => Handedness.None,
+                _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceHandedness)}.{spatialInteractionSourceHandedness} could not be mapped to {nameof(Handedness)}")
+            };
         }
 
     }
