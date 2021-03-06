@@ -5,7 +5,10 @@ using XRTK.Definitions.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    public class WindowsMixedRealityHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
-    {
-    }
+    /// <summary>
+    /// Configuration profile for the <see cref="Providers.Controllers.WindowsMixedRealityHandControllerDataProvider"/>. This profile
+    /// offers settings for adjusting <see cref="Interfaces.Providers.Controllers.Hands.IMixedRealityHandController"/> behaviour on the
+    /// <see cref="XRTK.Definitions.Platforms.UniversalWindowsPlatform"/>.
+    /// </summary>
+    public class WindowsMixedRealityHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile { }
 }

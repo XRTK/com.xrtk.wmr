@@ -10,6 +10,11 @@ using XRTK.WindowsMixedReality.Definitions;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
+    /// <summary>
+    /// Configuration profile for the <see cref="WindowsMixedRealityControllerDataProvider"/>. This profile
+    /// offers settings for adjusting <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> behaviour on the
+    /// <see cref="XRTK.Definitions.Platforms.UniversalWindowsPlatform"/>.
+    /// </summary>
     public class WindowsMixedRealityControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
     {
         [EnumFlags]
