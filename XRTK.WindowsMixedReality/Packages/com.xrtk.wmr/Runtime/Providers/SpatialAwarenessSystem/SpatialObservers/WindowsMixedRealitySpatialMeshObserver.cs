@@ -45,7 +45,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         private Vector3 currentObserverOrigin = Vector3.zero;
         private Vector3 currentObserverExtents = Vector3.zero;
         private SpatialPerceptionAccessStatus currentAccessStatus = SpatialPerceptionAccessStatus.Unspecified;
-        private readonly Dictionary<Guid, SpatialSurfaceMesh> observedMeshesDict = new Dictionary<Guid, SpatialSurfaceMesh>();
+        private readonly Dictionary<Guid, SpatialSurfaceData> observedMeshesDict = new Dictionary<Guid, SpatialSurfaceData>();
         private float lastUpdatedObservedSurfacesTimeStamp = 0;
 
         /// <summary>
