@@ -3,8 +3,10 @@
 
 #if WINDOWS_UWP
 
+using System;
 using Windows.Perception.Spatial;
 using Windows.UI.Input.Spatial;
+using XRTK.Definitions.SpatialAwarenessSystem;
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
@@ -53,6 +55,14 @@ namespace XRTK.WindowsMixedReality.Utilities
                 return spatialInteractionManager;
             }
         }
+
+        public static double GetMaxTrianglesPerCubicMeter(SpatialAwarenessMeshLevelOfDetail spatialAwarenessMeshLevelOfDetail) => spatialAwarenessMeshLevelOfDetail switch
+        {
+            SpatialAwarenessMeshLevelOfDetail.Low => 10,
+            SpatialAwarenessMeshLevelOfDetail.Medium => 100,
+            SpatialAwarenessMeshLevelOfDetail.High => 1000,
+            _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialAwarenessMeshLevelOfDetail)}.{spatialAwarenessMeshLevelOfDetail} could not be mapped to maximum triangles per cubic meter.")
+        };
     }
 }
 
