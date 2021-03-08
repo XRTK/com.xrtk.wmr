@@ -162,7 +162,7 @@ namespace XRTK.Editor.BuildPipeline
                     {
                         if (processResult.ExitCode != 0)
                         {
-                            Debug.LogError($"{buildInfo.Name} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
+                            Debug.LogError($"{buildInfo.BuildName} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
 
                             if (buildInfo.IsCommandLine)
                             {
@@ -308,7 +308,7 @@ namespace XRTK.Editor.BuildPipeline
                         var modelFullPath = Path.GetFullPath(UwpBuildDeployPreferences.MixedRealityAppIconPath);
                         var absoluteBuildDirectory = Path.GetFullPath(BuildDeployPreferences.BuildDirectory);
 
-                        modelPath = $"{absoluteBuildDirectory}/{buildInfo.Name}/Assets/{Path.GetFileName(modelFullPath)}";
+                        modelPath = $"{absoluteBuildDirectory}/{buildInfo.BuildName}/Assets/{Path.GetFileName(modelFullPath)}";
 
                         if (File.Exists(modelPath))
                         {
@@ -316,7 +316,7 @@ namespace XRTK.Editor.BuildPipeline
                         }
 
                         File.Copy(modelFullPath, modelPath);
-                        modelPath = modelPath.Replace($"{absoluteBuildDirectory}/{buildInfo.Name}/", string.Empty).Replace("/", "\\");
+                        modelPath = modelPath.Replace($"{absoluteBuildDirectory}/{buildInfo.BuildName}/", string.Empty).Replace("/", "\\");
                     }
                     catch (Exception e)
                     {

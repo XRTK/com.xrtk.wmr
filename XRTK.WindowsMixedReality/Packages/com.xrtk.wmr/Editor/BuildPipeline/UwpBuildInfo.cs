@@ -15,32 +15,40 @@ namespace XRTK.Editor.BuildPipeline
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     public class UwpBuildInfo : BuildInfo
     {
+        protected override void Awake()
+        {
+            base.Awake();
+            Version = PlayerSettings.WSA.packageVersion;
+            SolutionName = $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln";
+            BuildTargetFamilies = GetFamilies();
+        }
+
         /// <inheritdoc />
         public override BuildTarget BuildTarget => BuildTarget.WSAPlayer;
 
         /// <inheritdoc />
-        public override Version Version { get; set; } = PlayerSettings.WSA.packageVersion;
+        public override Version Version { get; set; }
 
         /// <summary>
         /// The name of the Visual Studio .sln file generated.
         /// </summary>
-        public string SolutionName { get; } = $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln";
+        public string SolutionName { get; private set; }
 
         /// <summary>
         /// Build the appx bundle after building Unity Player?
         /// </summary>
-        public bool BuildAppx { get; set; } = false;
+        public bool BuildAppx { get; set; }
 
         /// <summary>
         /// Force rebuilding the appx bundle?
         /// </summary>
-        public bool RebuildAppx { get; set; } = false;
+        public bool RebuildAppx { get; set; }
 
-        public string UwpSdk { get; } = EditorUserBuildSettings.wsaUWPSDK;
+        public string UwpSdk => EditorUserBuildSettings.wsaUWPSDK;
 
-        public string MinSdk { get; } = EditorUserBuildSettings.wsaMinUWPSDK;
+        public string MinSdk => EditorUserBuildSettings.wsaMinUWPSDK;
 
-        public PlayerSettings.WSATargetFamily[] BuildTargetFamilies { get; } = GetFamilies();
+        public PlayerSettings.WSATargetFamily[] BuildTargetFamilies { get; private set; }
 
         private static PlayerSettings.WSATargetFamily[] GetFamilies()
         {
