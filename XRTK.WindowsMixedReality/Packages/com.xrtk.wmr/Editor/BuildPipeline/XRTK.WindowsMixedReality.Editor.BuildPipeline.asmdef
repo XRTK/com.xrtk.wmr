@@ -1,0 +1,19 @@
+{
+    "name": "XRTK.WindowsMixedReality.Editor.BuildPipeline",
+    "references": [
+        "GUID:f3241d040533491e8a1e2714b27c3111",
+        "GUID:e67d30660ec243e4836aac191d3f36fb",
+        "GUID:258402e6b12e10c43925784eabc239e5"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
