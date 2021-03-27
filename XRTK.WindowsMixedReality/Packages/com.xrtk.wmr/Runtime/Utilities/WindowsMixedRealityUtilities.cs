@@ -58,9 +58,9 @@ namespace XRTK.WindowsMixedReality.Utilities
 
         public static double GetMaxTrianglesPerCubicMeter(SpatialAwarenessMeshLevelOfDetail spatialAwarenessMeshLevelOfDetail) => spatialAwarenessMeshLevelOfDetail switch
         {
-            SpatialAwarenessMeshLevelOfDetail.Low => 10,
-            SpatialAwarenessMeshLevelOfDetail.Medium => 100,
-            SpatialAwarenessMeshLevelOfDetail.High => 1000,
+            SpatialAwarenessMeshLevelOfDetail.Low => 1000,
+            SpatialAwarenessMeshLevelOfDetail.Medium => 2000,
+            SpatialAwarenessMeshLevelOfDetail.High => 3000,
             _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialAwarenessMeshLevelOfDetail)}.{spatialAwarenessMeshLevelOfDetail} could not be mapped to maximum triangles per cubic meter.")
         };
     }

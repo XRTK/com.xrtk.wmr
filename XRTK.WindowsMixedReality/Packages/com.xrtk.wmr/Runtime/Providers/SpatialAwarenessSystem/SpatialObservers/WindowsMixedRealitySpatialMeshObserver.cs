@@ -45,7 +45,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         private Vector3 currentObserverOrigin = Vector3.zero;
         private Vector3 currentObserverExtents = Vector3.zero;
         private SpatialPerceptionAccessStatus currentAccessStatus = SpatialPerceptionAccessStatus.Unspecified;
-        private readonly Dictionary<Guid, SpatialSurfaceData> observedMeshesDict = new Dictionary<Guid, SpatialSurfaceData>();
+        private readonly Dictionary<Guid, SpatialSurfaceData> observedSurfacesDict = new Dictionary<Guid, SpatialSurfaceData>();
         private float lastUpdatedObservedSurfacesTimeStamp = 0;
 
         /// <summary>
@@ -56,10 +56,16 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         /// <inheritdoc />
         public async override void Enable()
         {
+            Debug.Log("Enabling WMR Mesh Observer");
+
             if (SpatialSurfaceObserver.IsSupported())
             {
+                Debug.Log("Mesh Observing supported by device");
+
                 if (spatialSurfaceObserver == null)
                 {
+                    Debug.Log("Initializing mesh observer");
+
                     spatialSurfaceObserver = new SpatialSurfaceObserver();
                     spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions();
                     var supportedVertexPositionFormats = SpatialSurfaceMeshOptions.SupportedVertexPositionFormats;
@@ -100,11 +106,13 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
                 if (currentAccessStatus == SpatialPerceptionAccessStatus.Unspecified)
                 {
+                    Debug.Log("Requesting Access to spatial perception");
                     currentAccessStatus = await SpatialSurfaceObserver.RequestAccessAsync();
                 }
 
                 if (currentAccessStatus == SpatialPerceptionAccessStatus.Allowed)
                 {
+                    Debug.Log("Access granted. Starting observer");
                     UpdateObservedSurfaces(spatialSurfaceObserver);
                     spatialSurfaceObserver.ObservedSurfacesChanged += SpatialSurfaceObserver_ObservedSurfacesChanged;
                 }
@@ -121,7 +129,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 spatialSurfaceObserver.ObservedSurfacesChanged -= SpatialSurfaceObserver_ObservedSurfacesChanged;
             }
 
-            observedMeshesDict.Clear();
+            observedSurfacesDict.Clear();
             currentAccessStatus = SpatialPerceptionAccessStatus.Unspecified;
 
             base.Disable();
@@ -188,6 +196,8 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
         private async void UpdateObservedSurfaces(SpatialSurfaceObserver spatialSurfaceObserver)
         {
+            Debug.Log("Recieved spatial surface update");
+
             if (!ShouldUpdate)
             {
                 return;
@@ -199,8 +209,15 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 var surfaceBounds = spatialSurfaceInfo.TryGetBounds(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
                 if (surfaceBounds.HasValue)
                 {
-                    var surfaceMesh = await spatialSurfaceInfo.TryComputeLatestMeshAsync(WindowsMixedRealityUtilities.GetMaxTrianglesPerCubicMeter(MeshLevelOfDetail), spatialSurfaceMeshOptions);
-
+                    var spatialSurfaceMesh = await spatialSurfaceInfo.TryComputeLatestMeshAsync(WindowsMixedRealityUtilities.GetMaxTrianglesPerCubicMeter(MeshLevelOfDetail), spatialSurfaceMeshOptions);
+                    if (observedSurfacesDict.ContainsKey(spatialSurfaceMesh.SurfaceInfo.Id))
+                    {
+                        ProcessSurfaceChange(spatialSurfaceMesh.SurfaceInfo.Id, SpatialSurfaceChange.Updated, spatialSurfaceMesh);
+                    }
+                    else
+                    {
+                        ProcessSurfaceChange(spatialSurfaceMesh.SurfaceInfo.Id, SpatialSurfaceChange.Added, spatialSurfaceMesh);
+                    }
                 }
             }
 
@@ -218,17 +235,16 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
             var spatialMeshObject = await RequestSpatialMeshObject(surfaceId);
             spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId}";
+            var spatialSurfaceData =
+                changeType == SpatialSurfaceChange.Added ?
+                new SpatialSurfaceData(surfaceId, spatialSurfaceMesh, spatialMeshObject) :
+                observedSurfacesDict[surfaceId];
 
-            var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, 1000 * (int)MeshLevelOfDetail, true);
-
-            if (!SpatialMeshObjects.TryGetValue(cookedData.id.handle, out var meshObject))
+            if (!SpatialMeshObjects.TryGetValue(surfaceId, out _))
             {
                 // Likely it was removed before data could be cooked.
                 return;
             }
-
-            var mesh = spatialMeshObject.Mesh;
-            using var vertexPositions = spatialSurfaceMesh.VertexPositions;
 
             // Apply the appropriate material to the mesh.
             var displayOption = MeshDisplayOption;

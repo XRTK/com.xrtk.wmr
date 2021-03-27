@@ -5,6 +5,8 @@
 
 using System;
 using Windows.Perception.Spatial.Surfaces;
+using Windows.Storage.Streams;
+using XRTK.Definitions.SpatialAwarenessSystem;
 
 namespace XRTK.WindowsMixedReality.Definitions
 {
@@ -14,18 +16,19 @@ namespace XRTK.WindowsMixedReality.Definitions
     /// mesh data to a format the Unity Engine can work with.
     /// 
     /// The <see cref="Providers.SpatialAwarenessSystem.SpatialObservers.WindowsMixedRealitySpatialMeshObserver"/>
-    /// is using it to manage observed surfaces.
+    /// is using <see cref="SpatialSurfaceData"/> to manage observed surfaces.
     /// </summary>
     internal sealed class SpatialSurfaceData
     {
         /// <summary>
-        /// 
+        /// Constructs a new <see cref="SpatialSurfaceData"/> instance.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="spatialSurfaceMesh"></param>
-        public SpatialSurfaceData(Guid id, SpatialSurfaceMesh spatialSurfaceMesh)
+        /// <param name="id">Unique surface identifier.</param>
+        /// <param name="spatialSurfaceMesh">The surface mesh data provided by the platform.</param>
+        /// <param name="spatialMeshObject">The XRTK mesh object representing this surface.</param>
+        public SpatialSurfaceData(Guid id, SpatialSurfaceMesh spatialSurfaceMesh, SpatialMeshObject spatialMeshObject)
         {
-
+            using var reader = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
         }
     }
 }
