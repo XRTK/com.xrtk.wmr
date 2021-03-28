@@ -12,23 +12,24 @@ namespace XRTK.WindowsMixedReality.Editor.Profiles
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
     public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
-        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
+        private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Gesture Settings");
+        private static readonly GUIContent windowsGestureAutoStartLabel = new GUIContent("Start Behaviour");
 
-        private SerializedProperty manipulationGestures;
-        private SerializedProperty useRailsNavigation;
-        private SerializedProperty navigationGestures;
-        private SerializedProperty railsNavigationGestures;
         private SerializedProperty windowsGestureAutoStart;
+        private SerializedProperty manipulationGestures;
+        private SerializedProperty navigationGestures;
+        private SerializedProperty useRailsNavigation;
+        private SerializedProperty railsNavigationGestures;
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
-            manipulationGestures = serializedObject.FindProperty(nameof(manipulationGestures));
-            useRailsNavigation = serializedObject.FindProperty(nameof(useRailsNavigation));
-            navigationGestures = serializedObject.FindProperty(nameof(navigationGestures));
-            railsNavigationGestures = serializedObject.FindProperty(nameof(railsNavigationGestures));
             windowsGestureAutoStart = serializedObject.FindProperty(nameof(windowsGestureAutoStart));
+            manipulationGestures = serializedObject.FindProperty(nameof(manipulationGestures));
+            navigationGestures = serializedObject.FindProperty(nameof(navigationGestures));
+            useRailsNavigation = serializedObject.FindProperty(nameof(useRailsNavigation));
+            railsNavigationGestures = serializedObject.FindProperty(nameof(railsNavigationGestures));
         }
 
         public override void OnInspectorGUI()
@@ -37,7 +38,7 @@ namespace XRTK.WindowsMixedReality.Editor.Profiles
 
             serializedObject.Update();
 
-            if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(gestureSettingsFoldoutHeader))
+            if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(gestureSettingsFoldoutHeader, windowsGestureAutoStartLabel))
             {
                 EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(manipulationGestures);
