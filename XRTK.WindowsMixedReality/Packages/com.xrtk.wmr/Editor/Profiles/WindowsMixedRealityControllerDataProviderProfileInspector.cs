@@ -7,10 +7,10 @@ using XRTK.Editor.Extensions;
 using XRTK.Editor.Profiles.InputSystem.Controllers;
 using XRTK.WindowsMixedReality.Profiles;
 
-namespace XRTK.WindowsMixedReality.Editor
+namespace XRTK.WindowsMixedReality.Editor.Profiles
 {
     [CustomEditor(typeof(WindowsMixedRealityControllerDataProviderProfile))]
-    public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityControllerDataProviderProfileInspector
+    public class WindowsMixedRealityControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
         private static readonly GUIContent gestureSettingsFoldoutHeader = new GUIContent("Windows Gesture Settings");
 
@@ -36,7 +36,6 @@ namespace XRTK.WindowsMixedReality.Editor
             base.OnInspectorGUI();
 
             serializedObject.Update();
-            EditorGUILayout.Space();
 
             if (windowsGestureAutoStart.FoldoutWithBoldLabelPropertyField(gestureSettingsFoldoutHeader))
             {
