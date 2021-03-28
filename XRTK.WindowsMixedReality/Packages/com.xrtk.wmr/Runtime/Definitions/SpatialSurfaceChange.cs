@@ -5,7 +5,7 @@ namespace XRTK.WindowsMixedReality.Definitions
 {
     /// <summary>
     /// Enumerates possible changes that may happen to a spatial surface observed
-    /// by a <see cref="Interfaces.Providers.SpatialObservers.IMixedRealitySpatialMeshObserver"/>.
+    /// by the <see cref="Providers.SpatialAwarenessSystem.SpatialObservers.WindowsMixedRealitySpatialMeshObserver"/>.
     /// </summary>
     public enum SpatialSurfaceChange
     {

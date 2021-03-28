@@ -10,8 +10,7 @@ using XRTK.Definitions.Controllers.Hands;
 namespace XRTK.WindowsMixedReality.Extensions
 {
     /// <summary>
-    /// Provides convenience extension for converting native hand joint indices
-    /// to the XRTK joint model.
+    /// Provides extensions for the native <see cref="HandJointKind"/> type.
     /// </summary>
     public static class HandJointKindExtensions
     {
