@@ -7,6 +7,7 @@ using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Providers.Controllers;
+using XRTK.WindowsMixedReality.Utilities;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
@@ -27,7 +28,7 @@ namespace XRTK.WindowsMixedReality.Extensions
             {
                 SpatialInteractionSourceKind.Controller => typeof(WindowsMixedRealityMotionController),
                 SpatialInteractionSourceKind.Other => null,
-                SpatialInteractionSourceKind.Hand => typeof(MixedRealityHandController),
+                SpatialInteractionSourceKind.Hand => WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionSourceState), "TryGetHandPose") ? typeof(MixedRealityHandController) : typeof(WindowsMixedRealityHololensOneController),
                 SpatialInteractionSourceKind.Voice => null,
                 _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceKind)}.{spatialInteractionSourceKind} could not be mapped to {nameof(Interfaces.Providers.Controllers.IMixedRealityController)}")
             };

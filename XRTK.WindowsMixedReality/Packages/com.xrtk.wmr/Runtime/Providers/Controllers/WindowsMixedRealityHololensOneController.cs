@@ -1,8 +1,10 @@
 // Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using XRTK.Definitions.Controllers;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
+using XRTK.Interfaces.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Providers.Controllers
 {
@@ -12,8 +14,12 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
     /// fully articulated hand tracking.
     /// </summary>
     [System.Runtime.InteropServices.Guid("6CE43357-54E7-4471-B1B7-4BF4912984B1")]
-    public class HololensOneController : WindowsMixedRealityMotionController
+    public class WindowsMixedRealityHololensOneController : WindowsMixedRealityMotionController
     {
+        /// <inheritdoc />
+        public WindowsMixedRealityHololensOneController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, MixedRealityControllerMappingProfile controllerMappingProfile)
+            : base(controllerDataProvider, trackingState, controllerHandedness, controllerMappingProfile) { }
+
         /// <inheritdoc />
         public override MixedRealityInteractionMapping[] DefaultInteractions => new[]
         {

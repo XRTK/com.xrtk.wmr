@@ -7,6 +7,8 @@ using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
 using XRTK.WindowsMixedReality.Providers.Controllers;
 using XRTK.WindowsMixedReality.Definitions;
+using XRTK.Definitions.Controllers.Hands;
+using XRTK.Providers.Controllers.Hands;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
@@ -15,7 +17,7 @@ namespace XRTK.WindowsMixedReality.Profiles
     /// offers settings for adjusting <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> behaviour on the
     /// <see cref="XRTK.Definitions.Platforms.UniversalWindowsPlatform"/>.
     /// </summary>
-    public class WindowsMixedRealityControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
+    public class WindowsMixedRealityControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
         [EnumFlags]
         [SerializeField]
@@ -61,11 +63,13 @@ namespace XRTK.WindowsMixedReality.Profiles
         public override ControllerDefinition[] GetDefaultControllerOptions()
         {
             return new[]
-               {
-                 new ControllerDefinition(typeof(HololensOneController), Handedness.Left),
-                 new ControllerDefinition(typeof(HololensOneController), Handedness.Right),
-                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
-                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
+            {
+                new ControllerDefinition(typeof(WindowsMixedRealityHololensOneController), Handedness.Left),
+                new ControllerDefinition(typeof(WindowsMixedRealityHololensOneController), Handedness.Right),
+                new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
+                new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
+                new ControllerDefinition(typeof(MixedRealityHandController), Handedness.Left),
+                new ControllerDefinition(typeof(MixedRealityHandController), Handedness.Right)
             };
         }
     }

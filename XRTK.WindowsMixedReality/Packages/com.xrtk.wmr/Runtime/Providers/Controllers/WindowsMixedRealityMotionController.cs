@@ -7,6 +7,7 @@ using XRTK.Definitions.Utilities;
 using XRTK.Interfaces.CameraSystem;
 using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Providers.Controllers;
+using XRTK.WindowsMixedReality.Utilities;
 
 #if WINDOWS_UWP
 using UnityEngine;
@@ -28,9 +29,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         /// <inheritdoc />
         public WindowsMixedRealityMotionController(IMixedRealityControllerDataProvider controllerDataProvider, TrackingState trackingState, Handedness controllerHandedness, MixedRealityControllerMappingProfile controllerMappingProfile)
-                : base(controllerDataProvider, trackingState, controllerHandedness, controllerMappingProfile)
-        {
-        }
+                : base(controllerDataProvider, trackingState, controllerHandedness, controllerMappingProfile) { }
 
         /// <inheritdoc />
         public override MixedRealityInteractionMapping[] DefaultInteractions => new[]
@@ -149,18 +148,25 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             {
                 // The source is either a hand or a controller that supports pointing.
                 // We can now check for position and rotation.
-                IsPositionAvailable = spatialInteractionSourceState.sourcePose.TryGetPosition(out currentControllerPosition);
+                var spatialInteractionSourceLocation = spatialInteractionSourceState.Properties.TryGetLocation(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+                IsPositionAvailable = spatialInteractionSourceLocation != null && spatialInteractionSourceLocation.Position.HasValue;
 
                 if (IsPositionAvailable)
                 {
-                    IsPositionApproximate = (spatialInteractionSourceState.sourcePose.positionAccuracy == SpatialInteractionSourcePositionAccuracy.Approximate);
+                    currentControllerPosition = spatialInteractionSourceLocation.Position.Value.ToUnity();
+                    IsPositionApproximate = (spatialInteractionSourceLocation.PositionAccuracy == SpatialInteractionSourcePositionAccuracy.Approximate);
                 }
                 else
                 {
                     IsPositionApproximate = false;
                 }
 
-                IsRotationAvailable = spatialInteractionSourceState.sourcePose.TryGetRotation(out currentControllerRotation);
+                IsRotationAvailable = spatialInteractionSourceLocation != null && spatialInteractionSourceLocation.Orientation.HasValue;
+
+                if (IsRotationAvailable)
+                {
+                    currentControllerRotation = spatialInteractionSourceLocation.Orientation.Value.ToUnity();
+                }
 
                 // Devices are considered tracked if we receive position OR rotation data from the sensors.
                 TrackingState = (IsPositionAvailable || IsRotationAvailable) ? TrackingState.Tracked : TrackingState.NotTracked;
@@ -199,8 +205,16 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
 
         private void UpdatePointerData(SpatialInteractionSourceState spatialInteractionSourceState, MixedRealityInteractionMapping interactionMapping)
         {
-            spatialInteractionSourceState.sourcePose.TryGetPosition(out currentPointerPosition, InteractionSourceNode.Pointer);
-            spatialInteractionSourceState.sourcePose.TryGetRotation(out currentPointerRotation, InteractionSourceNode.Pointer);
+            var spatialPointerPose = spatialInteractionSourceState.TryGetPointerPose(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+            if (spatialPointerPose != null)
+            {
+                var spatialInteractionSourcePose = spatialPointerPose.TryGetInteractionSourcePose(spatialInteractionSourceState.Source);
+                if (spatialInteractionSourcePose != null)
+                {
+                    currentControllerPosition = spatialInteractionSourcePose.Position.ToUnity();
+                    currentControllerRotation = spatialInteractionSourcePose.Orientation.ToUnity();
+                }
+            }
 
             currentPointerPose.Position = currentPointerPosition;
             currentPointerPose.Rotation = currentPointerRotation;
@@ -213,8 +227,12 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             switch (interactionMapping.AxisType)
             {
                 case AxisType.SixDof:
-                    spatialInteractionSourceState.sourcePose.TryGetPosition(out currentGripPosition, InteractionSourceNode.Grip);
-                    spatialInteractionSourceState.sourcePose.TryGetRotation(out currentGripRotation);
+                    var spatialInteractionSourceLocation = spatialInteractionSourceState.Properties.TryGetLocation(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+                    if (spatialInteractionSourceLocation != null && spatialInteractionSourceLocation.Position.HasValue && spatialInteractionSourceLocation.Orientation.HasValue)
+                    {
+                        currentGripPosition = spatialInteractionSourceLocation.Position.Value.ToUnity();
+                        currentGripRotation = spatialInteractionSourceLocation.Orientation.Value.ToUnity();
+                    }
 
                     if (MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem))
                     {
@@ -237,13 +255,13 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             switch (interactionMapping.InputType)
             {
                 case DeviceInputType.TouchpadTouch:
-                    interactionMapping.BoolData = spatialInteractionSourceState.touchpadTouched;
+                    interactionMapping.BoolData = spatialInteractionSourceState.ControllerProperties.IsTouchpadTouched;
                     break;
                 case DeviceInputType.TouchpadPress:
-                    interactionMapping.BoolData = spatialInteractionSourceState.touchpadPressed;
+                    interactionMapping.BoolData = spatialInteractionSourceState.ControllerProperties.IsTouchpadPressed;
                     break;
                 case DeviceInputType.Touchpad:
-                    interactionMapping.Vector2Data = spatialInteractionSourceState.touchpadPosition;
+                    interactionMapping.Vector2Data = new Vector2((float)spatialInteractionSourceState.ControllerProperties.TouchpadX, (float)spatialInteractionSourceState.ControllerProperties.TouchpadY);
                     break;
             }
         }
@@ -253,10 +271,10 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
             switch (interactionMapping.InputType)
             {
                 case DeviceInputType.ThumbStickPress:
-                    interactionMapping.BoolData = spatialInteractionSourceState.thumbstickPressed;
+                    interactionMapping.BoolData = spatialInteractionSourceState.ControllerProperties.IsThumbstickPressed;
                     break;
                 case DeviceInputType.ThumbStick:
-                    interactionMapping.Vector2Data = spatialInteractionSourceState.thumbstickPosition;
+                    interactionMapping.Vector2Data = new Vector2((float)spatialInteractionSourceState.ControllerProperties.ThumbstickX, (float)spatialInteractionSourceState.ControllerProperties.ThumbstickY);
                     break;
             }
         }
@@ -269,30 +287,7 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                     interactionMapping.BoolData = spatialInteractionSourceState.IsGrasped;
                     break;
                 case DeviceInputType.Select:
-                    bool selectPressed = spatialInteractionSourceState.IsSelectPressed;
-
-                    // BEGIN WORKAROUND: Unity issue #1033526
-                    // See https://issuetracker.unity3d.com/issues/hololens-interactionsourcestate-dot-selectpressed-is-false-when-air-tap-and-hold
-                    // Bug was discovered May 2018 and still exists as of today Feb 2019 in version 2018.3.4f1, timeline for fix is unknown
-                    // The bug only affects the development workflow via Holographic Remoting or Simulation
-                    if (spatialInteractionSourceState.source.kind == InteractionSourceKind.Hand)
-                    {
-                        Debug.Assert(!(UnityEngine.XR.WSA.HolographicRemoting.ConnectionState == UnityEngine.XR.WSA.HolographicStreamerConnectionState.Connected
-                                       && spatialInteractionSourceState.selectPressed),
-                            "Unity issue #1033526 seems to have been resolved. Please remove this ugly workaround!");
-
-                        // This workaround is safe as long as all these assumptions hold:
-                        Debug.Assert(!spatialInteractionSourceState.source.supportsGrasp);
-                        Debug.Assert(!spatialInteractionSourceState.source.supportsMenu);
-                        Debug.Assert(!spatialInteractionSourceState.source.supportsPointing);
-                        Debug.Assert(!spatialInteractionSourceState.source.supportsThumbstick);
-                        Debug.Assert(!spatialInteractionSourceState.source.supportsTouchpad);
-
-                        selectPressed = spatialInteractionSourceState.anyPressed;
-                    }
-                    // END WORKAROUND: Unity issue #1033526
-
-                    interactionMapping.BoolData = selectPressed;
+                    interactionMapping.BoolData = spatialInteractionSourceState.IsSelectPressed;
                     break;
                 case DeviceInputType.Trigger:
                     interactionMapping.FloatData = (float)spatialInteractionSourceState.SelectPressedValue;
