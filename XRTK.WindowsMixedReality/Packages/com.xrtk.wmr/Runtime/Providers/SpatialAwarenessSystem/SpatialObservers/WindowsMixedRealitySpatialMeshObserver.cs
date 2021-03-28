@@ -112,9 +112,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
                 if (currentAccessStatus == SpatialPerceptionAccessStatus.Allowed)
                 {
-                    Debug.Log("Access granted. Starting observer");
-                    UpdateObservedSurfaces(spatialSurfaceObserver);
-                    spatialSurfaceObserver.ObservedSurfacesChanged += SpatialSurfaceObserver_ObservedSurfacesChanged;
+                    Debug.Log("Access granted");
                 }
             }
 
@@ -167,8 +165,20 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
             // We want the first update immediately.
             lastUpdatedObservedSurfacesTimeStamp = 0;
+            UpdateObservedSurfaces(spatialSurfaceObserver);
+            spatialSurfaceObserver.ObservedSurfacesChanged += SpatialSurfaceObserver_ObservedSurfacesChanged;
 
             base.StartObserving();
+        }
+
+        public override void StopObserving()
+        {
+            if (IsRunning && spatialSurfaceObserver != null)
+            {
+                spatialSurfaceObserver.ObservedSurfacesChanged -= SpatialSurfaceObserver_ObservedSurfacesChanged;
+            }
+
+            base.StopObserving();
         }
 
         /// <summary>
