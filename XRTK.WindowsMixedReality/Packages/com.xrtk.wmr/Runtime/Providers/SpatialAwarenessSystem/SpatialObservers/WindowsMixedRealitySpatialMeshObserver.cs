@@ -56,16 +56,10 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         /// <inheritdoc />
         public async override void Enable()
         {
-            Debug.Log("Enabling WMR Mesh Observer");
-
             if (SpatialSurfaceObserver.IsSupported())
             {
-                Debug.Log("Mesh Observing supported by device");
-
                 if (spatialSurfaceObserver == null)
                 {
-                    Debug.Log("Initializing mesh observer");
-
                     spatialSurfaceObserver = new SpatialSurfaceObserver();
                     spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions();
                     var supportedVertexPositionFormats = SpatialSurfaceMeshOptions.SupportedVertexPositionFormats;
@@ -106,13 +100,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
                 if (currentAccessStatus == SpatialPerceptionAccessStatus.Unspecified)
                 {
-                    Debug.Log("Requesting Access to spatial perception");
                     currentAccessStatus = await SpatialSurfaceObserver.RequestAccessAsync();
-                }
-
-                if (currentAccessStatus == SpatialPerceptionAccessStatus.Allowed)
-                {
-                    Debug.Log("Access granted");
                 }
             }
 
@@ -158,7 +146,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         /// <inheritdoc/>
         public override void StartObserving()
         {
-            if (IsRunning || spatialSurfaceObserver == null)
+            if (IsRunning || spatialSurfaceObserver == null || currentAccessStatus != SpatialPerceptionAccessStatus.Allowed)
             {
                 return;
             }
@@ -243,11 +231,11 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 return;
             }
 
-            var spatialMeshObject = await RequestSpatialMeshObject(surfaceId);
-            spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId}";
+            meshObject = await RequestSpatialMeshObject(surfaceId);
+            meshObject.GameObject.name = $"SpatialMesh_{surfaceId}";
             var spatialSurfaceData =
                 changeType == SpatialSurfaceChange.Added ?
-                new SpatialSurfaceData(surfaceId, spatialSurfaceMesh, spatialMeshObject) :
+                new SpatialSurfaceData(surfaceId, spatialSurfaceMesh, meshObject) :
                 observedSurfacesDict[surfaceId];
 
             if (!SpatialMeshObjects.TryGetValue(surfaceId, out _))
