@@ -434,70 +434,11 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
                 return null;
             }
 
-            TryRenderControllerModel(interactionSource, detectedController);
+            detectedController.TryRenderControllerModel(interactionSource.kind == InteractionSourceKind.Hand);
 
             activeControllers.Add(interactionSource.id, detectedController);
             AddController(detectedController);
             return detectedController;
-        }
-
-        private static async void TryRenderControllerModel(InteractionSource interactionSource, WindowsMixedRealityMotionController controller)
-        {
-#if WINDOWS_UWP
-            if (!UnityEngine.XR.WSA.HolographicSettings.IsDisplayOpaque)
-            {
-                return;
-            }
-
-            IRandomAccessStreamWithContentType stream = null;
-
-            if (!WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionManager), nameof(SpatialInteractionManager.GetForCurrentView)) ||
-                !WindowsApiChecker.IsMethodAvailable(typeof(SpatialInteractionController), nameof(SpatialInteractionController.TryGetRenderableModelAsync)))
-            {
-                return;
-            }
-
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, DispatchedHandler);
-
-            async void DispatchedHandler()
-            {
-                byte[] glbModelData = null;
-                var sources = SpatialInteractionManager
-                    .GetForCurrentView()
-                    .GetDetectedSourcesAtTimestamp(
-                        PerceptionTimestampHelper.FromHistoricalTargetTime(DateTimeOffset.Now));
-
-                for (var i = 0; i < sources?.Count; i++)
-                {
-                    if (sources[i].Source.Id.Equals(interactionSource.id))
-                    {
-                        stream = await sources[i].Source.Controller.TryGetRenderableModelAsync();
-                        break;
-                    }
-                }
-
-                if (stream != null)
-                {
-                    glbModelData = new byte[stream.Size];
-
-                    using (var reader = new DataReader(stream))
-                    {
-                        await reader.LoadAsync((uint)stream.Size);
-                        reader.ReadBytes(glbModelData);
-                    }
-
-                    stream.Dispose();
-                }
-                else
-                {
-                    Debug.LogError("Failed to load model data!");
-                }
-
-                await controller.TryRenderControllerModelAsync(glbModelData, interactionSource.kind == InteractionSourceKind.Hand);
-            }
-#else
-            await controller.TryRenderControllerModelAsync(null, interactionSource.kind == InteractionSourceKind.Hand);
-#endif // WINDOWS_UWP
         }
 
         /// <summary>
