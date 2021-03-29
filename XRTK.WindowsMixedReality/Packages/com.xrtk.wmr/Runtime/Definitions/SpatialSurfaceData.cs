@@ -29,6 +29,10 @@ namespace XRTK.WindowsMixedReality.Definitions
         public SpatialSurfaceData(Guid id, SpatialSurfaceMesh spatialSurfaceMesh, SpatialMeshObject spatialMeshObject)
         {
             using var reader = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
+
+            // TODO: spatialSurfaceMesh.VertexPositions -> spatialMeshObject.Mesh.vertices
+            // TODO: spatialSurfaceMesh.VertexNormals => spatialMeshObject.Mesh.normals
+            // etc.
         }
     }
 }
