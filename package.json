@@ -19,7 +19,7 @@
   },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.2.9",
+    "com.xrtk.core": "0.2.10-preview.2",
     "com.unity.xr.windowsmr.metro": "4.2.3"
   },
   "profiles": [
