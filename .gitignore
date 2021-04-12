@@ -51,11 +51,18 @@ obj/
 *.log
 *.idb
 *.opendb
+*.vsconfig
 
 # ============================ #
 # Visual Studio Code Generated #
 # ============================ #
 .vscode/
+
+# ========================= #
+# Jetbrains Rider Generated #
+# ========================= #
+.idea/
+_ReSharper.Caches
 
 # ===================== #
 # Project Specific List #
