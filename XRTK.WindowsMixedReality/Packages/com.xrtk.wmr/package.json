@@ -10,7 +10,7 @@
     "mixed",
     "reality"
   ],
-  "version": "0.2.4",
+  "version": "0.2.5",
   "unity": "2019.4",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,7 @@
   },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.2.7",
+    "com.xrtk.core": "0.2.10",
     "com.unity.xr.windowsmr.metro": "4.2.3"
   },
   "profiles": [
@@ -28,5 +28,5 @@
       "path": "Profiles~/"
     }
   ],
-  "unityRelease": "19f1"
+  "unityRelease": "23f1"
 }
