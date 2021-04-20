@@ -52,6 +52,9 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             {
                 spatialSurfaceObserver = new SpatialSurfaceObserver();
                 spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions();
+                spatialSurfaceMeshOptions.IncludeVertexNormals = true;
+
+                // TODO Determine which formats are the correct ones to use.
                 var supportedVertexPositionFormats = SpatialSurfaceMeshOptions.SupportedVertexPositionFormats;
                 var supportedVertexNormalFormats = SpatialSurfaceMeshOptions.SupportedVertexNormalFormats;
 
@@ -308,19 +311,6 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 meshObject.Collider.enabled = false;
             }
 
-            // Recalculate the mesh normals if requested.
-            if (MeshRecalculateNormals)
-            {
-                if (meshObject.Filter.sharedMesh != null)
-                {
-                    meshObject.Filter.sharedMesh.RecalculateNormals();
-                }
-                else
-                {
-                    meshObject.Filter.mesh.RecalculateNormals();
-                }
-            }
-
             if (!meshObject.GameObject.activeInHierarchy)
             {
                 meshObject.GameObject.SetActive(true);
@@ -413,6 +403,12 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             mesh.SetSubMesh(0, new SubMeshDescriptor(0, indicesCount));
             mesh.Optimize();
             mesh.RecalculateBounds();
+
+            if (MeshRecalculateNormals)
+            {
+                mesh.RecalculateNormals();
+            }
+
             spatialMeshObject.Mesh = mesh;
 
             await Awaiters.UnityMainThread;
