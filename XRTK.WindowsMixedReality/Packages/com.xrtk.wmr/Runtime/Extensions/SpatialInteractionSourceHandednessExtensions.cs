@@ -21,13 +21,17 @@ namespace XRTK.WindowsMixedReality.Extensions
         /// <returns>The XRTK <see cref="Handedness"/> value.</returns>
         public static Handedness ToHandedness(this SpatialInteractionSourceHandedness spatialInteractionSourceHandedness)
         {
-            return spatialInteractionSourceHandedness switch
+            switch (spatialInteractionSourceHandedness)
             {
-                SpatialInteractionSourceHandedness.Left => Handedness.Left,
-                SpatialInteractionSourceHandedness.Right => Handedness.Right,
-                SpatialInteractionSourceHandedness.Unspecified => Handedness.Other,
-                _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceHandedness)}.{spatialInteractionSourceHandedness} could not be mapped to {nameof(Handedness)}")
-            };
+                case SpatialInteractionSourceHandedness.Left:
+                    return Handedness.Left;
+                case SpatialInteractionSourceHandedness.Right:
+                    return Handedness.Right;
+                case SpatialInteractionSourceHandedness.Unspecified:
+                    return Handedness.Other;
+                default:
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceHandedness)}.{spatialInteractionSourceHandedness} could not be mapped to {nameof(Handedness)}");
+            }
         }
 
     }

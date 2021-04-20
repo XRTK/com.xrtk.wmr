@@ -23,15 +23,18 @@ namespace XRTK.WindowsMixedReality.Extensions
         /// <returns>The XRTK <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> type representing the source kind.</returns>
         public static Type ToControllerType(this SpatialInteractionSourceKind spatialInteractionSourceKind)
         {
-            return spatialInteractionSourceKind switch
+            switch (spatialInteractionSourceKind)
             {
-                SpatialInteractionSourceKind.Controller => typeof(WindowsMixedRealityMotionController),
-                SpatialInteractionSourceKind.Hand => WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionSourceState), "TryGetHandPose") ? typeof(MixedRealityHandController) : typeof(WindowsMixedRealityHololensOneController),
-                _ => throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceKind)}.{spatialInteractionSourceKind} could not be mapped to {nameof(Interfaces.Providers.Controllers.IMixedRealityController)}")
-            };
+                case SpatialInteractionSourceKind.Controller:
+                    return typeof(WindowsMixedRealityMotionController);
+                case SpatialInteractionSourceKind.Hand:
+                    return WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionSourceState), nameof(SpatialInteractionSourceState.TryGetHandPose))
+                        ? typeof(MixedRealityHandController)
+                        : typeof(WindowsMixedRealityHololensOneController);
+                default:
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceKind)}.{spatialInteractionSourceKind} could not be mapped to {nameof(Interfaces.Providers.Controllers.IMixedRealityController)}");
+            }
         }
-
     }
 }
-
 #endif // WINDOWS_UWP
