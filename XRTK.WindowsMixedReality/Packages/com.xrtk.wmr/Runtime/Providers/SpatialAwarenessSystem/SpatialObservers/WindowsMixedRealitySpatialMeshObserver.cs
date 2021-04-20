@@ -273,7 +273,12 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             }
 
             var spatialMeshObject = await RequestSpatialMeshObject(meshInfo.Id);
-            spatialMeshObject.GameObject.name = $"SpatialMesh_{meshInfo.Id}";
+
+            if (meshInfo.UpdateTime.ToUniversalTime() <= spatialMeshObject.LastUpdated.ToUniversalTime())
+            {
+                // No updates
+                return;
+            }
 
             try
             {
@@ -331,6 +336,8 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
         private async Task GenerateMeshAsync(SpatialSurfaceInfo meshInfo, SpatialMeshObject spatialMeshObject)
         {
+            spatialMeshObject.LastUpdated = meshInfo.UpdateTime;
+
             // TODO Check if the spatialSurfaceMeshOptions are correct for what we need.
             var spatialSurfaceMesh = await meshInfo.TryComputeLatestMeshAsync(TrianglesPerCubicMeter, spatialSurfaceMeshOptions);
 
