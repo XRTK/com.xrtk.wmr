@@ -237,6 +237,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             {
                 if (!surfaces.TryGetValue(spatialMeshObject.Key, out _))
                 {
+                    // We cannot call MeshInfo_Update since we no longer have a SpatialSurfaceInfo
                     RaiseMeshRemoved(spatialMeshObject.Value);
                 }
             }
@@ -257,7 +258,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                     if (surfaceChangeStatus == SpatialObserverStatus.Updated)
                     {
                         // Only remove if we've already created a mesh for it.
-                        RaiseMeshRemoved(spatialMeshObject);
+                        MeshInfo_Update(surface.Value, SpatialObserverStatus.Removed);
                     }
                 }
             }
@@ -265,10 +266,13 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
         private async void MeshInfo_Update(SpatialSurfaceInfo meshInfo, SpatialObserverStatus statusType)
         {
-            if (statusType == SpatialObserverStatus.Removed &&
-                SpatialMeshObjects.TryGetValue(meshInfo.Id, out var removedMeshObject))
+            if (statusType == SpatialObserverStatus.Removed)
             {
-                RaiseMeshRemoved(removedMeshObject);
+                if (SpatialMeshObjects.TryGetValue(meshInfo.Id, out var removedMeshObject))
+                {
+                    RaiseMeshRemoved(removedMeshObject);
+                }
+
                 return;
             }
 
