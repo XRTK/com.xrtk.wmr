@@ -11,14 +11,19 @@ using XRTK.WindowsMixedReality.Profiles;
 
 using System;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Windows.Perception.Spatial;
 using Windows.Perception.Spatial.Surfaces;
+using Windows.Storage.Streams;
 using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Extensions;
 using XRTK.Interfaces.CameraSystem;
 using XRTK.Services;
 using XRTK.Utilities;
+using XRTK.Utilities.Async;
 using XRTK.WindowsMixedReality.Utilities;
 
 #endif // WINDOWS_UWP
@@ -242,7 +247,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
 
                 if (surfaceBounds.HasValue)
                 {
-                    ProcessSurfaceChange(surfaceChangeStatus, surface.Value);
+                    MeshInfo_Update(surface.Value, surfaceChangeStatus);
                 }
                 else
                 {
@@ -255,8 +260,15 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             }
         }
 
-        private async void ProcessSurfaceChange(SpatialObserverStatus statusType, SpatialSurfaceInfo meshInfo)
+        private async void MeshInfo_Update(SpatialSurfaceInfo meshInfo, SpatialObserverStatus statusType)
         {
+            if (statusType == SpatialObserverStatus.Removed &&
+                SpatialMeshObjects.TryGetValue(meshInfo.Id, out var removedMeshObject))
+            {
+                RaiseMeshRemoved(removedMeshObject);
+                return;
+            }
+
             var spatialMeshObject = await RequestSpatialMeshObject(meshInfo.Id);
             spatialMeshObject.GameObject.name = $"SpatialMesh_{meshInfo.Id}";
 
@@ -313,6 +325,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             {
                 meshObject.GameObject.SetActive(true);
             }
+
             switch (statusType)
             {
                 case SpatialObserverStatus.Added:
@@ -322,13 +335,115 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                     RaiseMeshUpdated(meshObject);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException($"{nameof(SpatialObserverStatus)}.{statusType} is not handled by {nameof(WindowsMixedRealitySpatialMeshObserver)}.{nameof(ProcessSurfaceChange)}.");
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialObserverStatus)}.{statusType} was not handled!");
             }
         }
 
         private async Task GenerateMeshAsync(SpatialSurfaceInfo meshInfo, SpatialMeshObject spatialMeshObject)
         {
+            // TODO Check if the spatialSurfaceMeshOptions are correct for what we need.
             var spatialSurfaceMesh = await meshInfo.TryComputeLatestMeshAsync(TrianglesPerCubicMeter, spatialSurfaceMeshOptions);
+
+            await Awaiters.UnityMainThread;
+
+            var mesh = spatialMeshObject.Mesh == null ? new Mesh() : spatialMeshObject.Mesh;
+
+            mesh.name = $"Mesh_{meshInfo.Id}";
+
+            await Awaiters.BackgroundThread;
+
+            if (MeshRecalculateNormals)
+            {
+                var normalCount = (int)spatialSurfaceMesh.VertexNormals.ElementCount;
+                var normals = new NativeArray<VertexData>(normalCount, Allocator.None);
+                var vertexBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
+                var normalBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexNormals.Data);
+
+                for (int i = 0; i < normalCount; i++)
+                {
+                    normals[i] = new VertexData
+                    {
+                        // TODO Check if spatialSurfaceMesh.VertexPositionScale needs to be accounted for.
+                        Position = new Vector3(vertexBuffer.ReadSingle(), vertexBuffer.ReadSingle(), -vertexBuffer.ReadSingle()),
+                        Normal = new Vector3(normalBuffer.ReadSingle(), normalBuffer.ReadSingle(), -normalBuffer.ReadSingle())
+                    };
+                }
+
+                mesh.SetVertexBufferParams(normalCount, NormalsLayout);
+                mesh.SetVertexBufferData(normals, 0, 0, normalCount);
+
+                vertexBuffer.Dispose();
+                normalBuffer.Dispose();
+                normals.Dispose();
+            }
+            else
+            {
+                var vertexCount = (int)spatialSurfaceMesh.VertexPositions.ElementCount;
+                var vertices = new NativeArray<Vector3>(vertexCount, Allocator.None);
+                var vertexBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
+
+                for (int i = 0; i < vertexCount; i++)
+                {
+                    // TODO Check if spatialSurfaceMesh.VertexPositionScale needs to be accounted for.
+                    vertices[i] = new Vector3(vertexBuffer.ReadSingle(), vertexBuffer.ReadSingle(), -vertexBuffer.ReadSingle());
+                }
+
+                mesh.SetVertexBufferParams(vertexCount, VertexLayout);
+                mesh.SetVertexBufferData(vertices, 0, 0, vertexCount);
+
+                vertexBuffer.Dispose();
+                vertices.Dispose();
+            }
+
+            var indicesCount = (int)spatialSurfaceMesh.TriangleIndices.ElementCount;
+            var indices = new NativeArray<short>(indicesCount, Allocator.None);
+            var indicesBuffer = DataReader.FromBuffer(spatialSurfaceMesh.TriangleIndices.Data);
+
+            for (int i = 0; i < indicesCount; i++)
+            {
+                indices[i] = indicesBuffer.ReadInt16();
+            }
+
+            mesh.SetIndexBufferParams(indicesCount, IndexFormat.UInt16);
+            mesh.SetIndexBufferData(indices, 0, 0, indicesCount);
+
+            indicesBuffer.Dispose();
+            indices.Dispose();
+
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indicesCount));
+            mesh.Optimize();
+            mesh.RecalculateBounds();
+            spatialMeshObject.Mesh = mesh;
+
+            await Awaiters.UnityMainThread;
+        }
+
+        private static readonly VertexAttributeDescriptor[] VertexLayout =
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position)
+        };
+
+        private static readonly VertexAttributeDescriptor[] NormalsLayout =
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position),
+            new VertexAttributeDescriptor(VertexAttribute.Normal)
+        };
+
+        /// <summary>
+        /// Helper struct used as layout when normals are requested.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        private struct VertexData
+        {
+            /// <summary>
+            /// Position data of vertex.
+            /// </summary>
+            public Vector3 Position;
+
+            /// <summary>
+            /// Normal data of vertex.
+            /// </summary>
+            public Vector3 Normal;
         }
 #else
         }
