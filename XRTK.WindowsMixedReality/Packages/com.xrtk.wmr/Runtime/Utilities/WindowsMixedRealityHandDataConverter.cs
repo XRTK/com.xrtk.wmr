@@ -358,7 +358,10 @@ namespace XRTK.WindowsMixedReality.Utilities
                     maxY = p.y;
                 }
                 float d = p.x * p.x + p.y * p.y;
-                if (d > maxMagnitude) maxMagnitude = d;
+                if (d > maxMagnitude)
+                {
+                    maxMagnitude = d;
+                }
             }
 
             maxMagnitude = Mathf.Sqrt(maxMagnitude);
