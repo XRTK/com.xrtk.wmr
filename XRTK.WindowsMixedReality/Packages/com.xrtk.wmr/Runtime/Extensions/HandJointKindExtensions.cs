@@ -48,7 +48,7 @@ namespace XRTK.WindowsMixedReality.Extensions
                 case HandJointKind.LittleDistal: return TrackedHandJoint.LittleDistal;
                 case HandJointKind.LittleTip: return TrackedHandJoint.LittleTip;
 
-                default: throw new ArgumentOutOfRangeException($"{typeof(HandJointKind).Name}.{handJointKind} could not be mapped to {typeof(TrackedHandJoint).Name}");
+                default: throw new ArgumentOutOfRangeException($"{nameof(HandJointKind)}.{handJointKind} could not be mapped to {nameof(TrackedHandJoint)}");
             }
         }
     }
