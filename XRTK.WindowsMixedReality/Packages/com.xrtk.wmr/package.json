@@ -10,8 +10,8 @@
     "mixed",
     "reality"
   ],
-  "version": "0.3.0",
-  "unity": "2020.1",
+  "version": "0.2.6",
+  "unity": "2019.4",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
   },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.2.10"
+    "com.xrtk.core": "0.2.11"
   },
   "profiles": [
     {
