@@ -8,6 +8,7 @@ using XRTK.Definitions;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.BoundarySystem;
 using XRTK.Services;
+using XRTK.Definitions.BoundarySystem;
 
 #if WINDOWS_UWP
 using System.Linq;
@@ -41,11 +42,7 @@ namespace XRTK.WindowsMixedReality.Providers.BoundarySystem
         #region IMixedRealityBoundaryDataProvider Implementation
 
         /// <inheritdoc />
-        public bool IsPlatformBoundaryVisible
-        {
-            get => false; // TODO Unsure how to currently query the platform for this information.
-            set { }
-        }
+        public BoundaryVisibility Visibility => BoundaryVisibility.Unknown;
 
         /// <inheritdoc />
         public bool IsPlatformConfigured
