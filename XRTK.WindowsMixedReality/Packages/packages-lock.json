@@ -20,7 +20,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "1.1.4",
+      "version": "1.2.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -91,7 +91,7 @@
       "url": "https://packages.unity.com"
     },
     "com.xrtk.core": {
-      "version": "0.2.11",
+      "version": "0.2.12",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -108,7 +108,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.xrtk.core": "0.2.11",
+        "com.xrtk.core": "0.2.12",
         "com.unity.xr.windowsmr.metro": "4.2.3"
       }
     },
