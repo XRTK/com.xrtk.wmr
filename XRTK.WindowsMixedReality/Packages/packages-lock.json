@@ -46,6 +46,15 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.textmeshpro": {
+      "version": "2.1.6",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ugui": {
       "version": "1.0.0",
       "depth": 1,
@@ -82,7 +91,7 @@
       "url": "https://packages.unity.com"
     },
     "com.xrtk.core": {
-      "version": "0.2.12",
+      "version": "0.2.13-preview.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -99,7 +108,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.xrtk.core": "0.2.12",
+        "com.xrtk.core": "0.2.13-preview.2",
         "com.unity.xr.windowsmr.metro": "4.2.3"
       }
     },
