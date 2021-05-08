@@ -152,7 +152,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             // If we're adding or updating a mesh
             if (changeType != SurfaceChange.Removed)
             {
-                var spatialMeshObject = await RequestSpatialMeshObject(surfaceId.handle);
+                var spatialMeshObject = await RequestSpatialMeshObject(new Guid(surfaceId.handle.ToString()));
                 spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId.handle.ToString()}";
                 var worldAnchor = spatialMeshObject.GameObject.EnsureComponent<WorldAnchor>();
                 var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, 1000 * (int)MeshLevelOfDetail, true);
@@ -171,7 +171,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                         return;
                     }
 
-                    if (!SpatialMeshObjects.TryGetValue(cookedData.id.handle, out var meshObject))
+                    if (!SpatialMeshObjects.TryGetValue(new Guid(cookedData.id.handle.ToString()), out var meshObject))
                     {
                         // Likely it was removed before data could be cooked.
                         return;
@@ -221,7 +221,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                     }
                 }
             }
-            else if (SpatialMeshObjects.TryGetValue(surfaceId.handle, out var meshObject))
+            else if (SpatialMeshObjects.TryGetValue(new Guid(surfaceId.handle.ToString()), out var meshObject))
             {
                 RaiseMeshRemoved(meshObject);
             }
