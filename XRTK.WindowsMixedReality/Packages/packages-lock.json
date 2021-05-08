@@ -91,7 +91,7 @@
       "url": "https://packages.unity.com"
     },
     "com.xrtk.core": {
-      "version": "0.2.13-preview.2",
+      "version": "0.2.13",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -108,7 +108,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.xrtk.core": "0.2.13-preview.2"
+        "com.xrtk.core": "0.2.13"
       }
     },
     "com.unity.modules.ai": {
