@@ -162,7 +162,7 @@ namespace XRTK.Editor.BuildPipeline
                     {
                         if (processResult.ExitCode != 0)
                         {
-                            Debug.LogError($"{buildInfo.BuildName} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
+                            Debug.LogError($"{buildInfo.BundleIdentifier} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
 
                             if (buildInfo.IsCommandLine)
                             {
@@ -308,7 +308,7 @@ namespace XRTK.Editor.BuildPipeline
                         var modelFullPath = Path.GetFullPath(UwpBuildDeployPreferences.MixedRealityAppIconPath);
                         var absoluteBuildDirectory = Path.GetFullPath(BuildDeployPreferences.BuildDirectory);
 
-                        modelPath = $"{absoluteBuildDirectory}/{buildInfo.BuildName}/Assets/{Path.GetFileName(modelFullPath)}";
+                        modelPath = $"{absoluteBuildDirectory}/{buildInfo.BundleIdentifier}/Assets/{Path.GetFileName(modelFullPath)}";
 
                         if (File.Exists(modelPath))
                         {
@@ -316,7 +316,7 @@ namespace XRTK.Editor.BuildPipeline
                         }
 
                         File.Copy(modelFullPath, modelPath);
-                        modelPath = modelPath.Replace($"{absoluteBuildDirectory}/{buildInfo.BuildName}/", string.Empty).Replace("/", "\\");
+                        modelPath = modelPath.Replace($"{absoluteBuildDirectory}/{buildInfo.BundleIdentifier}/", string.Empty).Replace("/", "\\");
                     }
                     catch (Exception e)
                     {
@@ -359,7 +359,7 @@ namespace XRTK.Editor.BuildPipeline
                 return false;
             }
 
-            versionAttr.Value = buildInfo.Version.ToString();
+            versionAttr.Value = PlayerSettings.WSA.packageVersion.ToString();
             rootNode.Save(manifests[0]);
             return true;
         }

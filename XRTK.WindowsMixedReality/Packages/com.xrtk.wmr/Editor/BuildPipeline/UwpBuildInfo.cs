@@ -57,7 +57,7 @@ namespace XRTK.Editor.BuildPipeline
         }
 
         /// <inheritdoc />
-        public override void OnPostprocessBuild(BuildReport buildReport)
+        public override void OnPostProcessBuild(BuildReport buildReport)
         {
             if (!MixedRealityToolkit.ActivePlatforms.Contains(BuildPlatform) ||
                 EditorUserBuildSettings.activeBuildTarget != BuildTarget)
