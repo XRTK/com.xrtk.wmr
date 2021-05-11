@@ -15,24 +15,43 @@ namespace XRTK.Editor.BuildPipeline
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     public class UwpBuildInfo : BuildInfo
     {
-        protected override void Awake()
-        {
-            base.Awake();
-            Version = PlayerSettings.WSA.packageVersion;
-            SolutionName = $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln";
-            BuildTargetFamilies = GetFamilies();
-        }
-
         /// <inheritdoc />
         public override BuildTarget BuildTarget => BuildTarget.WSAPlayer;
 
+        private Version version;
+
         /// <inheritdoc />
-        public override Version Version { get; set; }
+        public override Version Version
+        {
+            get
+            {
+                if (version == null)
+                {
+                    version = PlayerSettings.WSA.packageVersion;
+                }
+
+                return version;
+            }
+            set => version = value;
+        }
+
+        private string solutionName;
 
         /// <summary>
         /// The name of the Visual Studio .sln file generated.
         /// </summary>
-        public string SolutionName { get; private set; }
+        public string SolutionName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(solutionName))
+                {
+                    solutionName = $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln";
+                }
+
+                return solutionName;
+            }
+        }
 
         /// <summary>
         /// Build the appx bundle after building Unity Player?
@@ -48,7 +67,9 @@ namespace XRTK.Editor.BuildPipeline
 
         public string MinSdk => EditorUserBuildSettings.wsaMinUWPSDK;
 
-        public PlayerSettings.WSATargetFamily[] BuildTargetFamilies { get; private set; }
+        private PlayerSettings.WSATargetFamily[] buildTargetFamilies;
+
+        public PlayerSettings.WSATargetFamily[] BuildTargetFamilies => buildTargetFamilies ?? (buildTargetFamilies = GetFamilies());
 
         private static PlayerSettings.WSATargetFamily[] GetFamilies()
         {
