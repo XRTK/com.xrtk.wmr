@@ -19,6 +19,7 @@ project.lock.json
 *.package
 TextMesh Pro.meta
 TextMesh Pro/
+*packages-lock.json
 
 # ============ #
 # Certificates #
@@ -71,7 +72,3 @@ artifacts/
 ThirdParty/
 ThirdParty.meta
 --Version/
-
-XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality.meta
-XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality/Profiles
-XRTK.WindowsMixedReality/Assets/XRTK.Generated/WindowsMixedReality/Profiles.meta
