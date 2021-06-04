@@ -47,7 +47,7 @@ MonoBehaviour:
   - instancedType:
       reference: f2e0d0ef-6393-4f96-90cc-df78ca1dc8a2
     name: Windows Mixed Reality Hand Controller Data Provider
-    priority: 2
+    priority: 3
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
@@ -61,4 +61,4 @@ MonoBehaviour:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
-    profile: {fileID: 0}
+    profile: {fileID: 11400000, guid: ccebe5391ffee2446ae581aacb2992a7, type: 2}
