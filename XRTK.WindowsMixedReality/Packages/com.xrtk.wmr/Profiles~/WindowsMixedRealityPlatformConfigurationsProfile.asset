@@ -45,6 +45,15 @@ MonoBehaviour:
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
     profile: {fileID: 11400000, guid: 8e0139954c0b0ab41a6f5fce7c0594e1, type: 2}
   - instancedType:
+      reference: f2e0d0ef-6393-4f96-90cc-df78ca1dc8a2
+    name: Windows Mixed Reality Hand Controller Data Provider
+    priority: 3
+    platformEntries:
+      runtimePlatforms:
+      - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
+      - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
+    profile: {fileID: 11400000, guid: 11ef7a331fa0a164bb9ac3e5cae510ff, type: 2}
+  - instancedType:
       reference: 0861c801-e20e-4e76-8c4e-711c1cb43ddf
     name: Windows Mixed Reality Spatial Mesh Observer
     priority: 3
@@ -52,4 +61,4 @@ MonoBehaviour:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc
       - reference: 7dc72b4e-34f6-4b26-afd7-cde0c51f83a3
-    profile: {fileID: 0}
+    profile: {fileID: 11400000, guid: ccebe5391ffee2446ae581aacb2992a7, type: 2}
