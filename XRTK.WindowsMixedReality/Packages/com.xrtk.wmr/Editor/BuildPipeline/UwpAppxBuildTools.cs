@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using UnityEditor;
 using UnityEngine;
-using XRTK.Extensions;
 using XRTK.Editor.Utilities;
+using XRTK.Extensions;
 using Debug = UnityEngine.Debug;
 
 namespace XRTK.Editor.BuildPipeline

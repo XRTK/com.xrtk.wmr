@@ -53,15 +53,29 @@ namespace XRTK.Editor.BuildPipeline
             }
         }
 
+        [SerializeField]
+        private bool buildAppx;
+
         /// <summary>
         /// Build the appx bundle after building Unity Player?
         /// </summary>
-        public bool BuildAppx { get; set; }
+        public bool BuildAppx
+        {
+            get => buildAppx;
+            set => buildAppx = value;
+        }
+
+        [SerializeField]
+        private bool rebuildAppx = false;
 
         /// <summary>
         /// Force rebuilding the appx bundle?
         /// </summary>
-        public bool RebuildAppx { get; set; }
+        public bool RebuildAppx
+        {
+            get => rebuildAppx;
+            set => rebuildAppx = value;
+        }
 
         public string UwpSdk => EditorUserBuildSettings.wsaUWPSDK;
 
