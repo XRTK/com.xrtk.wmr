@@ -6,30 +6,29 @@ using XRTK.Definitions.Controllers.Hands;
 #if WINDOWS_UWP
 
 using System;
-using XRTK.Interfaces.CameraSystem;
-using XRTK.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 using Windows.Perception.People;
 using Windows.UI.Input.Spatial;
 using Windows.Perception.Spatial;
 using XRTK.Services;
-using XRTK.WindowsMixedReality.Extensions;
-using XRTK.Extensions;
+using XRTK.Interfaces.CameraSystem;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
+using XRTK.Extensions;
+using XRTK.Utilities;
+using XRTK.WindowsMixedReality.Extensions;
 
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
     /// <summary>
-    /// Converts windows mixed reality hand data to XRTK's <see cref="HandData"/>.
+    /// Converts windows mixed reality hand data to <see cref="HandData"/>.
     /// </summary>
     public sealed class WindowsMixedRealityHandDataConverter
     {
 #if WINDOWS_UWP
-
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -358,6 +357,7 @@ namespace XRTK.WindowsMixedReality.Utilities
                     maxY = p.y;
                 }
                 float d = p.x * p.x + p.y * p.y;
+
                 if (d > maxMagnitude)
                 {
                     maxMagnitude = d;

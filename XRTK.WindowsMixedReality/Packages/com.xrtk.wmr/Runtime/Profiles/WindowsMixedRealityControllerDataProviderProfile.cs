@@ -3,12 +3,12 @@
 
 using UnityEngine;
 using XRTK.Attributes;
-using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
-using XRTK.WindowsMixedReality.Providers.Controllers;
-using XRTK.WindowsMixedReality.Definitions;
 using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.Utilities;
 using XRTK.Providers.Controllers.Hands;
+using XRTK.WindowsMixedReality.Definitions;
+using XRTK.WindowsMixedReality.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {

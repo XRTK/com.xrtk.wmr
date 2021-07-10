@@ -1,26 +1,26 @@
 // Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
-using XRTK.Services;
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.InputSystem;
-using XRTK.WindowsMixedReality.Profiles;
 using XRTK.Providers.Controllers.Hands;
-using XRTK.Definitions.InputSystem;
+using XRTK.WindowsMixedReality.Profiles;
 
 #if WINDOWS_UWP
 
-using XRTK.WindowsMixedReality.Extensions;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using XRTK.Definitions.Devices;
 using Windows.Perception;
 using Windows.UI.Input.Spatial;
-using XRTK.WindowsMixedReality.Utilities;
-using XRTK.Providers.Controllers;
 using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.InputSystem;
+using XRTK.Definitions.Devices;
+using XRTK.Providers.Controllers;
+using XRTK.Services;
+using XRTK.WindowsMixedReality.Extensions;
+using XRTK.WindowsMixedReality.Utilities;
 
 #endif // WINDOWS_UWP
 
@@ -35,9 +35,11 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
     public class WindowsMixedRealityControllerDataProvider : BaseHandControllerDataProvider
     {
         /// <inheritdoc />
-        public WindowsMixedRealityControllerDataProvider(string name, uint priority, WindowsMixedRealityControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
+        public WindowsMixedRealityControllerDataProvider(string name, uint priority,
+            WindowsMixedRealityControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
+#if WINDOWS_UWP
             if (!MixedRealityToolkit.TryGetSystemProfile<IMixedRealityInputSystem, MixedRealityInputSystemProfile>(out var inputSystemProfile))
             {
                 throw new ArgumentException($"Unable to get a valid {nameof(MixedRealityInputSystemProfile)}!");
@@ -54,8 +56,6 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         }
 
         private readonly HandDataPostProcessor postProcessor;
-
-#if WINDOWS_UWP
 
         private readonly Dictionary<uint, BaseController> activeControllers = new Dictionary<uint, BaseController>();
         private WindowsMixedRealityHandDataConverter handDataProvider;
@@ -247,8 +247,8 @@ namespace XRTK.WindowsMixedReality.Providers.Controllers
         }
 
         #endregion Controller Management
-
-#endif // WINDOWS_UWP
-
+#else // WINDOWS_UWP
+        }
+#endif
     }
 }

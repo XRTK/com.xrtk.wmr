@@ -4,16 +4,18 @@
 using XRTK.Definitions.Controllers;
 using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
-using XRTK.Interfaces.CameraSystem;
 using XRTK.Interfaces.Providers.Controllers;
 using XRTK.Providers.Controllers;
-using XRTK.WindowsMixedReality.Utilities;
 
 #if WINDOWS_UWP
+
 using UnityEngine;
-using XRTK.Extensions;
-using XRTK.Services;
 using Windows.UI.Input.Spatial;
+using XRTK.Extensions;
+using XRTK.Interfaces.CameraSystem;
+using XRTK.Services;
+using XRTK.WindowsMixedReality.Utilities;
+
 #endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Providers.Controllers

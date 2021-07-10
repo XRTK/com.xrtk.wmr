@@ -51,8 +51,7 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             if (SpatialSurfaceObserver.IsSupported())
             {
                 spatialSurfaceObserver = new SpatialSurfaceObserver();
-                spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions();
-                spatialSurfaceMeshOptions.IncludeVertexNormals = true;
+                spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions { IncludeVertexNormals = true };
 
                 // TODO Determine which formats are the correct ones to use.
                 var supportedVertexPositionFormats = SpatialSurfaceMeshOptions.SupportedVertexPositionFormats;
