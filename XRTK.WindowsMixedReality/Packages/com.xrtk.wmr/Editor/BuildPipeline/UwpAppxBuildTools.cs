@@ -157,6 +157,8 @@ namespace XRTK.Editor.BuildPipeline
                 {
                     break;
                 }
+
+                EditorApplication.Step();
             }
 
             cancellationTokenSource.Cancel();
@@ -258,7 +260,6 @@ namespace XRTK.Editor.BuildPipeline
             }
 
             progress = 1f;
-            EditorApplication.Beep();
         }
 
         private static async Task<string> FindMsBuildPathAsync()
