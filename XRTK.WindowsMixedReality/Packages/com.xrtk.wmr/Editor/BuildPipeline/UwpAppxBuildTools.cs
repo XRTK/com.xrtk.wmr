@@ -147,14 +147,16 @@ namespace XRTK.Editor.BuildPipeline
                 {
                     Debug.LogError(e);
                 }
-                finally
-                {
-                    IsBuilding = false;
-                }
+
+                IsBuilding = false;
             });
 
-            while (IsBuilding && !EditorUtility.DisplayCancelableProgressBar("XRTK Appx Build", string.Empty, progress))
+            while (!EditorUtility.DisplayCancelableProgressBar("XRTK Appx Build", string.Empty, progress))
             {
+                if (!IsBuilding)
+                {
+                    break;
+                }
             }
 
             cancellationTokenSource.Cancel();
@@ -182,7 +184,7 @@ namespace XRTK.Editor.BuildPipeline
 
         private static async Task BuildAppxAsync(UwpBuildInfo buildInfo)
         {
-            progress = 0.1f;
+            progress = 0f;
 
             string slnOutputPath = Path.Combine(buildInfo.OutputDirectory, buildInfo.SolutionName);
 
@@ -203,9 +205,9 @@ namespace XRTK.Editor.BuildPipeline
 
             var storagePath = Path.GetFullPath(Path.Combine(Path.Combine(BuildDeployPreferences.ApplicationDataPath, ".."), buildInfo.OutputDirectory));
             var solutionProjectPath = Path.GetFullPath(Path.Combine(storagePath, buildInfo.SolutionName));
-            progress = 0.75f;
             var appxBuildArgs = $"\"{solutionProjectPath}\" /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.PlatformArchitecture} /verbosity:{buildInfo.Verbosity}";
             Debug.Log(appxBuildArgs);
+            progress = 0.5f;
             var processResult = await new Process().RunAsync(appxBuildArgs, msBuildPath, true, cancellationTokenSource.Token, false);
 
             switch (processResult.ExitCode)
@@ -254,11 +256,14 @@ namespace XRTK.Editor.BuildPipeline
 
                     break;
             }
+
+            progress = 1f;
+            EditorApplication.Beep();
         }
 
         private static async Task<string> FindMsBuildPathAsync()
         {
-            progress = 0.5f;
+            progress = 0.25f;
 
             var processResult = await new Process().RunAsync(
                 new ProcessStartInfo
