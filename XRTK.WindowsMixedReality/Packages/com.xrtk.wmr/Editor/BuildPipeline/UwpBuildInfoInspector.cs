@@ -72,9 +72,25 @@ namespace XRTK.Editor.BuildPipeline
 
             UwpAppxBuildTools.ValidateUwpSdk(true);
 
-            if (GUILayout.Button("Open in Visual Studio"))
+            // Build Appx
+            if (GUILayout.Button("Build APPX"))
             {
-                // Open SLN
+                // Check if solution exists
+                var slnFilename = Path.Combine(BuildDeployPreferences.BuildDirectory, $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln");
+
+                if (File.Exists(slnFilename))
+                {
+                    EditorApplication.delayCall += () => UwpAppxBuildTools.BuildAppx(target as UwpBuildInfo);
+                }
+                else if (EditorUtility.DisplayDialog("Solution Not Found", "We couldn't find the solution. Would you like to Build it?", "Yes, Build", "No"))
+                {
+                    EditorApplication.delayCall += () => UnityPlayerBuildTools.BuildUnityPlayer();
+                }
+            }
+
+            // Open Appx Solution
+            if (GUILayout.Button("Open APPX solution in Visual Studio"))
+            {
                 var slnFilename = Path.Combine(BuildDeployPreferences.BuildDirectory, $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln");
 
                 if (File.Exists(slnFilename))
@@ -101,21 +117,6 @@ namespace XRTK.Editor.BuildPipeline
             }
 
             GUI.enabled = true;
-
-            if (GUILayout.Button("Build APPX"))
-            {
-                // Check if solution exists
-                var slnFilename = Path.Combine(BuildDeployPreferences.BuildDirectory, $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln");
-
-                if (File.Exists(slnFilename))
-                {
-                    EditorApplication.delayCall += () => UwpAppxBuildTools.BuildAppx(target as UwpBuildInfo);
-                }
-                else if (EditorUtility.DisplayDialog("Solution Not Found", "We couldn't find the solution. Would you like to Build it?", "Yes, Build", "No"))
-                {
-                    EditorApplication.delayCall += () => UnityPlayerBuildTools.BuildUnityPlayer();
-                }
-            }
 
             serializedObject.ApplyModifiedProperties();
         }
