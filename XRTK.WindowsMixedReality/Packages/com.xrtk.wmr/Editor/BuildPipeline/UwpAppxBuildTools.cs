@@ -22,10 +22,10 @@ namespace XRTK.Editor.BuildPipeline
     {
         private static readonly XNamespace UapNameSpace = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
         private static readonly XNamespace Uap5NameSpace = "http://schemas.microsoft.com/appx/manifest/uap/windows10/5";
+        private static readonly List<Version> UWPSdkVersions = new List<Version>();
 
         private static float progress;
         private static CancellationTokenSource cancellationTokenSource;
-        private static readonly List<Version> UWPSdkVersions = new List<Version>();
 
         /// <summary>
         /// Query the build process to see if we're already building.
