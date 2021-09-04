@@ -9,12 +9,12 @@ using Windows.Foundation.Metadata;
 namespace XRTK.WindowsMixedReality.Utilities
 {
     /// <summary>
-    /// Helper class for determining if a Windows API contract is available.
+    /// Helper class for determining if a Windows Universal API contract is available.
     /// </summary>
     /// <remarks>
     /// See https://docs.microsoft.com/uwp/extension-sdks/windows-universal-sdk for a full list of contracts.
     /// </remarks>
-    public static class WindowsApiChecker
+    public static class WindowsUniversalApiChecker
     {
         /// <summary>
         /// Checks to see if the requested method is present on the current platform.

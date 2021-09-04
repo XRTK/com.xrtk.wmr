@@ -5,15 +5,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using XRTK.Attributes;
 using XRTK.Definitions;
+using XRTK.Definitions.BoundarySystem;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.BoundarySystem;
 using XRTK.Services;
-using XRTK.Definitions.BoundarySystem;
 
 #if WINDOWS_UWP
+
 using System.Linq;
 using Windows.Perception.Spatial;
 using XRTK.Extensions;
+
 #endif
 
 namespace XRTK.WindowsMixedReality.Providers.BoundarySystem

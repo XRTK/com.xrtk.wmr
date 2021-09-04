@@ -3,11 +3,15 @@
 
 #if WINDOWS_UWP
 
+using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Definitions.Utilities;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
+    /// <summary>
+    /// Provides extensions for the native <see cref="SpatialInteractionSourceHandedness"/> type.
+    /// </summary>
     public static class SpatialInteractionSourceHandednessExtensions
     {
         /// <summary>
@@ -23,11 +27,14 @@ namespace XRTK.WindowsMixedReality.Extensions
                     return Handedness.Left;
                 case SpatialInteractionSourceHandedness.Right:
                     return Handedness.Right;
+                case SpatialInteractionSourceHandedness.Unspecified:
+                    return Handedness.Other;
                 default:
-                    return Handedness.None;
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceHandedness)}.{spatialInteractionSourceHandedness} could not be mapped to {nameof(Handedness)}");
             }
         }
 
     }
 }
+
 #endif // WINDOWS_UWP
