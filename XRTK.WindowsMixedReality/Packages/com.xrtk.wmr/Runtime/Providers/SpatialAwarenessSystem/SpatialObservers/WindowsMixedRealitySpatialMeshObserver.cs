@@ -1,29 +1,39 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using XRTK.Attributes;
 using XRTK.Definitions.Platforms;
 using XRTK.Interfaces.SpatialAwarenessSystem;
 using XRTK.Providers.SpatialObservers;
 using XRTK.WindowsMixedReality.Profiles;
 
-#if UNITY_WSA
+#if WINDOWS_UWP
+
+using System;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Unity.Collections;
 using UnityEngine;
-using UnityEngine.XR.WSA;
+using UnityEngine.Rendering;
+using Windows.Perception.Spatial;
+using Windows.Perception.Spatial.Surfaces;
+using Windows.Storage.Streams;
 using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Extensions;
 using XRTK.Interfaces.CameraSystem;
 using XRTK.Services;
 using XRTK.Utilities;
-#endif // UNITY_WSA
+using XRTK.Utilities.Async;
+using XRTK.WindowsMixedReality.Utilities;
+
+#endif // WINDOWS_UWP
 
 namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObservers
 {
     /// <summary>
-    /// The Windows Mixed Reality Spatial Mesh Observer.
+    /// The <see cref="WindowsMixedRealitySpatialMeshObserver"/> is responsible for providing surface data in the user's surroundings
+    /// when running on a <see cref="UniversalWindowsPlatform"/> device with spatial mapping capabilities.
     /// </summary>
-    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [System.Runtime.InteropServices.Guid("0861C801-E20E-4E76-8C4E-711C1CB43DDF")]
     public class WindowsMixedRealitySpatialMeshObserver : BaseMixedRealitySpatialMeshObserver
@@ -32,24 +42,94 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
         public WindowsMixedRealitySpatialMeshObserver(string name, uint priority, WindowsMixedRealitySpatialMeshObserverProfile profile, IMixedRealitySpatialAwarenessSystem parentService)
             : base(name, priority, profile, parentService)
         {
-#if UNITY_WSA
-#if UNITY_EDITOR 
-            if (!UnityEditor.PlayerSettings.WSA.GetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception))
+#if WINDOWS_UWP
+            if (profile.MeshLevelOfDetail == SpatialAwarenessMeshLevelOfDetail.Custom)
             {
-                UnityEditor.PlayerSettings.WSA.SetCapability(UnityEditor.PlayerSettings.WSACapability.SpatialPerception, true);
+                trianglesPerCubicMeter = profile.TrianglesPerCubicMeter;
             }
 
-#endif // UNITY_EDITOR
-            if (observer == null)
+            if (SpatialSurfaceObserver.IsSupported())
             {
-                observer = new SurfaceObserver();
+                spatialSurfaceObserver = new SpatialSurfaceObserver();
+                spatialSurfaceMeshOptions = new SpatialSurfaceMeshOptions { IncludeVertexNormals = true };
+
+                // TODO Determine which formats are the correct ones to use.
+                var supportedVertexPositionFormats = SpatialSurfaceMeshOptions.SupportedVertexPositionFormats;
+                var supportedVertexNormalFormats = SpatialSurfaceMeshOptions.SupportedVertexNormalFormats;
+
+                for (int i = 0; i < supportedVertexPositionFormats.Count; i++)
+                {
+                    if (supportedVertexPositionFormats[i] == Windows.Graphics.DirectX.DirectXPixelFormat.R16G16B16A16IntNormalized)
+                    {
+                        spatialSurfaceMeshOptions.VertexPositionFormat = Windows.Graphics.DirectX.DirectXPixelFormat.R16G16B16A16IntNormalized;
+                        break;
+                    }
+                }
+
+                for (int i = 0; i < supportedVertexNormalFormats.Count; i++)
+                {
+                    if (supportedVertexNormalFormats[i] == Windows.Graphics.DirectX.DirectXPixelFormat.R8G8B8A8IntNormalized)
+                    {
+                        spatialSurfaceMeshOptions.VertexNormalFormat = Windows.Graphics.DirectX.DirectXPixelFormat.R8G8B8A8IntNormalized;
+                        break;
+                    }
+                }
+
+                // If a very high detail setting with spatial mapping is used, it can be beneficial
+                // to use a 32-bit unsigned integer format for indices instead of the default 16-bit.
+                if (MeshLevelOfDetail == SpatialAwarenessMeshLevelOfDetail.High)
+                {
+                    var supportedTriangleIndexFormats = SpatialSurfaceMeshOptions.SupportedTriangleIndexFormats;
+
+                    for (int i = 0; i < supportedTriangleIndexFormats.Count; i++)
+                    {
+                        if (supportedTriangleIndexFormats[i] == Windows.Graphics.DirectX.DirectXPixelFormat.R8G8B8A8IntNormalized)
+                        {
+                            spatialSurfaceMeshOptions.TriangleIndexFormat = Windows.Graphics.DirectX.DirectXPixelFormat.R32UInt;
+                        }
+                    }
+                }
             }
-#endif // UNITY_WSA
         }
 
-#if UNITY_WSA
+        private readonly SpatialSurfaceObserver spatialSurfaceObserver;
+        private readonly SpatialSurfaceMeshOptions spatialSurfaceMeshOptions;
 
-        #region IMixedRealityService implementation
+        private float lastUpdated = 0;
+        private Vector3 currentObserverOrigin = Vector3.zero;
+        private Vector3 currentObserverExtents = Vector3.zero;
+        private SpatialPerceptionAccessStatus currentAccessStatus = SpatialPerceptionAccessStatus.Unspecified;
+
+        private double trianglesPerCubicMeter;
+
+        /// <summary>
+        /// The mesh detail to use in triangles per cubic meter.
+        /// </summary>
+        public double TrianglesPerCubicMeter
+        {
+            get
+            {
+                switch (MeshLevelOfDetail)
+                {
+                    case SpatialAwarenessMeshLevelOfDetail.Low:
+                        trianglesPerCubicMeter = 1000d;
+                        break;
+                    case SpatialAwarenessMeshLevelOfDetail.Medium:
+                        trianglesPerCubicMeter = 2000d;
+                        break;
+                    case SpatialAwarenessMeshLevelOfDetail.High:
+                        trianglesPerCubicMeter = 3000d;
+                        break;
+                }
+
+                return trianglesPerCubicMeter;
+            }
+            set
+            {
+                MeshLevelOfDetail = SpatialAwarenessMeshLevelOfDetail.Custom;
+                trianglesPerCubicMeter = value;
+            }
+        }
 
         /// <inheritdoc />
         public override void Update()
@@ -57,12 +137,14 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             base.Update();
 
             // Only update the observer if it is running.
-            if (!Application.isPlaying || !IsRunning) { return; }
+            if (!IsRunning ||
+                !Application.isPlaying ||
+                spatialSurfaceObserver != null)
+            {
+                return;
+            }
 
-            // and If enough time has passed since the previous observer update
-            if (!(Time.time - lastUpdated >= UpdateInterval)) { return; }
-
-            // Update the observer location if it is not stationary
+            // Update the observer location if it is not stationary.
             if (!IsStationaryObserver)
             {
                 ObserverOrigin = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
@@ -73,54 +155,52 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
             // The application can update the observer volume at any time, make sure we are using the latest.
             ConfigureObserverVolume(ObserverOrigin, ObservationExtents);
 
-            observer.Update(SurfaceObserver_OnSurfaceChanged);
-            lastUpdated = Time.time;
+            // and If enough time has passed since the previous observer update
+            if (Time.time - lastUpdated >= UpdateInterval)
+            {
+                UpdateObservedSurfaces();
+                lastUpdated = Time.time;
+            }
         }
-
-        /// <inheritdoc />
-        protected override void OnDispose(bool finalizing)
-        {
-            observer.Dispose();
-
-            base.OnDispose(finalizing);
-        }
-
-        #endregion IMixedRealityService implementation
-
-        #region IMixedRealitySpatialMeshObserver implementation
-
-        /// <summary>
-        /// The surface observer providing the spatial data.
-        /// </summary>
-        private static SurfaceObserver observer = null;
-
-        /// <summary>
-        /// The current location of the surface observer.
-        /// </summary>
-        private Vector3 currentObserverOrigin = Vector3.zero;
-
-        /// <summary> 
-        /// The observation extents that are currently in use by the surface observer. 
-        /// </summary> 
-        private Vector3 currentObserverExtents = Vector3.zero;
-
-        /// <summary>
-        /// The time at which the surface observer was last asked for updated data.
-        /// </summary>
-        private float lastUpdated = 0;
 
         /// <inheritdoc/>
-        public override void StartObserving()
+        public override async void StartObserving()
         {
             if (IsRunning)
             {
                 return;
             }
 
-            // We want the first update immediately.
-            lastUpdated = 0;
+            if (spatialSurfaceObserver == null)
+            {
+                Debug.LogError($"Failed to start {Name}! {nameof(spatialSurfaceObserver)} is null!");
+                return;
+            }
+
+            if (currentAccessStatus != SpatialPerceptionAccessStatus.Allowed)
+            {
+                currentAccessStatus = await SpatialSurfaceObserver.RequestAccessAsync();
+            }
+
+            if (currentAccessStatus != SpatialPerceptionAccessStatus.Allowed)
+            {
+                Debug.LogWarning($"Failed to start {Name}! Access is {currentAccessStatus}.");
+                return;
+            }
 
             base.StartObserving();
+
+            // We want the first update immediately.
+            lastUpdated = 0;
+        }
+
+        public override void StopObserving()
+        {
+            if (!IsRunning) { return; }
+
+            currentAccessStatus = SpatialPerceptionAccessStatus.Unspecified;
+
+            base.StopObserving();
         }
 
         /// <summary>
@@ -134,101 +214,245 @@ namespace XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObser
                 return;
             }
 
-            observer.SetVolumeAsAxisAlignedBox(newOrigin, newExtents);
+            spatialSurfaceObserver.SetBoundingVolume(
+                SpatialBoundingVolume.FromBox(
+                    WindowsMixedRealityUtilities.SpatialCoordinateSystem, new SpatialBoundingBox
+                    {
+                        Center = newOrigin.ToNumericsVector3(),
+                        Extents = newExtents.ToNumericsVector3()
+                    }
+                )
+            );
 
             currentObserverExtents = newExtents;
             currentObserverOrigin = newOrigin;
         }
 
-        /// <summary>
-        /// Handles the SurfaceObserver's OnSurfaceChanged event.
-        /// </summary>
-        /// <param name="surfaceId">The identifier assigned to the surface which has changed.</param>
-        /// <param name="changeType">The type of change that occurred on the surface.</param>
-        /// <param name="bounds">The bounds of the surface.</param>
-        /// <param name="updateTime">The date and time at which the change occurred.</param>
-        private async void SurfaceObserver_OnSurfaceChanged(SurfaceId surfaceId, SurfaceChange changeType, Bounds bounds, DateTime updateTime)
+        private void UpdateObservedSurfaces()
         {
-            // If we're adding or updating a mesh
-            if (changeType != SurfaceChange.Removed)
+            var surfaces = spatialSurfaceObserver.GetObservedSurfaces();
+
+            foreach (var spatialMeshObject in SpatialMeshObjects)
             {
-                var spatialMeshObject = await RequestSpatialMeshObject(new Guid(surfaceId.handle.ToString()));
-                spatialMeshObject.GameObject.name = $"SpatialMesh_{surfaceId.handle.ToString()}";
-                var worldAnchor = spatialMeshObject.GameObject.EnsureComponent<WorldAnchor>();
-                var surfaceData = new SurfaceData(surfaceId, spatialMeshObject.Filter, worldAnchor, spatialMeshObject.Collider, 1000 * (int)MeshLevelOfDetail, true);
-
-                if (!observer.RequestMeshAsync(surfaceData, OnDataReady))
+                if (!surfaces.TryGetValue(spatialMeshObject.Key, out _))
                 {
-                    Debug.LogError($"Mesh request failed for spatial observer with Id {surfaceId.handle.ToString()}");
-                    RaiseMeshRemoved(spatialMeshObject);
-                }
-
-                void OnDataReady(SurfaceData cookedData, bool outputWritten, float elapsedCookTimeSeconds)
-                {
-                    if (!outputWritten)
-                    {
-                        Debug.LogWarning($"No output for {cookedData.id.handle.ToString()}");
-                        return;
-                    }
-
-                    if (!SpatialMeshObjects.TryGetValue(new Guid(cookedData.id.handle.ToString()), out var meshObject))
-                    {
-                        // Likely it was removed before data could be cooked.
-                        return;
-                    }
-
-                    // Apply the appropriate material to the mesh.
-                    var displayOption = MeshDisplayOption;
-
-                    if (displayOption != SpatialMeshDisplayOptions.None)
-                    {
-                        meshObject.Collider.enabled = true;
-                        meshObject.Renderer.enabled = displayOption == SpatialMeshDisplayOptions.Visible ||
-                                                      displayOption == SpatialMeshDisplayOptions.Occlusion;
-                        meshObject.Renderer.sharedMaterial = (displayOption == SpatialMeshDisplayOptions.Visible)
-                            ? MeshVisibleMaterial
-                            : MeshOcclusionMaterial;
-                    }
-                    else
-                    {
-                        meshObject.Collider.enabled = false;
-                        meshObject.Renderer.enabled = false;
-                    }
-
-                    // Recalculate the mesh normals if requested.
-                    if (MeshRecalculateNormals)
-                    {
-                        if (meshObject.Filter.sharedMesh != null)
-                        {
-                            meshObject.Filter.sharedMesh.RecalculateNormals();
-                        }
-                        else
-                        {
-                            meshObject.Filter.mesh.RecalculateNormals();
-                        }
-                    }
-
-                    meshObject.GameObject.SetActive(true);
-
-                    switch (changeType)
-                    {
-                        case SurfaceChange.Added:
-                            RaiseMeshAdded(meshObject);
-                            break;
-                        case SurfaceChange.Updated:
-                            RaiseMeshUpdated(meshObject);
-                            break;
-                    }
+                    // We cannot call MeshInfo_Update since we no longer have a SpatialSurfaceInfo
+                    RaiseMeshRemoved(spatialMeshObject.Value);
                 }
             }
-            else if (SpatialMeshObjects.TryGetValue(new Guid(surfaceId.handle.ToString()), out var meshObject))
+
+            foreach (var surface in surfaces)
             {
-                RaiseMeshRemoved(meshObject);
+                var surfaceBounds = surface.Value.TryGetBounds(WindowsMixedRealityUtilities.SpatialCoordinateSystem);
+                var surfaceChangeStatus = SpatialMeshObjects.TryGetValue(surface.Key, out var spatialMeshObject)
+                    ? SpatialObserverStatus.Updated
+                    : SpatialObserverStatus.Added;
+
+                if (surfaceBounds.HasValue)
+                {
+                    MeshInfo_Update(surface.Value, surfaceChangeStatus);
+                }
+                else
+                {
+                    if (surfaceChangeStatus == SpatialObserverStatus.Updated)
+                    {
+                        // Only remove if we've already created a mesh for it.
+                        MeshInfo_Update(surface.Value, SpatialObserverStatus.Removed);
+                    }
+                }
             }
         }
 
-        #endregion IMixedRealitySpatialMeshObserver implementation
+        private async void MeshInfo_Update(SpatialSurfaceInfo meshInfo, SpatialObserverStatus statusType)
+        {
+            if (statusType == SpatialObserverStatus.Removed)
+            {
+                if (SpatialMeshObjects.TryGetValue(meshInfo.Id, out var removedMeshObject))
+                {
+                    RaiseMeshRemoved(removedMeshObject);
+                }
 
-#endif // UNITY_WSA
+                return;
+            }
+
+            var spatialMeshObject = await RequestSpatialMeshObject(meshInfo.Id);
+
+            if (meshInfo.UpdateTime.ToUniversalTime() <= spatialMeshObject.LastUpdated.ToUniversalTime())
+            {
+                // No updates
+                return;
+            }
+
+            try
+            {
+                await GenerateMeshAsync(meshInfo, spatialMeshObject);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+                RaiseMeshRemoved(spatialMeshObject);
+                return;
+            }
+
+            if (!SpatialMeshObjects.TryGetValue(meshInfo.Id, out var meshObject))
+            {
+                Debug.LogWarning($"Failed to find a spatial mesh object for {meshInfo.Id}!");
+                // Likely it was removed before data could be cooked.
+                return;
+            }
+
+            // Apply the appropriate material to the mesh.
+            var displayOption = MeshDisplayOption;
+
+            if (displayOption != SpatialMeshDisplayOptions.None)
+            {
+                meshObject.Collider.enabled = true;
+                meshObject.Renderer.enabled = displayOption == SpatialMeshDisplayOptions.Visible ||
+                                              displayOption == SpatialMeshDisplayOptions.Occlusion;
+                meshObject.Renderer.sharedMaterial = displayOption == SpatialMeshDisplayOptions.Visible
+                    ? MeshVisibleMaterial
+                    : MeshOcclusionMaterial;
+            }
+            else
+            {
+                meshObject.Renderer.enabled = false;
+                meshObject.Collider.enabled = false;
+            }
+
+            if (!meshObject.GameObject.activeInHierarchy)
+            {
+                meshObject.GameObject.SetActive(true);
+            }
+
+            switch (statusType)
+            {
+                case SpatialObserverStatus.Added:
+                    RaiseMeshAdded(meshObject);
+                    break;
+                case SpatialObserverStatus.Updated:
+                    RaiseMeshUpdated(meshObject);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialObserverStatus)}.{statusType} was not handled!");
+            }
+        }
+
+        private async Task GenerateMeshAsync(SpatialSurfaceInfo meshInfo, SpatialMeshObject spatialMeshObject)
+        {
+            spatialMeshObject.LastUpdated = meshInfo.UpdateTime;
+
+            // TODO Check if the spatialSurfaceMeshOptions are correct for what we need.
+            var spatialSurfaceMesh = await meshInfo.TryComputeLatestMeshAsync(TrianglesPerCubicMeter, spatialSurfaceMeshOptions);
+
+            await Awaiters.UnityMainThread;
+
+            var mesh = spatialMeshObject.Mesh == null ? new Mesh() : spatialMeshObject.Mesh;
+
+            mesh.name = $"Mesh_{meshInfo.Id}";
+
+            await Awaiters.BackgroundThread;
+
+            if (MeshRecalculateNormals)
+            {
+                var normalCount = (int)spatialSurfaceMesh.VertexNormals.ElementCount;
+                var normals = new NativeArray<VertexData>(normalCount, Allocator.None);
+                var vertexBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
+                var normalBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexNormals.Data);
+
+                for (int i = 0; i < normalCount; i++)
+                {
+                    normals[i] = new VertexData
+                    {
+                        // TODO Check if spatialSurfaceMesh.VertexPositionScale needs to be accounted for.
+                        Position = new Vector3(vertexBuffer.ReadSingle(), vertexBuffer.ReadSingle(), -vertexBuffer.ReadSingle()),
+                        Normal = new Vector3(normalBuffer.ReadSingle(), normalBuffer.ReadSingle(), -normalBuffer.ReadSingle())
+                    };
+                }
+
+                mesh.SetVertexBufferParams(normalCount, NormalsLayout);
+                mesh.SetVertexBufferData(normals, 0, 0, normalCount);
+
+                vertexBuffer.Dispose();
+                normalBuffer.Dispose();
+                normals.Dispose();
+            }
+            else
+            {
+                var vertexCount = (int)spatialSurfaceMesh.VertexPositions.ElementCount;
+                var vertices = new NativeArray<Vector3>(vertexCount, Allocator.None);
+                var vertexBuffer = DataReader.FromBuffer(spatialSurfaceMesh.VertexPositions.Data);
+
+                for (int i = 0; i < vertexCount; i++)
+                {
+                    // TODO Check if spatialSurfaceMesh.VertexPositionScale needs to be accounted for.
+                    vertices[i] = new Vector3(vertexBuffer.ReadSingle(), vertexBuffer.ReadSingle(), -vertexBuffer.ReadSingle());
+                }
+
+                mesh.SetVertexBufferParams(vertexCount, VertexLayout);
+                mesh.SetVertexBufferData(vertices, 0, 0, vertexCount);
+
+                vertexBuffer.Dispose();
+                vertices.Dispose();
+            }
+
+            var indicesCount = (int)spatialSurfaceMesh.TriangleIndices.ElementCount;
+            var indices = new NativeArray<short>(indicesCount, Allocator.None);
+            var indicesBuffer = DataReader.FromBuffer(spatialSurfaceMesh.TriangleIndices.Data);
+
+            for (int i = 0; i < indicesCount; i++)
+            {
+                indices[i] = indicesBuffer.ReadInt16();
+            }
+
+            mesh.SetIndexBufferParams(indicesCount, IndexFormat.UInt16);
+            mesh.SetIndexBufferData(indices, 0, 0, indicesCount);
+
+            indicesBuffer.Dispose();
+            indices.Dispose();
+
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indicesCount));
+            mesh.Optimize();
+            mesh.RecalculateBounds();
+
+            if (MeshRecalculateNormals)
+            {
+                mesh.RecalculateNormals();
+            }
+
+            spatialMeshObject.Mesh = mesh;
+
+            await Awaiters.UnityMainThread;
+        }
+
+        private static readonly VertexAttributeDescriptor[] VertexLayout =
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position)
+        };
+
+        private static readonly VertexAttributeDescriptor[] NormalsLayout =
+        {
+            new VertexAttributeDescriptor(VertexAttribute.Position),
+            new VertexAttributeDescriptor(VertexAttribute.Normal)
+        };
+
+        /// <summary>
+        /// Helper struct used as layout when normals are requested.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        private struct VertexData
+        {
+            /// <summary>
+            /// Position data of vertex.
+            /// </summary>
+            public Vector3 Position;
+
+            /// <summary>
+            /// Normal data of vertex.
+            /// </summary>
+            public Vector3 Normal;
+        }
+#else
+        }
+#endif // WINDOWS_UWP
     }
 }

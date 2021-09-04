@@ -1,12 +1,28 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEngine;
-using XRTK.Definitions.Utilities;
+using XRTK.Definitions.Platforms;
+using XRTK.Definitions.SpatialAwarenessSystem;
 using XRTK.Providers.SpatialObservers;
+using XRTK.WindowsMixedReality.Providers.SpatialAwarenessSystem.SpatialObservers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Spatial Observers/Windows Mixed Reality Spatial Mesh Data Provider Profile", fileName = "WindowsMixedRealitySpatialMeshObserverProfile", order = (int)CreateProfileMenuItemIndices.SpatialAwarenessDataProviders)]
-    public class WindowsMixedRealitySpatialMeshObserverProfile : BaseMixedRealitySpatialMeshObserverProfile { }
+    /// <summary>
+    /// Configuration profile for the <see cref="WindowsMixedRealitySpatialMeshObserver"/>.
+    /// This profile offers settings for adjusting spatial awareness behaviour on the <see cref="UniversalWindowsPlatform"/>.
+    /// </summary>
+    public class WindowsMixedRealitySpatialMeshObserverProfile : BaseMixedRealitySpatialMeshObserverProfile
+    {
+        [SerializeField]
+        [Tooltip("The triangles per cubic meter to use when the mesh level of detail is set to custom.")]
+        private double trianglesPerCubicMeter;
+
+        /// <summary>
+        /// The triangles per cubic meter to use when <see cref="BaseMixedRealitySpatialMeshObserverProfile.MeshLevelOfDetail"/>
+        /// is set to <see cref="SpatialAwarenessMeshLevelOfDetail.Custom"/>
+        /// </summary>
+        public double TrianglesPerCubicMeter => trianglesPerCubicMeter;
+    }
 }

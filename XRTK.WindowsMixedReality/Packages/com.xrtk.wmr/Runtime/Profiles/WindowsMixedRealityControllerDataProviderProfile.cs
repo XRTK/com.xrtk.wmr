@@ -1,18 +1,23 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System;
 using UnityEngine;
 using XRTK.Attributes;
-using XRTK.Definitions.InputSystem;
-using XRTK.Definitions.Utilities;
 using XRTK.Definitions.Controllers;
+using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.Utilities;
+using XRTK.Providers.Controllers.Hands;
+using XRTK.WindowsMixedReality.Definitions;
 using XRTK.WindowsMixedReality.Providers.Controllers;
 
 namespace XRTK.WindowsMixedReality.Profiles
 {
-    [Obsolete]
-    public class WindowsMixedRealityControllerDataProviderProfile : BaseMixedRealityControllerDataProviderProfile
+    /// <summary>
+    /// Configuration profile for the <see cref="WindowsMixedRealityControllerDataProvider"/>. This profile
+    /// offers settings for adjusting <see cref="Interfaces.Providers.Controllers.IMixedRealityController"/> behaviour on the
+    /// <see cref="XRTK.Definitions.Platforms.UniversalWindowsPlatform"/>.
+    /// </summary>
+    public class WindowsMixedRealityControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
         [EnumFlags]
         [SerializeField]
@@ -58,11 +63,13 @@ namespace XRTK.WindowsMixedReality.Profiles
         public override ControllerDefinition[] GetDefaultControllerOptions()
         {
             return new[]
-               {
-                 new ControllerDefinition(typeof(HololensOneController), Handedness.Left),
-                 new ControllerDefinition(typeof(HololensOneController), Handedness.Right),
-                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
-                 new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
+            {
+                new ControllerDefinition(typeof(WindowsMixedRealityHololensOneController), Handedness.Left),
+                new ControllerDefinition(typeof(WindowsMixedRealityHololensOneController), Handedness.Right),
+                new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Left),
+                new ControllerDefinition(typeof(WindowsMixedRealityMotionController), Handedness.Right),
+                new ControllerDefinition(typeof(MixedRealityHandController), Handedness.Left),
+                new ControllerDefinition(typeof(MixedRealityHandController), Handedness.Right)
             };
         }
     }

@@ -1,21 +1,58 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 #if WINDOWS_UWP
 
-using System;
-using System.Runtime.InteropServices;
-using UnityEngine.XR.WSA;
 using Windows.Perception.Spatial;
+using Windows.UI.Input.Spatial;
 
 namespace XRTK.WindowsMixedReality.Utilities
 {
-    [Obsolete]
     public static class WindowsMixedRealityUtilities
     {
         private static SpatialCoordinateSystem spatialCoordinateSystem = null;
 
-        public static SpatialCoordinateSystem SpatialCoordinateSystem => spatialCoordinateSystem ?? (spatialCoordinateSystem = Marshal.GetObjectForIUnknown(WorldManager.GetNativeISpatialCoordinateSystemPtr()) as SpatialCoordinateSystem);
+        /// <summary>
+        /// Gets a cached reference to the native <see cref="Windows.Perception.Spatial.SpatialCoordinateSystem"/>.
+        /// </summary>
+        public static SpatialCoordinateSystem SpatialCoordinateSystem
+        {
+            get
+            {
+                if (spatialCoordinateSystem != null)
+                {
+                    return spatialCoordinateSystem;
+                }
+
+                var spatialLocator = SpatialLocator.GetDefault();
+                var stationaryFrameOfReference = spatialLocator.CreateStationaryFrameOfReferenceAtCurrentLocation();
+                spatialCoordinateSystem = stationaryFrameOfReference.CoordinateSystem;
+
+                return spatialCoordinateSystem;
+            }
+        }
+
+        private static SpatialInteractionManager spatialInteractionManager = null;
+
+        /// <summary>
+        /// Gets the native <see cref="Windows.UI.Input.Spatial.SpatialInteractionManager"/> instance for the current application
+        /// state.
+        /// </summary>
+        public static SpatialInteractionManager SpatialInteractionManager
+        {
+            get
+            {
+                if (spatialInteractionManager == null)
+                {
+                    UnityEngine.WSA.Application.InvokeOnUIThread(() =>
+                    {
+                        spatialInteractionManager = SpatialInteractionManager.GetForCurrentView();
+                    }, true);
+                }
+
+                return spatialInteractionManager;
+            }
+        }
     }
 }
 #endif // WINDOWS_UWP

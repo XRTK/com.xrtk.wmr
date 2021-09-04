@@ -7,10 +7,13 @@ using System;
 using Windows.UI.Input.Spatial;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.WindowsMixedReality.Providers.Controllers;
+using XRTK.WindowsMixedReality.Utilities;
 
 namespace XRTK.WindowsMixedReality.Extensions
 {
-    [Obsolete]
+    /// <summary>
+    /// Provides extensions for the native <see cref="SpatialInteractionSourceKind"/> type.
+    /// </summary>
     public static class SpatialInteractionSourceKindExtensions
     {
         /// <summary>
@@ -25,12 +28,13 @@ namespace XRTK.WindowsMixedReality.Extensions
                 case SpatialInteractionSourceKind.Controller:
                     return typeof(WindowsMixedRealityMotionController);
                 case SpatialInteractionSourceKind.Hand:
-                    return typeof(MixedRealityHandController);
+                    return WindowsUniversalApiChecker.IsMethodAvailable(typeof(SpatialInteractionSourceState), nameof(SpatialInteractionSourceState.TryGetHandPose))
+                        ? typeof(MixedRealityHandController)
+                        : typeof(WindowsMixedRealityHololensOneController);
                 default:
-                    return null;
+                    throw new ArgumentOutOfRangeException($"{nameof(SpatialInteractionSourceKind)}.{spatialInteractionSourceKind} could not be mapped to {nameof(Interfaces.Providers.Controllers.IMixedRealityController)}");
             }
         }
-
     }
 }
 #endif // WINDOWS_UWP
