@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace XRTK.Editor.BuildPipeline
 {
@@ -31,6 +32,12 @@ namespace XRTK.Editor.BuildPipeline
             base.OnInspectorGUI();
 
             serializedObject.Update();
+
+            if (!(buildInfo is UwpBuildInfo uwpBuildInfo))
+            {
+                Debug.LogError($"{buildInfo.name} is not a {nameof(UwpBuildInfo)}");
+                return;
+            }
 
             EditorGUILayout.PropertyField(buildAppx);
             GUI.enabled = buildAppx.boolValue;
@@ -76,7 +83,7 @@ namespace XRTK.Editor.BuildPipeline
             if (GUILayout.Button("Build APPX"))
             {
                 // Check if solution exists
-                var slnFilename = Path.Combine(BuildDeployPreferences.BuildDirectory, $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln");
+                var slnFilename = Path.Combine(uwpBuildInfo.OutputDirectory, uwpBuildInfo.SolutionPath);
 
                 if (File.Exists(slnFilename))
                 {
@@ -91,7 +98,7 @@ namespace XRTK.Editor.BuildPipeline
             // Open Appx Solution
             if (GUILayout.Button("Open APPX solution in Visual Studio"))
             {
-                var slnFilename = Path.Combine(BuildDeployPreferences.BuildDirectory, $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln");
+                var slnFilename = Path.Combine(uwpBuildInfo.OutputDirectory, uwpBuildInfo.SolutionPath);
 
                 if (File.Exists(slnFilename))
                 {
