@@ -37,10 +37,7 @@ namespace XRTK.Editor.BuildPipeline
         {
             base.OnEnable();
 
-            if (string.IsNullOrWhiteSpace(solutionName))
-            {
-                solutionName = $"{PlayerSettings.productName}\\{PlayerSettings.productName}.sln";
-            }
+            SolutionPath = $"{PlayerSettings.applicationIdentifier}\\{PlayerSettings.productName}.sln";
         }
 
         /// <inheritdoc />
@@ -63,13 +60,10 @@ namespace XRTK.Editor.BuildPipeline
             set => version = value;
         }
 
-        [SerializeField]
-        private string solutionName;
-
         /// <summary>
         /// The name of the Visual Studio .sln file generated.
         /// </summary>
-        public string SolutionName => solutionName;
+        public string SolutionPath { get; private set; }
 
         [SerializeField]
         private bool buildAppx;

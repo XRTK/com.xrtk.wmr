@@ -188,7 +188,7 @@ namespace XRTK.Editor.BuildPipeline
         {
             progress = 0f;
 
-            string slnOutputPath = Path.Combine(buildInfo.OutputDirectory, buildInfo.SolutionName);
+            var slnOutputPath = Path.Combine(buildInfo.OutputDirectory, buildInfo.SolutionPath);
 
             if (!File.Exists(slnOutputPath))
             {
@@ -206,7 +206,7 @@ namespace XRTK.Editor.BuildPipeline
             }
 
             var storagePath = Path.GetFullPath(Path.Combine(Path.Combine(BuildDeployPreferences.ApplicationDataPath, ".."), buildInfo.OutputDirectory));
-            var solutionProjectPath = Path.GetFullPath(Path.Combine(storagePath, buildInfo.SolutionName));
+            var solutionProjectPath = Path.GetFullPath(Path.Combine(storagePath, buildInfo.SolutionPath));
             var appxBuildArgs = $"\"{solutionProjectPath}\" /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.PlatformArchitecture} /verbosity:{buildInfo.Verbosity}";
             Debug.Log(appxBuildArgs);
             progress = 0.5f;
