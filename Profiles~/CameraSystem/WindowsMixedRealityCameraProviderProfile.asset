@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00d813fd5a164e19a160f322b2926006, type: 3}
   m_Name: WindowsMixedRealityCameraProviderProfile
   m_EditorClassIdentifier: 
+  trackingOriginMode: 1
   isCameraPersistent: 1
   nearClipPlaneOpaqueDisplay: 0.1
   cameraClearFlagsOpaqueDisplay: 1
