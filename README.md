@@ -4,6 +4,8 @@ The Windows Mixed Reality Extension for the [XRTK - Mixed Reality Toolkit](https
 
 ## Build Status
 
+| branch | build status |
+| --- | --- |
 | main | [![main](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?label=main&branch=main)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml) |
 | development | [![development](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?label=development&branch=development)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml) |
 
