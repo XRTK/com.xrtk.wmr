@@ -22,8 +22,6 @@ jobs:
       matrix:
         include:
           - os: windows
-            build-target: StandaloneWindows64
-          - os: windows
             build-target: WSAPlayer
 
     steps:
