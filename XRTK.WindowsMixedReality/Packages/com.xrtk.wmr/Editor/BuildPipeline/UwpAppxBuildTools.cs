@@ -292,9 +292,9 @@ namespace XRTK.Editor.BuildPipeline
                         .ThenBy(p => p.ToLower().Contains("professional"))
                         .ThenBy(p => p.ToLower().Contains("community")).First();
 
-                    return bestPath.Contains("2019")
-                        ? $@"{bestPath}\MSBuild\Current\Bin\MSBuild.exe"
-                        : $@"{bestPath}\MSBuild\15.0\Bin\MSBuild.exe";
+                    return bestPath.Contains("2017")
+                        ? $@"{bestPath}\MSBuild\15.0\Bin\MSBuild.exe"
+                        : $@"{bestPath}\MSBuild\Current\Bin\MSBuild.exe";
                 }
             }
 
