@@ -5,5 +5,7 @@ The Windows Mixed Reality Extension for the [XRTK - Mixed Reality Toolkit](https
 ## Build Status
 
 main: [![XRTK CI](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml)
+
 development: [![XRTK CI](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml)
+
 OpenUpm:[![openupm](https://img.shields.io/npm/v/com.xrtk.wmr?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.xrtk.wmr/)
