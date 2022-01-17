@@ -56,7 +56,7 @@ MonoBehaviour:
   - instancedType:
       reference: 0861c801-e20e-4e76-8c4e-711c1cb43ddf
     name: Windows Mixed Reality Spatial Mesh Observer
-    priority: 4
+    priority: 3
     platformEntries:
       runtimePlatforms:
       - reference: c838c4f5-a87e-48c7-8742-09a4d85fc3bc

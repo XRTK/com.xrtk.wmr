@@ -2,7 +2,11 @@
 
 The Windows Mixed Reality Extension for the [XRTK - Mixed Reality Toolkit](https://github.com/XRTK/XRTK-Core)
 
+[![openupm](https://img.shields.io/npm/v/com.xrtk.wmr?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.xrtk.wmr/)
+
 ## Build Status
 
-[![Build Status](https://dev.azure.com/xrtk/Mixed%20Reality%20Toolkit/_apis/build/status/com.xrtk.wmr?branchName=master)](https://dev.azure.com/xrtk/Mixed%20Reality%20Toolkit/_build/latest?definitionId=49&branchName=master)
-[![openupm](https://img.shields.io/npm/v/com.xrtk.wmr?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.xrtk.wmr/)
+| branch | build status |
+| --- | --- |
+| main | [![main](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml) |
+| development | [![development](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/XRTK/com.xrtk.wmr/actions/workflows/build.yml) |

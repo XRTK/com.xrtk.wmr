@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -11,8 +12,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using UnityEditor;
 using UnityEngine;
-using XRTK.Extensions;
 using XRTK.Editor.Utilities;
+using XRTK.Extensions;
 using Debug = UnityEngine.Debug;
 
 namespace XRTK.Editor.BuildPipeline
@@ -21,9 +22,9 @@ namespace XRTK.Editor.BuildPipeline
     {
         private static readonly XNamespace UapNameSpace = "http://schemas.microsoft.com/appx/manifest/uap/windows10";
         private static readonly XNamespace Uap5NameSpace = "http://schemas.microsoft.com/appx/manifest/uap/windows10/5";
+        private static readonly List<Version> UWPSdkVersions = new List<Version>();
 
         private static float progress;
-        private static string dialogMessage;
         private static CancellationTokenSource cancellationTokenSource;
 
         /// <summary>
@@ -31,12 +32,71 @@ namespace XRTK.Editor.BuildPipeline
         /// </summary>
         public static bool IsBuilding { get; private set; } = false;
 
+        public static bool ValidateUwpSdk(bool showInfo = false)
+        {
+            if (UWPSdkVersions.Count == 0)
+            {
+                var windowsSdkPaths = Directory.GetDirectories(@"C:\Program Files (x86)\Windows Kits\10\Lib");
+
+                foreach (var path in windowsSdkPaths)
+                {
+                    UWPSdkVersions.Add(new Version(path.Substring(path.LastIndexOf(@"\", StringComparison.Ordinal) + 1)));
+                }
+
+                // There is no well-defined enumeration of Directory.GetDirectories, so the list
+                // is sorted prior to use later in this class.
+                UWPSdkVersions.Sort();
+            }
+
+            // SDK and MS Build Version (and save setting, if it's changed)
+            var currentSDKVersion = EditorUserBuildSettings.wsaMinUWPSDK;
+
+            Version chosenSDKVersion = null;
+
+            for (var i = 0; i < UWPSdkVersions.Count; i++)
+            {
+                // windowsSdkVersions is sorted in ascending order, so we always take
+                // the highest SDK version that is above our minimum.
+                if (UWPSdkVersions[i] >= UwpBuildDeployPreferences.MIN_SDK_VERSION)
+                {
+                    chosenSDKVersion = UWPSdkVersions[i];
+                }
+            }
+
+            if (showInfo)
+            {
+                EditorGUILayout.HelpBox($"Minimum Required SDK Version: {currentSDKVersion}", MessageType.Info);
+            }
+
+            // Throw exception if user has no Windows 10 SDK installed
+            if (chosenSDKVersion == null)
+            {
+                Debug.LogError($"Unable to find the required Windows 10 SDK Target!\nPlease be sure to install the {UwpBuildDeployPreferences.MIN_SDK_VERSION} SDK from Visual Studio Installer.");
+
+                if (showInfo)
+                {
+                    EditorGUILayout.HelpBox($"Unable to find the required Windows 10 SDK Target!\nPlease be sure to install the {UwpBuildDeployPreferences.MIN_SDK_VERSION} SDK from Visual Studio Installer.", MessageType.Error);
+                }
+
+                return false;
+            }
+
+            var newSdkVersion = chosenSDKVersion.ToString();
+
+            if (!newSdkVersion.Equals(currentSDKVersion))
+            {
+                EditorUserBuildSettings.wsaMinUWPSDK = newSdkVersion;
+            }
+
+            return true;
+        }
+
         /// <summary>
-        /// Build the UWP appx bundle for this project. 
+        /// Build the UWP appx bundle for this project.
         /// </summary>
         /// <param name="buildInfo"></param>
         /// <returns>True, if the appx build was successful.</returns>
-        public static async void BuildAppx(UwpBuildInfo buildInfo)
+        public static void BuildAppx(UwpBuildInfo buildInfo)
         {
             if (IsBuilding)
             {
@@ -55,27 +115,56 @@ namespace XRTK.Editor.BuildPipeline
                 Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
             }
 
-            dialogMessage = "...";
             progress = 0f;
 
-            EditorApplication.update += ShowProgressBar;
-
+            // Ensure that the generated .appx version increments by modifying Package.appxmanifest
             try
             {
-                await BuildAppxAsync(buildInfo);
+                if (!UpdateAppxManifest(buildInfo))
+                {
+                    throw new Exception();
+                }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Debug.LogError(e);
-            }
-            finally
-            {
-                EditorApplication.update -= ShowProgressBar;
-                IsBuilding = false;
+                Debug.LogError("Failed to update appxmanifest!");
+
+                if (buildInfo.IsCommandLine)
+                {
+                    throw;
+                }
+
+                return;
             }
 
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await BuildAppxAsync(buildInfo);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(e);
+                }
+
+                IsBuilding = false;
+            });
+
+            while (!EditorUtility.DisplayCancelableProgressBar("XRTK Appx Build", string.Empty, progress))
+            {
+                if (!IsBuilding)
+                {
+                    break;
+                }
+
+                EditorApplication.Step();
+            }
+
+            cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
             cancellationTokenSource = null;
+            IsBuilding = false;
             EditorApplication.delayCall += EditorUtility.ClearProgressBar;
             EditorAssemblyReloadManager.LockReloadAssemblies = false;
             AssetDatabase.SaveAssets();
@@ -95,21 +184,11 @@ namespace XRTK.Editor.BuildPipeline
             }
         }
 
-        private static void ShowProgressBar()
-        {
-            if (EditorUtility.DisplayCancelableProgressBar("XRTK Appx Build", dialogMessage, progress))
-            {
-                cancellationTokenSource.Cancel();
-                IsBuilding = false;
-            }
-        }
-
         private static async Task BuildAppxAsync(UwpBuildInfo buildInfo)
         {
-            dialogMessage = "Gathering build data...";
-            progress = 0.1f;
+            progress = 0f;
 
-            string slnOutputPath = Path.Combine(buildInfo.OutputDirectory, buildInfo.SolutionName);
+            var slnOutputPath = Path.Combine(buildInfo.OutputDirectory, buildInfo.SolutionPath);
 
             if (!File.Exists(slnOutputPath))
             {
@@ -126,26 +205,12 @@ namespace XRTK.Editor.BuildPipeline
                 return;
             }
 
-            // Ensure that the generated .appx version increments by modifying Package.appxmanifest
-            try
-            {
-                if (!UpdateAppxManifest(buildInfo))
-                {
-                    throw new Exception();
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to update appxmanifest!\n{e.Message}{e.StackTrace}");
-                return;
-            }
-
             var storagePath = Path.GetFullPath(Path.Combine(Path.Combine(BuildDeployPreferences.ApplicationDataPath, ".."), buildInfo.OutputDirectory));
-            var solutionProjectPath = Path.GetFullPath(Path.Combine(storagePath, buildInfo.SolutionName));
-            dialogMessage = $"Building Appx for {solutionProjectPath}";
-            progress = 0.75f;
-            var appxBuildArgs = $"\"{solutionProjectPath}\" /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.Architecture} /verbosity:m";
-            var processResult = await new Process().RunAsync(appxBuildArgs, msBuildPath, !buildInfo.IsCommandLine, cancellationTokenSource.Token, false);
+            var solutionProjectPath = Path.GetFullPath(Path.Combine(storagePath, buildInfo.SolutionPath));
+            var appxBuildArgs = $"\"{solutionProjectPath}\" /t:{(buildInfo.RebuildAppx ? "Rebuild" : "Build")} /p:Configuration={buildInfo.Configuration} /p:Platform={buildInfo.PlatformArchitecture} /verbosity:{buildInfo.Verbosity}";
+            Debug.Log(appxBuildArgs);
+            progress = 0.5f;
+            var processResult = await new Process().RunAsync(appxBuildArgs, msBuildPath, true, cancellationTokenSource.Token, false);
 
             switch (processResult.ExitCode)
             {
@@ -159,47 +224,46 @@ namespace XRTK.Editor.BuildPipeline
                     Debug.LogWarning("The build was terminated either by user's keyboard input CTRL+C or CTRL+Break or closing command prompt window.");
                     break;
                 default:
+                    if (processResult.ExitCode != 0)
                     {
-                        if (processResult.ExitCode != 0)
+                        Debug.LogError($"{buildInfo.BundleIdentifier} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
+
+                        if (buildInfo.IsCommandLine)
                         {
-                            Debug.LogError($"{buildInfo.BundleIdentifier} appx build Failed! ErrorCode:{processResult.ExitCode}:{string.Join("\n", processResult.Errors)}");
+                            var buildOutput = new StringBuilder();
 
-                            if (buildInfo.IsCommandLine)
+                            if (processResult.Output?.Length > 0)
                             {
-                                var buildOutput = new StringBuilder();
+                                buildOutput.Append("Appx Build Output:");
 
-                                if (processResult.Output?.Length > 0)
+                                foreach (var message in processResult.Output)
                                 {
-                                    buildOutput.Append("Appx Build Output:");
-
-                                    foreach (var message in processResult.Output)
-                                    {
-                                        buildOutput.Append($"\n{message}");
-                                    }
+                                    buildOutput.Append($"\n{message}");
                                 }
-
-                                if (processResult.Errors?.Length > 0)
-                                {
-                                    buildOutput.Append("Appx Build Errors:");
-
-                                    foreach (var error in processResult.Errors)
-                                    {
-                                        buildOutput.Append($"\n{error}");
-                                    }
-                                }
-
-                                Debug.LogError(buildOutput);
                             }
-                        }
 
-                        break;
+                            if (processResult.Errors?.Length > 0)
+                            {
+                                buildOutput.Append("Appx Build Errors:");
+
+                                foreach (var error in processResult.Errors)
+                                {
+                                    buildOutput.Append($"\n{error}");
+                                }
+                            }
+
+                            Debug.LogError(buildOutput);
+                        }
                     }
+
+                    break;
             }
+
+            progress = 1f;
         }
 
         private static async Task<string> FindMsBuildPathAsync()
         {
-            dialogMessage = "Searching for MS Build Path...";
             progress = 0.25f;
 
             var processResult = await new Process().RunAsync(
@@ -228,9 +292,9 @@ namespace XRTK.Editor.BuildPipeline
                         .ThenBy(p => p.ToLower().Contains("professional"))
                         .ThenBy(p => p.ToLower().Contains("community")).First();
 
-                    return bestPath.Contains("2019")
-                        ? $@"{bestPath}\MSBuild\Current\Bin\MSBuild.exe"
-                        : $@"{bestPath}\MSBuild\15.0\Bin\MSBuild.exe";
+                    return bestPath.Contains("2017")
+                        ? $@"{bestPath}\MSBuild\15.0\Bin\MSBuild.exe"
+                        : $@"{bestPath}\MSBuild\Current\Bin\MSBuild.exe";
                 }
             }
 
@@ -239,8 +303,7 @@ namespace XRTK.Editor.BuildPipeline
 
         private static bool UpdateAppxManifest(UwpBuildInfo buildInfo)
         {
-            dialogMessage = "Updating Appx Manifest...";
-            progress = 0.5f;
+            progress = 0.25f;
 
             // Find the manifest, assume the one we want is the first one
             string[] manifests = Directory.GetFiles(buildInfo.AbsoluteOutputDirectory, "Package.appxmanifest", SearchOption.AllDirectories);

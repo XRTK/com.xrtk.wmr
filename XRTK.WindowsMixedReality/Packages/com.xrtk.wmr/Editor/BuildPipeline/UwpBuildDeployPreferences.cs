@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) XRTK. All rights reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+using System;
 using System.IO;
 using UnityEngine;
 using XRTK.Editor.Utilities;
@@ -9,31 +12,11 @@ namespace XRTK.Editor.BuildPipeline
     public static class UwpBuildDeployPreferences
     {
         public static Version MIN_SDK_VERSION = new Version("10.0.17763.0");
-        private const string EDITOR_PREF_BUILD_CONFIG = "BuildDeployWindow_BuildConfig";
-        private const string EDITOR_PREF_FORCE_REBUILD = "BuildDeployWindow_ForceRebuild";
         private const string EDITOR_PREF_CONNECT_INFOS = "BuildDeployWindow_DeviceConnections";
         private const string EDITOR_PREF_FULL_REINSTALL = "BuildDeployWindow_FullReinstall";
         private const string EDITOR_PREF_USE_SSL = "BuildDeployWindow_UseSSL";
         private const string EDITOR_PREF_PROCESS_ALL = "BuildDeployWindow_ProcessAll";
         private const string EDITOR_PREF_APP_ICON_SETTINGS_PATH = "ProjectSettings/Xrtk_MixedRealityIconPath.json";
-
-        /// <summary>
-        /// The current Build Configuration. (Debug, Release, or Master)
-        /// </summary>
-        public static string BuildConfig
-        {
-            get => EditorPreferences.Get(EDITOR_PREF_BUILD_CONFIG, "master");
-            set => EditorPreferences.Set(EDITOR_PREF_BUILD_CONFIG, value.ToLower());
-        }
-
-        /// <summary>
-        /// Current setting to force rebuilding the appx.
-        /// </summary>
-        public static bool ForceRebuild
-        {
-            get => EditorPreferences.Get(EDITOR_PREF_FORCE_REBUILD, false);
-            set => EditorPreferences.Set(EDITOR_PREF_FORCE_REBUILD, value);
-        }
 
         /// <summary>
         /// Current setting to fully uninstall and reinstall the appx.
